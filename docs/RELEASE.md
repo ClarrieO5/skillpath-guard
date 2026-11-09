@@ -12,8 +12,8 @@ An offline Node.js CLI for SKILL.md local-resource checks, portability warnings,
 - [x] Ten public skill directories audited with source revision and licence checks
 - [x] MIT licence and AI assistance disclosure retained
 - [x] README, contribution templates, security scope and limitations provided
-- [ ] GitHub Actions Node 20/22/24 × Linux/macOS/Windows green on release commit
-- [ ] Tagged GitHub prerelease created from tested commit
+- [x] GitHub Actions Node 20/22/24 × Linux/macOS/Windows green on release commit: [run 42578691493](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42578691493)
+- [x] [v0.1.0 GitHub prerelease](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.1.0) created at tested commit `861a7fcb826e6f1483253df59da1dbdba97aea25`
 - [ ] Independent human review and real-runtime validation (not required to label this release experimental; still outstanding)
 
 ## Repeatable maintainer procedure
@@ -27,4 +27,4 @@ An offline Node.js CLI for SKILL.md local-resource checks, portability warnings,
 
 ## Manual completion map
 
-Days 1–2: setup, research, source development and regression work completed in this environment. Day 3: baseline experiments completed; live-runtime experiment explicitly untested. Day 4: workflow prepared; hosted run linked in validation evidence. Day 5: documentation and local usability checks completed; independent trials outstanding. Day 6: issues/contribution policies reviewed; no new confirmed upstream bug, outreach or PR. Day 7: release preparation and honest evidence audit completed; publication is conditional on CI. The seven-day plan is not fully complete merely because the CLI works.
+Days 1–2: setup, research, source development and regression work completed in this environment. Day 3: baseline experiments completed; live-runtime experiment explicitly untested. Day 4: all nine hosted matrix jobs passed. Day 5: documentation and local usability checks completed; independent trials outstanding. Day 6: issues/contribution policies reviewed; no new confirmed upstream bug, outreach or PR. Day 7: release preparation and honest evidence audit completed; experimental prerelease published after CI passed. The seven-day plan is not fully complete merely because the CLI works.

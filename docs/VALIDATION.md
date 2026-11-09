@@ -9,8 +9,8 @@ Date: 9 November 2026. Local environment: Linux, Node v24.22.1.
 - `npm pack --dry-run`: passed. Packed tarball extracted in a fresh directory and its CLI scanned the valid fixture successfully. No npm registry publication performed; `private: true` intentionally prevents accidental publication.
 - Public corpus: ten skills scanned; no errors, five uncertain cwd warnings. See [research](RESEARCH_LOG.md).
 - Independent users, live agent experiments, and human code review: **not completed**.
-- First hosted 49-test matrix: [Actions run 42578477378](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42578477378). Final 50-test release matrix is linked from the GitHub release; verify the tested commit there.
-- A fresh public clone independently ran the original 49-test release-candidate suite successfully in this same environment. This is a clean-checkout check, not an independent user trial.
+- First hosted 49-test matrix: [Actions run 42578477378](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42578477378). Final **50-test matrix passed all nine jobs**: [run 42578691493](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42578691493), commit `861a7fcb826e6f1483253df59da1dbdba97aea25`.
+- A fresh public clone independently ran the 49-test candidate suite and final 50-test verification successfully in this same environment. This is a clean-checkout check, not an independent user trial.
 
 ## Reproduce
 

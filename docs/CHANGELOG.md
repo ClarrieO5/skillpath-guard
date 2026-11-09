@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 — experimental release candidate
+## 0.1.0 — experimental prerelease — 9 November 2026
 
 Built from the supplied 0.1.0 prototype, with no claim of a prior public release.
 

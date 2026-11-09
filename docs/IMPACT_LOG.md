@@ -2,6 +2,8 @@
 
 Repository: https://github.com/ClarrieO5/skillpath-guard
 
+Release: https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.1.0
+
 As of 9 November 2026:
 
 - Confirmed independent users: **0**
