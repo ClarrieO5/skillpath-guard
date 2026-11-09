@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Performance: per-skill file indexing removes an O(skills x files) scan; a 562-skill repo drops from 8.9 s to 0.56 s.
+- Skill names now follow the reference validator: Unicode lowercase letters/digits and single hyphens (NFKC); uppercase and double hyphens remain errors.
+- Corrected `docs/CORPUS_VALIDATION.md` (omitted 9,013-skill repository; misattributed +4 change). Added `docs/COMPARISON.md` and `docs/RUNTIME_EVIDENCE.md`.
+
 - Bare folder mentions (`scripts/`, `references/`) in prose are no longer reported as missing files.
 - Link-like syntax inside inline code and non-Markdown fenced blocks is no longer parsed as a Markdown link (e.g. Go generics).
 - Added `docs/CORPUS_VALIDATION.md` (23 public repositories, ranked findings).

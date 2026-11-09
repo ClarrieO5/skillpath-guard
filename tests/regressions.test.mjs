@@ -120,3 +120,11 @@ test('separate absolute-path note does not suppress cwd warning',t=>{
  const {root}=fixture(t,'Run `scripts/task-done`.\n\nby its absolute path, from the working tree.',{'scripts/task-done':'ok'});
  assert.equal(scan(root).findings.filter(f=>f.rule==='AMBIGUOUS_CWD').length,1);
 });
+
+test('unicode lowercase skill names are accepted like the reference validator; uppercase and double hyphens are not',t=>{
+  const mk=(folder,name)=>{const root=fs.mkdtempSync(path.join(os.tmpdir(),'guard-name-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));fs.mkdirSync(path.join(root,folder));fs.writeFileSync(path.join(root,folder,'SKILL.md'),`---\nname: ${name}\ndescription: d\n---\nBody\n`);return scan(root).findings.map(f=>f.rule);};
+  assert.deepEqual(mk('café-skill','café-skill'),[]);
+  assert.deepEqual(mk('技能','技能'),[]);
+  assert.deepEqual(mk('Demo','Demo'),['NAME_INVALID']);
+  assert.deepEqual(mk('a--b','a--b'),['NAME_INVALID']);
+});

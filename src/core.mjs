@@ -6,7 +6,9 @@ import path from 'node:path';
 import {findReferenceTokens, sanitizeReference} from './references.mjs';
 
 const IGNORED = new Set(['.git', 'node_modules', '.next', 'dist', 'build', '.DS_Store']);
-const SKILL_NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+// Matches the reference validator (skills-ref): Unicode letters/digits and single hyphens, lowercase, NFKC-normalized.
+const SKILL_NAME = /^[\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)*$/u;
+const nfkc = s => s.normalize('NFKC');
 
 function normalizeSlash(s) { return s.replaceAll('\\', '/'); }
 function rel(base, file) { return normalizeSlash(path.relative(base, file)) || '.'; }
@@ -125,6 +127,15 @@ export function scan(rootInput, {exclude=[]}={}) {
   const findings = [];
   const skills = [];
   if (!skillFiles.length) pushFinding(findings, {rule:'NO_SKILLS', severity:'error', file:'.', message:'No SKILL.md found in target directory.'});
+  // Index files by owning skill directory once (O(files x depth)) instead of filtering all files per skill.
+  const skillDirs = new Set(skillFiles.map(f => path.dirname(f)));
+  const filesBySkill = new Map([...skillDirs].map(d => [d, []]));
+  for (const file of files) {
+    for (let dir = path.dirname(file); ; dir = path.dirname(dir)) {
+      if (skillDirs.has(dir)) filesBySkill.get(dir).push(file);
+      if (dir === root || dir === path.dirname(dir)) break;
+    }
+  }
   for (const filename of skillFiles) {
     const skillDir = path.dirname(filename);
     const skillName = path.basename(skillDir);
@@ -150,7 +161,7 @@ export function scan(rootInput, {exclude=[]}={}) {
     skills.push({name:skillName, file:relativeFile, references:edges});
     if (end<0) pushFinding(findings, {rule:'FRONTMATTER_MISSING',severity:'error',file:relativeFile,skill:skillName,message:'SKILL.md requires opening and closing --- frontmatter.'});
     if (!fields.name) pushFinding(findings, {rule:'NAME_MISSING',severity:'error',file:relativeFile,skill:skillName,message:'Frontmatter is missing name.'});
-    else if (fields.name.length>64 || !SKILL_NAME.test(fields.name) || fields.name!==skillName) pushFinding(findings,{rule:'NAME_INVALID',severity:'error',file:relativeFile,skill:skillName,message:`name must match folder '${skillName}' and contain 1-64 lowercase alphanumeric/hyphen characters.`});
+    else if (nfkc(fields.name).length>64 || !SKILL_NAME.test(nfkc(fields.name)) || nfkc(fields.name)!==nfkc(fields.name).toLowerCase() || nfkc(fields.name)!==nfkc(skillName)) pushFinding(findings,{rule:'NAME_INVALID',severity:'error',file:relativeFile,skill:skillName,message:`name must match folder '${skillName}' and contain 1-64 lowercase letters, digits or single hyphens (no leading or trailing hyphen).`});
     if (!fields.description?.trim() || fields.description.length>1024) pushFinding(findings,{rule:'DESCRIPTION_INVALID',severity:'error',file:relativeFile,skill:skillName,message:'description must be non-empty and at most 1024 characters.'});
     const bodyStart = end<0 ? 0 : end+1;
     if (lines.slice(bodyStart).join('').trim().length===0) pushFinding(findings,{rule:'BODY_EMPTY',severity:'warning',file:relativeFile,skill:skillName,message:'The skill has no instructions after frontmatter.'});
