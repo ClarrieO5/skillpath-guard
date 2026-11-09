@@ -3,6 +3,7 @@
 ## Unreleased (next: 0.2.1)
 
 - Placeholder link targets (`[text](url)`) and command output paths (`-o assets/x.svg`, `--output`, `>`) are no longer reported as missing files (found by sampling real skills).
+- Templated paths such as `scripts/train_<type>_example.py` or `references/<state>.png` are no longer truncated at `<` and reported as missing files; extension-less bare prose such as "links to assets/code" is no longer treated as a file (paths in backticks and Markdown links are still checked). Re-scanning 9 public repositories removed 14 findings, all verified false positives, and added none.
 - Added `action.yml` composite GitHub Action (smoke-tested in CI) and a beginner quick start in the README.
 - Docs: tag is `V0.2.0` (capital V); added `docs/CONTRIBUTION_CANDIDATES.md` and an expanded `CONTRIBUTING.md`.
 

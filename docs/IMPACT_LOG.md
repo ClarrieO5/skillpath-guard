@@ -14,7 +14,7 @@ As of 9 November 2026:
 - External contributors demonstrated by this work: **0**
 - Registry downloads: **not measured; package not published to a registry**
 - Public-source evaluation: ten skills inspected; this is research, **not adoption**.
-- Local automated tests: 50 passing; this is implementation evidence, **not independent review**.
+- Local automated tests: 74 passing (2026-11-09); this is implementation evidence, **not independent review**.
 
 Substantial Codex assistance was used for implementation, tests, research and documentation. No human review, third-party endorsement, or external contribution is implied by automated commits or test runs.
 

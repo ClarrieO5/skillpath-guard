@@ -145,3 +145,18 @@ test('placeholder link targets and output paths are not dependencies; real ones 
   const {root}=fixture(t,'Syntax: [text](url) and [x](URL).\nRun `tool -o assets/logo.svg` or `tool --output scripts/out.txt` or `tool > references/out.md`.\nBut read scripts/real.py and [doc](missing.md).');
   assert.deepEqual(scan(root).findings.filter(f=>f.rule==='MISSING_REFERENCE').map(f=>f.target).sort(),['missing.md','scripts/real.py']);
 });
+
+test('templated paths (`<type>`, `{name}`) are placeholders, not truncated file references',t=>{
+  const {root}=fixture(t,'Copy `scripts/train_<type>_example.py`, then check references/losses_<type>.md and references/eval_{name}.md.');
+  assert.deepEqual(scan(root).findings.filter(f=>f.rule==='MISSING_REFERENCE'),[]);
+});
+
+test('extension-less prose like "links to assets/code" is a topic, not a file; real files and trailing-dot sentences are still checked',t=>{
+  const {root}=fixture(t,'Capture links to assets/code and add a references/citations section.\nSee scripts/real.py. Also references/gone.md.');
+  assert.deepEqual(scan(root).findings.filter(f=>f.rule==='MISSING_REFERENCE').map(f=>f.target).sort(),['references/gone.md','scripts/real.py']);
+});
+
+test('markdown links to extension-less files are still checked',t=>{
+  const {root}=fixture(t,'[tool](scripts/build)');
+  assert.deepEqual(scan(root).findings.filter(f=>f.rule==='MISSING_REFERENCE').map(f=>f.target),['scripts/build']);
+});

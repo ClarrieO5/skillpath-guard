@@ -1,6 +1,6 @@
 # Contribution ledger (evidence only)
 
-Last checked: 2026-11-09, via the GitHub search API (public data). "Verified" means I read the URL's data myself this session; nothing here is inferred.
+Last checked: 2026-11-09 (second session), via the GitHub search API (public data). "Verified" means I read the URL's data myself this session; nothing here is inferred.
 
 ## Submitted
 
@@ -12,11 +12,11 @@ Last checked: 2026-11-09, via the GitHub search API (public data). "Verified" me
 
 None. Merged external contributions: **0**.
 
-## Context on likelihood (measured, not guessed)
+## Overlap check: PR #283 vs PR #142 (resolved 2026-11-09)
 
-- That repo's external PRs (not by the maintainer): 5 merged, 39 closed without merging, so roughly 1 in 9 historically merged. Most merged PRs on the repo are the maintainer's own automated drift checks. Treat #283 as low-to-moderate odds even though the fix is correct.
-- Open PR #142 by another contributor ("repair stale paths and dead links in local skills") may touch the same skill. I could not read it (rate limit hit); check whether it overlaps #283 before expecting a merge.
-- Upstream at 1a045f7 (2026-11-09) still reports the 9 dead links, so the premise of #283 holds.
+**They overlap.** PR #142 by HidingCook (open since 2026-07-06, last updated 2026-10-11, 0 comments, unreviewed for about 4 months) contains commit 6d2aad0, which removes the same 6 `references/*.md` and 3 `templates/*.sh` links from `.claude/skills/agent-browser/SKILL.md` and adds a three-line "Full Command Reference" pointer to `agent-browser --help`. I read both diffs from the fetched PR refs. #142 also bundles other skill-path fixes in a larger change; #283 is the single-purpose version. Nothing was commented or closed; maintainer not contacted.
+
+Likelihood context: that repo's external PRs (not by the maintainer): 5 merged, 39 closed unmerged. Most merges are the maintainer's automated drift checks. Upstream at 1a045f7 still has the 9 dead links.
 
 ## Investigated and not filed (with reasons)
 
@@ -28,6 +28,15 @@ None. Merged external contributions: **0**.
 | vercel-labs/agent-skills: 4 skills whose `name` is `vercel-*` but folder is not | Already reported (#80, #112) and a fix PR (#114) was closed; the prefixed names are referenced by other skills. Not ours to reopen. |
 | huggingface/skills, openai/skills, addyosmani/agent-skills | Scanner hits are placeholders (`train_<type>_example.py`), counter-examples (`# ❌ These will all fail`), generated output files, or skill-creator illustrations. False positives; no defect found. |
 | marketingskills, superpowers, nature-skills `../` sibling links | Design choice (shared folders); would need a question, not a patch. |
+| anthropics/claude-plugins-official, cloudflare/skills, expo/skills, trailofbits/skills, wshobson llm-finetuning | Scanner hits are explicit cross-skill or plugin-root references (e.g. "`agents-sdk` skill, its `references/mcp.md`"); the files exist in the named skill. Scanner limitation, documented in README. |
+
+## New candidate prepared (not filed)
+
+| Repo | Finding | Draft |
+|---|---|---|
+| wshobson/agents (9c61ab2) | `ml-pipeline-workflow` lists 7 reference/asset files (4 `references/*.md`, 3 `assets/*`) that exist nowhere in the repo. No duplicate issue or PR found. Precedent: #447 (same symptom, closed). | `docs/drafts/ISSUE_wshobson-agents_ml-pipeline-workflow.md` |
+
+Issue rather than PR: the missing content is the maintainer's to author, and removing pointers is their call. Only worth filing if you agree.
 
 ## Optional low-key question for nature-skills (not recommended unless you want it)
 
@@ -35,4 +44,4 @@ Only if you specifically want to ask: *"Thanks for the clear compatibility note 
 
 ## Result against the "up to five contributions" goal
 
-One valid contribution exists (#283, already submitted). I found no other finding that is both real and not already reported. I am deliberately not padding the list to five.
+One contribution is submitted (#283, open, and subsumed by older open #142). One new real, unreported finding is drafted (wshobson/agents). I am deliberately not padding the list to five.

@@ -41,6 +41,12 @@ export function findReferenceTokens(line,{links=true}={}) {
     if(/^(?:\.\/)?(?:references|scripts|assets)\/$/.test(m[0].replace(/[,.;:!?]+$/,'')))continue;
     // Output destinations (`-o assets/x.svg`, `--output x`, `> x`) are created, not read.
     if(/(?:^|\s)(?:-o|-O|--out|--output|--output-file|>>?)\s*=?\s*$/.test(line.slice(0,m.index)))continue;
+    const next=line[m.index+m[0].length], prev=line[m.index-1];
+    // A templated path (`scripts/train_<type>.py`): the token regex stops at `<`, so the remainder is a placeholder.
+    if(next==='<')continue;
+    // Bare prose such as "links to assets/code" names a topic: no extension, no trailing slash, not in a code span.
+    const bare=m[0].replace(/[,.;:!?]+$/,'');
+    if(!/\.[^/.]+$/.test(bare)&&!bare.endsWith('/')&&!(prev==='`'&&next==='`'))continue;
     results.push({value:m[0],source:'prose'});
   }
   return results;
