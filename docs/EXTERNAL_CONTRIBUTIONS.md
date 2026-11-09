@@ -1,4 +1,6 @@
-# External contributions: investigation results (nothing has been submitted)
+# External contributions: round 1 investigation results
+
+> **Update 2026-11-10:** candidate 1 was submitted as PR #283 and turned out to duplicate the older PR #142; see `docs/CONTRIBUTION_LEDGER.md`. Round 2 research is in `docs/CONTRIBUTION_RESEARCH_2026-11.md`.
 
 Re-checked 2026-11-09 against fresh shallow clones, re-scanning with SkillPath Guard `main` (a411edd). Only 1 of 10 repositories had new commits since the first scan (`career-ops`, `marketingskills`); the rest were unchanged.
 
@@ -8,7 +10,7 @@ Re-checked 2026-11-09 against fresh shallow clones, re-scanning with SkillPath G
 - **Problem:** `.claude/skills/agent-browser/SKILL.md` lines 194-217 link to `references/*.md` (6 files) and `templates/*.sh` (3 files). The skill folder contains only `SKILL.md`, and no `references/` or `templates/` folder exists anywhere in the repo (`git ls-files` at 1a045f7).
 - **Cause (checked):** this skill is a copy of `vercel-labs/agent-browser`'s skill; upstream's current `SKILL.md` is a 50-line stub that tells agents to run `agent-browser skills get core` and no longer ships those folders. The copy kept links that no longer resolve.
 - **Reproduce:** `node src/cli.mjs scan <clone>/.claude/skills/agent-browser` reports 9 `MISSING_REFERENCE` errors; after the patch it reports 0 errors, 0 warnings.
-- **Patch:** `docs/patches-claude-code-best-practice-agent-browser.diff` (25 lines deleted: the "Deep-Dive Documentation" and "Ready-to-Use Templates" sections). Alternative the maintainer might prefer: refresh the whole file from upstream.
+- **Patch:** `docs/patches/claude-code-best-practice-agent-browser.diff` (25 lines deleted: the "Deep-Dive Documentation" and "Ready-to-Use Templates" sections). Alternative the maintainer might prefer: refresh the whole file from upstream.
 - **Guidelines:** the repo has no CONTRIBUTING.md or PR template (README/CLAUDE.md describe usage, not contributions). Use a normal fork-and-PR; keep it one small commit. The repo updates daily, so rebase if asked.
 - **Test:** no test suite for skill docs; the check is the scan above. Not run through the maintainer's CI (none seen).
 

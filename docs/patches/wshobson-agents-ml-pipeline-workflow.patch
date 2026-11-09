@@ -1,0 +1,146 @@
+From 73e5f9e942227a01afdbd9cad53896355a5f714b Mon Sep 17 00:00:00 2001
+From: ClarrieO5 <106720670+ClarrieO5@users.noreply.github.com>
+Date: Mon, 9 Nov 2026 22:32:53 +0000
+Subject: [PATCH] fix(machine-learning-ops): stop pointing ml-pipeline-workflow
+ at files that do not exist
+
+The skill told agents to read references/{data-preparation,model-training,
+model-validation,model-deployment}.md and assets/{pipeline-dag.yaml.template,
+training-config.yaml,validation-checklist.md}, but the skill has no
+references/ or assets/ folder. Remove those pointers and bump the plugin
+version to 1.2.4 so installed copies update.
+---
+ .claude-plugin/marketplace.json               |  2 +-
+ .cursor-plugin/marketplace.json               |  2 +-
+ .../plugins/machine-learning-ops.json         |  2 +-
+ .../.claude-plugin/plugin.json                |  2 +-
+ .../.codex-plugin/plugin.json                 |  2 +-
+ .../skills/ml-pipeline-workflow/SKILL.md      | 21 -------------------
+ 6 files changed, 5 insertions(+), 26 deletions(-)
+
+diff --git a/.claude-plugin/marketplace.json b/.claude-plugin/marketplace.json
+index 061a258..d2d0c39 100644
+--- a/.claude-plugin/marketplace.json
++++ b/.claude-plugin/marketplace.json
+@@ -247,7 +247,7 @@
+     {
+       "name": "machine-learning-ops",
+       "description": "ML model training pipelines, hyperparameter tuning, model deployment automation, experiment tracking, and MLOps workflows",
+-      "version": "1.2.3",
++      "version": "1.2.4",
+       "author": {
+         "name": "Seth Hobson",
+         "email": "seth@major7apps.com"
+diff --git a/.cursor-plugin/marketplace.json b/.cursor-plugin/marketplace.json
+index a21f82c..bdb01c9 100644
+--- a/.cursor-plugin/marketplace.json
++++ b/.cursor-plugin/marketplace.json
+@@ -678,7 +678,7 @@
+     {
+       "name": "machine-learning-ops",
+       "source": "./plugins/machine-learning-ops",
+-      "version": "1.2.3",
++      "version": "1.2.4",
+       "description": "ML model training pipelines, hyperparameter tuning, model deployment automation, experiment tracking, and MLOps workflows",
+       "author": {
+         "name": "Seth Hobson",
+diff --git a/.cursor-plugin/plugins/machine-learning-ops.json b/.cursor-plugin/plugins/machine-learning-ops.json
+index 56dd951..e515498 100644
+--- a/.cursor-plugin/plugins/machine-learning-ops.json
++++ b/.cursor-plugin/plugins/machine-learning-ops.json
+@@ -1,7 +1,7 @@
+ {
+   "name": "machine-learning-ops",
+   "displayName": "Machine Learning Ops",
+-  "version": "1.2.3",
++  "version": "1.2.4",
+   "description": "ML model training pipelines, hyperparameter tuning, model deployment automation, experiment tracking, and MLOps workflows",
+   "author": {
+     "name": "Seth Hobson",
+diff --git a/plugins/machine-learning-ops/.claude-plugin/plugin.json b/plugins/machine-learning-ops/.claude-plugin/plugin.json
+index d07472e..08cce6d 100644
+--- a/plugins/machine-learning-ops/.claude-plugin/plugin.json
++++ b/plugins/machine-learning-ops/.claude-plugin/plugin.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "machine-learning-ops",
+-  "version": "1.2.3",
++  "version": "1.2.4",
+   "description": "ML model training pipelines, hyperparameter tuning, model deployment automation, experiment tracking, and MLOps workflows",
+   "author": {
+     "name": "Seth Hobson",
+diff --git a/plugins/machine-learning-ops/.codex-plugin/plugin.json b/plugins/machine-learning-ops/.codex-plugin/plugin.json
+index a161899..68f2a20 100644
+--- a/plugins/machine-learning-ops/.codex-plugin/plugin.json
++++ b/plugins/machine-learning-ops/.codex-plugin/plugin.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "machine-learning-ops",
+-  "version": "1.2.3",
++  "version": "1.2.4",
+   "description": "ML model training pipelines, hyperparameter tuning, model deployment automation, experiment tracking, and MLOps workflows",
+   "skills": "./skills/",
+   "author": {
+diff --git a/plugins/machine-learning-ops/skills/ml-pipeline-workflow/SKILL.md b/plugins/machine-learning-ops/skills/ml-pipeline-workflow/SKILL.md
+index b7d7330..35964e1 100644
+--- a/plugins/machine-learning-ops/skills/ml-pipeline-workflow/SKILL.md
++++ b/plugins/machine-learning-ops/skills/ml-pipeline-workflow/SKILL.md
+@@ -54,23 +54,6 @@ This skill provides comprehensive guidance for building production ML pipelines
+    - Blue-green deployment strategies
+    - Rollback mechanisms
+ 
+-### Reference Documentation
+-
+-See the `references/` directory for detailed guides:
+-
+-- **data-preparation.md** - Data cleaning, validation, and feature engineering
+-- **model-training.md** - Training workflows and best practices
+-- **model-validation.md** - Validation strategies and metrics
+-- **model-deployment.md** - Deployment patterns and serving architectures
+-
+-### Assets and Templates
+-
+-The `assets/` directory contains:
+-
+-- **pipeline-dag.yaml.template** - DAG template for workflow orchestration
+-- **training-config.yaml** - Training configuration template
+-- **validation-checklist.md** - Pre-deployment validation checklist
+-
+ ## Usage Patterns
+ 
+ ### Basic Pipeline Setup
+@@ -87,7 +70,6 @@ stages = [
+ ]
+ 
+ # 2. Configure dependencies
+-# See assets/pipeline-dag.yaml.template for full example
+ ```
+ 
+ ### Production Workflow
+@@ -187,7 +169,6 @@ Start with the basics and gradually add complexity:
+ ### Batch Training Pipeline
+ 
+ ```yaml
+-# See assets/pipeline-dag.yaml.template
+ stages:
+   - name: data_preparation
+     dependencies: []
+@@ -204,7 +185,6 @@ stages:
+ ```python
+ # Stream processing for real-time features
+ # Combined with batch training
+-# See references/data-preparation.md
+ ```
+ 
+ ### Continuous Training
+@@ -212,7 +192,6 @@ stages:
+ ```python
+ # Automated retraining on schedule
+ # Triggered by data drift detection
+-# See references/model-training.md
+ ```
+ 
+ ## Troubleshooting
+-- 
+2.43.0
+
