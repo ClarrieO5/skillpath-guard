@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Dangling `SKILL.md` symlinks now report `SYMLINK_BROKEN` instead of throwing.
+- Windows drive paths in Markdown links (`[g](C:\Users\x.md)`) are flagged `ABSOLUTE_REFERENCE`; backslashes now escape only ASCII punctuation, as in CommonMark.
+- Content inside ```` ```markdown ````/```` ```md ```` fences is skipped to avoid false positives; other fences (shell, etc.) are still checked.
+
 ## 0.1.0 — experimental prerelease — 9 November 2026
 
 Built from the supplied 0.1.0 prototype, with no claim of a prior public release.

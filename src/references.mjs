@@ -12,7 +12,8 @@ export function findReferenceTokens(line) {
     else {
       for(;i<line.length;i++) {
         const c=line[i];
-        if(c==='\\' && i+1<line.length){value+=line[++i];continue;}
+        // CommonMark: a backslash escapes only ASCII punctuation; otherwise it is literal (Windows paths).
+        if(c==='\\' && i+1<line.length && /[!-\/:-@\[-`{-~]/.test(line[i+1])){value+=line[++i];continue;}
         if(c==='(')depth++;
         if(c===')'){if(depth===0)break;depth--;}
         if(/\s/.test(c) && depth===0)break;
