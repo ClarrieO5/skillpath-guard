@@ -163,6 +163,7 @@ export function scan(rootInput, {exclude=[]}={}) {
     if (!fields.name) pushFinding(findings, {rule:'NAME_MISSING',severity:'error',file:relativeFile,skill:skillName,message:'Frontmatter is missing name.'});
     else if (nfkc(fields.name).length>64 || !SKILL_NAME.test(nfkc(fields.name)) || nfkc(fields.name)!==nfkc(fields.name).toLowerCase() || nfkc(fields.name)!==nfkc(skillName)) pushFinding(findings,{rule:'NAME_INVALID',severity:'error',file:relativeFile,skill:skillName,message:`name must match folder '${skillName}' and contain 1-64 lowercase letters, digits or single hyphens (no leading or trailing hyphen).`});
     if (!fields.description?.trim() || fields.description.length>1024) pushFinding(findings,{rule:'DESCRIPTION_INVALID',severity:'error',file:relativeFile,skill:skillName,message:'description must be non-empty and at most 1024 characters.'});
+    if (fields.compatibility !== undefined && fields.compatibility.length>500) pushFinding(findings,{rule:'COMPATIBILITY_INVALID',severity:'error',file:relativeFile,skill:skillName,message:'compatibility must be at most 500 characters (Agent Skills specification).'});
     const bodyStart = end<0 ? 0 : end+1;
     if (lines.slice(bodyStart).join('').trim().length===0) pushFinding(findings,{rule:'BODY_EMPTY',severity:'warning',file:relativeFile,skill:skillName,message:'The skill has no instructions after frontmatter.'});
     let fence=null; // {marker, illustrative}
@@ -222,7 +223,7 @@ export function scan(rootInput, {exclude=[]}={}) {
   }
   findings.sort((a,b)=>a.file.localeCompare(b.file)||a.line-b.line||a.rule.localeCompare(b.rule));
   const counts={error:findings.filter(f=>f.severity==='error').length, warning:findings.filter(f=>f.severity==='warning').length};
-  return {tool:'skillpath-guard', version:'0.1.0', root, exclusions, summary:{skills:skills.length, findings:findings.length, ...counts}, skills, findings, limitations:['Heuristic resource detection may produce false positives or miss references in unusual Markdown.','Static analysis cannot prove how an individual AI agent will resolve a file at runtime.','Frontmatter reading covers common scalar fields; this is not a complete YAML implementation.']};
+  return {tool:'skillpath-guard', version:'0.2.0', root, exclusions, summary:{skills:skills.length, findings:findings.length, ...counts}, skills, findings, limitations:['Heuristic resource detection may produce false positives or miss references in unusual Markdown.','Static analysis cannot prove how an individual AI agent will resolve a file at runtime.','Frontmatter reading covers common scalar fields; this is not a complete YAML implementation.']};
 }
 
 export function fingerprint(f) { return JSON.stringify([f.rule,f.severity,f.file,f.target||'',f.message]); }

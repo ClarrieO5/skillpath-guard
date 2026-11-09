@@ -2,9 +2,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {scan,compareBaseline,toMarkdown,githubAnnotations} from './core.mjs';
-function usage(){console.log(`SkillPath Guard v0.1.0\n\nUsage:\n  node src/cli.mjs scan <directory> [--format text|json|md] [--out path]\n      [--exclude root-relative-path] [--baseline path-to-json] [--fail-on-new] [--strict] [--github-annotations]\n\nExamples:\n  npm test\n  node src/cli.mjs scan examples/valid\n  node src/cli.mjs scan examples/broken --format md\n  node src/cli.mjs scan examples/valid --format json --out report.json\n\nExit: 0 = success; 1 = errors (or warnings with --strict); 2 = command/configuration error.`)}
+function usage(){console.log(`SkillPath Guard v0.2.0\n\nUsage:\n  node src/cli.mjs scan <directory> [--format text|json|md] [--out path]\n      [--exclude root-relative-path] [--baseline path-to-json] [--fail-on-new] [--strict] [--github-annotations]\n\nExamples:\n  npm test\n  node src/cli.mjs scan examples/valid\n  node src/cli.mjs scan examples/broken --format md\n  node src/cli.mjs scan examples/valid --format json --out report.json\n\nExit: 0 = success; 1 = errors (or warnings with --strict); 2 = command/configuration error.`)}
 const a=process.argv.slice(2);
-if(a.length===1 && a[0]==='--version'){console.log('0.1.0');process.exit(0)}
+if(a.length===1 && a[0]==='--version'){console.log('0.2.0');process.exit(0)}
 if(a.length===0||a.includes('--help')||a.includes('-h')) {usage(); process.exit(0)}
 if(a[0]!=='scan'||!a[1]||a[1].startsWith('--')) {usage();process.exit(2)}
 const exclude=[];
