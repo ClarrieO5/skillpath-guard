@@ -25,3 +25,7 @@ test('strict only changes warning exit policy',t=>{
  fs.writeFileSync(path.join(skill,'SKILL.md'),'---\nname: demo\ndescription: Test\n---\nRead `references/guide.md`.');fs.writeFileSync(path.join(skill,'references','guide.md'),'ok');
  assert.equal(run('scan',dir).status,0);assert.equal(run('scan',dir,'--strict').status,1);
 });
+test('CLI exclusions repeat and validate',()=>{
+ const r=run('scan','examples','--exclude','broken','--exclude','unused','--format','json');assert.equal(r.status,0);assert.equal(JSON.parse(r.stdout).summary.skills,1);assert.deepEqual(JSON.parse(r.stdout).exclusions,['broken','unused']);
+ assert.equal(run('scan','examples','--exclude','../outside').status,2);assert.equal(run('scan','examples','--exclude').status,2);
+});

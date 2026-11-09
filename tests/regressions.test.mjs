@@ -68,3 +68,55 @@ test('illustrative paths in markdown fences are ignored, but shell fences are st
   const r=scan(root);
   assert.deepEqual(r.findings.map(f=>[f.rule,f.target]),[['MISSING_REFERENCE','scripts/missing.py']]);
 });
+
+test('link-like syntax in code is not a reference; real resources in code still are',t=>{
+  const {root}=fixture(t,'Use `func f[T any](t T)` or `[x](y.md)`.\n\n```go\nfunc assertEqual[T comparable](t *testing.T, got T) {}\n```\n\nSee `scripts/real.py`.');
+  const r=scan(root);
+  assert.deepEqual(r.findings.map(f=>[f.rule,f.target]),[['MISSING_REFERENCE','scripts/real.py']]);
+});
+test('bare folder mentions are not dependencies, but files and subfolders are',t=>{
+  const {root}=fixture(t,'Layout: scripts/ and references/ hold code.\nBundle assets/templates/ too.');
+  const r=scan(root);
+  assert.deepEqual(r.findings.map(f=>f.target),['assets/templates/']);
+});
+
+test('literal exclusions skip mirrored discovery but not similar siblings',t=>{
+ const {root,dir}=fixture(t,'[missing](references/missing.md)');
+ for(const name of ['mirror','mirror-copy']){fs.mkdirSync(path.join(root,name));fs.cpSync(dir,path.join(root,name,'demo'),{recursive:true});}
+ const r=scan(root,{exclude:['mirror/']});assert.equal(r.summary.skills,2);assert.deepEqual(r.exclusions,['mirror']);
+ assert.ok(r.skills.some(s=>s.file==='mirror-copy/demo/SKILL.md'));
+});
+test('excluded resource remains resolvable from included skill',t=>{
+ const {root}=fixture(t,'[ok](references/ok.md)',{'references/ok.md':'ok'});
+ assert.equal(scan(root,{exclude:['demo/references']}).summary.error,0);
+});
+test('exclusions cannot silently exclude root or escape it',t=>{
+ const {root}=fixture(t,'Hello');for(const exclude of [['.'],[''],['../outside'],['demo/../demo'],['/tmp'],['C:\\tmp'],'demo'])assert.throws(()=>scan(root,{exclude}),/exclu/i);
+});
+test('baseline refuses changed discovery scope',t=>{
+ const {root}=fixture(t,'Hello');assert.throws(()=>compareBaseline(scan(root,{exclude:['mirror']}),scan(root)),/exclu/i);
+});
+test('resource indexing preserves parent and nested skill collisions',t=>{
+ const {root,dir}=fixture(t,'Hello',{'one.txt':'a','ONE.txt':'b','nested/SKILL.md':'---\nname: nested\ndescription: Test\n---\nHello','nested/two.txt':'a','nested/TWO.txt':'b'});
+ if(fs.readdirSync(dir).filter(n=>n.toLowerCase()==='one.txt').length<2){t.skip('case-insensitive filesystem cannot hold a collision');return;}
+ const findings=scan(root).findings.filter(f=>f.rule==='CASE_COLLISION');
+ assert.equal(findings.filter(f=>f.skill==='demo').length,2);assert.equal(findings.filter(f=>f.skill==='nested').length,1);
+});
+test('parameterized resources are not literal missing files',t=>{
+ const {root}=fixture(t,'Read `assets/snippets/{tool}.js` or [dynamic](references/%7Btopic%7D.md).');assert.equal(scan(root).summary.findings,0);
+});
+test('indented plain description does not swallow later metadata',t=>{
+ const {root,dir}=fixture(t,'Hello');fs.writeFileSync(path.join(dir,'SKILL.md'),'---\nname: demo\ndescription:\n  A multi-line plain\n  description for real tools.\nlicense: MIT\n---\nHello');assert.equal(scan(root).summary.error,0);
+});
+test('indented mappings and sequences are not accepted as strings',t=>{
+ const {root,dir}=fixture(t,'Hello');for(const value of ['  text: nested','  - item']){
+ fs.writeFileSync(path.join(dir,'SKILL.md'),`---\nname: demo\ndescription:\n${value}\n---\nHello`);assert.ok(scan(root).findings.some(f=>f.rule==='FRONTMATTER_UNSUPPORTED'));}
+});
+test('wrapped absolute-path instruction does not produce cwd warning',t=>{
+ const {root}=fixture(t,"Run this skill's `scripts/task-done`\nby its absolute path, from the working tree.",{'scripts/task-done':'ok'});
+ assert.equal(scan(root).findings.filter(f=>f.rule==='AMBIGUOUS_CWD').length,0);
+});
+test('separate absolute-path note does not suppress cwd warning',t=>{
+ const {root}=fixture(t,'Run `scripts/task-done`.\n\nby its absolute path, from the working tree.',{'scripts/task-done':'ok'});
+ assert.equal(scan(root).findings.filter(f=>f.rule==='AMBIGUOUS_CWD').length,1);
+});
