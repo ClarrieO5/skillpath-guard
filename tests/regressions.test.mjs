@@ -135,3 +135,8 @@ test('over-long compatibility field is an error; a short one is fine',t=>{
   assert.deepEqual(mk('x'.repeat(501)),['COMPATIBILITY_INVALID']);
   assert.deepEqual(mk('x'.repeat(500)),[]);
 });
+
+test('bare folder names followed by punctuation are not dependencies',t=>{
+  const {root}=fixture(t,'Creates scripts/, references/, and assets/. Also see assets/.');
+  assert.deepEqual(scan(root).findings,[]);
+});
