@@ -1,0 +1,52 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import {scan, compareBaseline, githubAnnotations} from '../src/core.mjs';
+function fixture(t, body, resources={}) {
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),'guard-regression-'));
+  t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
+  const dir=path.join(root,'demo'); fs.mkdirSync(dir);
+  fs.writeFileSync(path.join(dir,'SKILL.md'),`---\nname: demo\ndescription: Test resource packaging.\n---\n${body}\n`);
+  for(const [name,data] of Object.entries(resources)){const f=path.join(dir,name);fs.mkdirSync(path.dirname(f),{recursive:true});fs.writeFileSync(f,data);}
+  return {root,dir};
+}
+for(const [label,body,resources,rule] of [
+  ['space-containing link','[guide](<references/my guide.md>)',{'references/my guide.md':'ok'},null],
+  ['parent traversal','[escape](../outside.md)',{},'PATH_ESCAPE'],
+  ['ordinary local link','[guide](guide.md)',{},'MISSING_REFERENCE'],
+  ['query and anchor','[guide](references/guide.md?raw=1#intro)',{'references/guide.md':'ok'},null],
+  ['external URL containing resource path','[web](https://example.com/references/guide.md)',{},null],
+  ['parent directory case','[guide](references/guide.md)',{'References/guide.md':'ok'},'CASE_MISMATCH'],
+  ['link title','[guide](references/guide.md "A title")',{'references/guide.md':'ok'},null],
+  ['balanced parentheses','[guide](references/a(b).md)',{'references/a(b).md':'ok'},null],
+  ['reference link','Read [guide][g].\n[g]: references/absent.md',{},'MISSING_REFERENCE'],
+  ['encoded space','[guide](references/my%20guide.md)',{'references/my guide.md':'ok'},null],
+  ['dynamic example','Read `references/*.md`.',{},null],
+  ['absolute path','[guide](/tmp/guide.md)',{},'ABSOLUTE_REFERENCE'],
+  ['inline resource','Read `scripts/check.py`.',{},'MISSING_REFERENCE'],
+]) test(label,t=>{const {root}=fixture(t,body,resources);const r=scan(root);if(rule)assert.ok(r.findings.some(f=>f.rule===rule),JSON.stringify(r.findings));else assert.equal(r.summary.error,0,JSON.stringify(r.findings));});
+test('baseline distinguishes same-named skills in different directories',t=>{
+ const {root,dir}=fixture(t,'[missing](references/missing.md)');const before=scan(root);
+ fs.mkdirSync(path.join(root,'other'));fs.cpSync(dir,path.join(root,'other','demo'),{recursive:true});
+ assert.equal(compareBaseline(scan(root),before).comparison.new.length,1);
+});
+test('malformed baseline rejected',t=>{const {root}=fixture(t,'Hello');for(const bad of [{},null,{findings:[{}]},{tool:'other',findings:[]}])assert.throws(()=>compareBaseline(scan(root),bad),/baseline/i);});
+test('symlinked SKILL.md is not read outside package',t=>{
+ const {root,dir}=fixture(t,'Hello');fs.renameSync(path.join(dir,'SKILL.md'),path.join(root,'external.md'));
+ fs.symlinkSync(path.join(root,'external.md'),path.join(dir,'SKILL.md'));
+ assert.ok(scan(root).findings.some(f=>f.rule==='SYMLINK_ESCAPE'));
+});
+test('scans are deterministic',t=>{const {root}=fixture(t,'[a](references/no.md)');assert.deepEqual(scan(root),scan(root));});
+test('annotation messages cannot inject workflow commands',()=>{const lines=githubAnnotations({findings:[{severity:'error',file:'a,b\n::error::x',line:1,rule:'TEST',message:'a\n::error::injected%'}]});assert.equal(lines.length,1);assert.ok(!lines[0].includes('\n'));assert.match(lines[0],/%0A/);});
+for(const [label,description,expected] of [
+ ['empty quoted description','"   "','DESCRIPTION_INVALID'],
+ ['folded block with chomping','>-\n  A useful description',null],
+ ['literal block with chomping','|-\n  A useful description',null],
+ ['unquoted comment','A useful description # commentary',null],
+ ['unsupported YAML alias','*description','FRONTMATTER_UNSUPPORTED'],
+])test(label,t=>{const {root,dir}=fixture(t,'Hello');const f=path.join(dir,'SKILL.md');fs.writeFileSync(f,fs.readFileSync(f,'utf8').replace('Test resource packaging.',description));const r=scan(root);if(expected)assert.ok(r.findings.some(f=>f.rule===expected));else assert.equal(r.summary.error,0);});
+test('duplicate required field rejected',t=>{const {root,dir}=fixture(t,'Hello');const f=path.join(dir,'SKILL.md');fs.writeFileSync(f,fs.readFileSync(f,'utf8').replace('name: demo','name: other\nname: demo'));assert.ok(scan(root).findings.some(f=>f.rule==='FRONTMATTER_DUPLICATE'));});
+test('normalized local path is not a case mismatch',t=>{const {root}=fixture(t,'[guide](references/../guide.md)',{'guide.md':'ok'});assert.equal(scan(root).summary.error,0);});
+test('CRLF and BOM supported',t=>{const {root,dir}=fixture(t,'Hello');const f=path.join(dir,'SKILL.md');fs.writeFileSync(f,'\uFEFF'+fs.readFileSync(f,'utf8').replaceAll('\n','\r\n'));assert.equal(scan(root).summary.error,0);});

@@ -1,0 +1,500 @@
+[
+  {
+    "skill": "webapp-testing",
+    "report": {
+      "tool": "skillpath-guard",
+      "version": "0.1.0",
+      "summary": {
+        "skills": 1,
+        "findings": 2,
+        "error": 0,
+        "warning": 2
+      },
+      "skills": [
+        {
+          "name": "webapp-testing",
+          "file": "SKILL.md",
+          "references": [
+            {
+              "from": "SKILL.md",
+              "target": "scripts/with_server.py",
+              "line": 12,
+              "status": "ok"
+            },
+            {
+              "from": "SKILL.md",
+              "target": "scripts/with_server.py",
+              "line": 25,
+              "status": "ok"
+            },
+            {
+              "from": "SKILL.md",
+              "target": "scripts/with_server.py",
+              "line": 41,
+              "status": "ok"
+            },
+            {
+              "from": "SKILL.md",
+              "target": "scripts/with_server.py",
+              "line": 46,
+              "status": "ok"
+            },
+            {
+              "from": "SKILL.md",
+              "target": "scripts/",
+              "line": 85,
+              "status": "ok"
+            }
+          ]
+        }
+      ],
+      "findings": [
+        {
+          "rule": "AMBIGUOUS_CWD",
+          "severity": "warning",
+          "file": "SKILL.md",
+          "line": 25,
+          "message": "Instruction uses a relative resource path (scripts/with_server.py); some agents resolve paths from the workspace instead of the skill directory. Verify with the target runtime.",
+          "target": "scripts/with_server.py",
+          "skill": "webapp-testing"
+        },
+        {
+          "rule": "AMBIGUOUS_CWD",
+          "severity": "warning",
+          "file": "SKILL.md",
+          "line": 41,
+          "message": "Instruction uses a relative resource path (scripts/with_server.py); some agents resolve paths from the workspace instead of the skill directory. Verify with the target runtime.",
+          "target": "scripts/with_server.py",
+          "skill": "webapp-testing"
+        }
+      ],
+      "limitations": [
+        "Heuristic resource detection may produce false positives or miss references in unusual Markdown.",
+        "Static analysis cannot prove how an individual AI agent will resolve a file at runtime.",
+        "Frontmatter reading covers common scalar fields; this is not a complete YAML implementation."
+      ]
+    },
+    "skills_ref": {
+      "exit": 0,
+      "stdout": "Valid skill: research/anthropics/skills/webapp-testing",
+      "stderr": ""
+    }
+  },
+  {
+    "skill": "mcp-builder",
+    "report": {
+      "tool": "skillpath-guard",
+      "version": "0.1.0",
+      "summary": {
+        "skills": 1,
+        "findings": 3,
+        "error": 0,
+        "warning": 3
+      },
+      "skills": [
+        {
+          "name": "mcp-builder",
+          "file": "SKILL.md",
+          "references": [
+            {
+              "from": "SKILL.md",
+              "target": "reference/mcp_best_practices.md",
+              "line": 58,
+              "status": "ok"
+            },
+            {
+              "from": "SKILL.md",
+              "target": "reference/node_mcp_server_v2.md",
+              "line": 71,
+              "status": "ok"
+            },
+            {
+              "from": "SKILL.md",
+              "target": "reference/node_mcp_server.md",
+              "line": 72,
+              "status": "ok"
+            },
+            {
+              "from": "SKILL.md",
+              "target": "reference/python_mcp_server.md",
+              "line": 76,
+              "status": "ok"
+            },
+            {
+              "from": "SKILL.md",
+              "target": "reference/node_mcp_server_v2.md",
+              "line": 93,
+              "status": "ok"
+            },
+            {
+              "from": "SKILL.md",
+              "target": "reference/node_mcp_server.md",
+              "line": 93,
+              "status": "ok"
+            },
+            {
+              "from": "SKILL.md",
+              "target": "reference/python_mcp_server.md",
+              "line": 94,
+              "status": "ok"
+            },
+            {
+              "from": "SKILL.md",
+              "target": "reference/node_mcp_server_v2.md",
+              "line": 151,
+              "status": "ok"
+            },
+            {
+              "from": "SKILL.md",
+              "target": "reference/evaluation.md",
+              "line": 166,
+              "status": "ok"
+            },
+            {
+              "from": "SKILL.md",
+              "target": "reference/mcp_best_practices.md",
+              "line": 215,
+              "status": "ok"
+            },
+            {
+              "from": "SKILL.md",
+              "target": "reference/python_mcp_server.md",
+              "line": 228,
+              "status": "ok"
+            },
+            {
+              "from": "SKILL.md",
+              "target": "reference/node_mcp_server_v2.md",
+              "line": 235,
+              "status": "ok"
+            },
+            {
+              "from": "SKILL.md",
+              "target": "reference/node_mcp_server.md",
+              "line": 244,
+              "status": "ok"
+            },
+            {
+              "from": "SKILL.md",
+              "target": "reference/evaluation.md",
+              "line": 247,
+              "status": "ok"
+            }
+          ]
+        }
+      ],
+      "findings": [
+        {
+          "rule": "AMBIGUOUS_CWD",
+          "severity": "warning",
+          "file": "SKILL.md",
+          "line": 58,
+          "message": "Instruction uses a relative resource path (reference/mcp_best_practices.md); some agents resolve paths from the workspace instead of the skill directory. Verify with the target runtime.",
+          "target": "reference/mcp_best_practices.md",
+          "skill": "mcp-builder"
+        },
+        {
+          "rule": "AMBIGUOUS_CWD",
+          "severity": "warning",
+          "file": "SKILL.md",
+          "line": 151,
+          "message": "Instruction uses a relative resource path (reference/node_mcp_server_v2.md); some agents resolve paths from the workspace instead of the skill directory. Verify with the target runtime.",
+          "target": "reference/node_mcp_server_v2.md",
+          "skill": "mcp-builder"
+        },
+        {
+          "rule": "AMBIGUOUS_CWD",
+          "severity": "warning",
+          "file": "SKILL.md",
+          "line": 166,
+          "message": "Instruction uses a relative resource path (reference/evaluation.md); some agents resolve paths from the workspace instead of the skill directory. Verify with the target runtime.",
+          "target": "reference/evaluation.md",
+          "skill": "mcp-builder"
+        }
+      ],
+      "limitations": [
+        "Heuristic resource detection may produce false positives or miss references in unusual Markdown.",
+        "Static analysis cannot prove how an individual AI agent will resolve a file at runtime.",
+        "Frontmatter reading covers common scalar fields; this is not a complete YAML implementation."
+      ]
+    },
+    "skills_ref": {
+      "exit": 0,
+      "stdout": "Valid skill: research/anthropics/skills/mcp-builder",
+      "stderr": ""
+    }
+  },
+  {
+    "skill": "slack-gif-creator",
+    "report": {
+      "tool": "skillpath-guard",
+      "version": "0.1.0",
+      "summary": {
+        "skills": 1,
+        "findings": 0,
+        "error": 0,
+        "warning": 0
+      },
+      "skills": [
+        {
+          "name": "slack-gif-creator",
+          "file": "SKILL.md",
+          "references": []
+        }
+      ],
+      "findings": [],
+      "limitations": [
+        "Heuristic resource detection may produce false positives or miss references in unusual Markdown.",
+        "Static analysis cannot prove how an individual AI agent will resolve a file at runtime.",
+        "Frontmatter reading covers common scalar fields; this is not a complete YAML implementation."
+      ]
+    },
+    "skills_ref": {
+      "exit": 0,
+      "stdout": "Valid skill: research/anthropics/skills/slack-gif-creator",
+      "stderr": ""
+    }
+  },
+  {
+    "skill": "internal-comms",
+    "report": {
+      "tool": "skillpath-guard",
+      "version": "0.1.0",
+      "summary": {
+        "skills": 1,
+        "findings": 0,
+        "error": 0,
+        "warning": 0
+      },
+      "skills": [
+        {
+          "name": "internal-comms",
+          "file": "SKILL.md",
+          "references": []
+        }
+      ],
+      "findings": [],
+      "limitations": [
+        "Heuristic resource detection may produce false positives or miss references in unusual Markdown.",
+        "Static analysis cannot prove how an individual AI agent will resolve a file at runtime.",
+        "Frontmatter reading covers common scalar fields; this is not a complete YAML implementation."
+      ]
+    },
+    "skills_ref": {
+      "exit": 0,
+      "stdout": "Valid skill: research/anthropics/skills/internal-comms",
+      "stderr": ""
+    }
+  },
+  {
+    "skill": "theme-factory",
+    "report": {
+      "tool": "skillpath-guard",
+      "version": "0.1.0",
+      "summary": {
+        "skills": 1,
+        "findings": 0,
+        "error": 0,
+        "warning": 0
+      },
+      "skills": [
+        {
+          "name": "theme-factory",
+          "file": "SKILL.md",
+          "references": []
+        }
+      ],
+      "findings": [],
+      "limitations": [
+        "Heuristic resource detection may produce false positives or miss references in unusual Markdown.",
+        "Static analysis cannot prove how an individual AI agent will resolve a file at runtime.",
+        "Frontmatter reading covers common scalar fields; this is not a complete YAML implementation."
+      ]
+    },
+    "skills_ref": {
+      "exit": 0,
+      "stdout": "Valid skill: research/anthropics/skills/theme-factory",
+      "stderr": ""
+    }
+  },
+  {
+    "skill": "frontend-design",
+    "report": {
+      "tool": "skillpath-guard",
+      "version": "0.1.0",
+      "summary": {
+        "skills": 1,
+        "findings": 0,
+        "error": 0,
+        "warning": 0
+      },
+      "skills": [
+        {
+          "name": "frontend-design",
+          "file": "SKILL.md",
+          "references": []
+        }
+      ],
+      "findings": [],
+      "limitations": [
+        "Heuristic resource detection may produce false positives or miss references in unusual Markdown.",
+        "Static analysis cannot prove how an individual AI agent will resolve a file at runtime.",
+        "Frontmatter reading covers common scalar fields; this is not a complete YAML implementation."
+      ]
+    },
+    "skills_ref": {
+      "exit": 0,
+      "stdout": "Valid skill: research/anthropics/skills/frontend-design",
+      "stderr": ""
+    }
+  },
+  {
+    "skill": "doc-coauthoring",
+    "report": {
+      "tool": "skillpath-guard",
+      "version": "0.1.0",
+      "summary": {
+        "skills": 1,
+        "findings": 0,
+        "error": 0,
+        "warning": 0
+      },
+      "skills": [
+        {
+          "name": "doc-coauthoring",
+          "file": "SKILL.md",
+          "references": []
+        }
+      ],
+      "findings": [],
+      "limitations": [
+        "Heuristic resource detection may produce false positives or miss references in unusual Markdown.",
+        "Static analysis cannot prove how an individual AI agent will resolve a file at runtime.",
+        "Frontmatter reading covers common scalar fields; this is not a complete YAML implementation."
+      ]
+    },
+    "skills_ref": {
+      "exit": 0,
+      "stdout": "Valid skill: research/anthropics/skills/doc-coauthoring",
+      "stderr": ""
+    }
+  },
+  {
+    "skill": "algorithmic-art",
+    "report": {
+      "tool": "skillpath-guard",
+      "version": "0.1.0",
+      "summary": {
+        "skills": 1,
+        "findings": 0,
+        "error": 0,
+        "warning": 0
+      },
+      "skills": [
+        {
+          "name": "algorithmic-art",
+          "file": "SKILL.md",
+          "references": []
+        }
+      ],
+      "findings": [],
+      "limitations": [
+        "Heuristic resource detection may produce false positives or miss references in unusual Markdown.",
+        "Static analysis cannot prove how an individual AI agent will resolve a file at runtime.",
+        "Frontmatter reading covers common scalar fields; this is not a complete YAML implementation."
+      ]
+    },
+    "skills_ref": {
+      "exit": 0,
+      "stdout": "Valid skill: research/anthropics/skills/algorithmic-art",
+      "stderr": ""
+    }
+  },
+  {
+    "skill": "canvas-design",
+    "report": {
+      "tool": "skillpath-guard",
+      "version": "0.1.0",
+      "summary": {
+        "skills": 1,
+        "findings": 0,
+        "error": 0,
+        "warning": 0
+      },
+      "skills": [
+        {
+          "name": "canvas-design",
+          "file": "SKILL.md",
+          "references": []
+        }
+      ],
+      "findings": [],
+      "limitations": [
+        "Heuristic resource detection may produce false positives or miss references in unusual Markdown.",
+        "Static analysis cannot prove how an individual AI agent will resolve a file at runtime.",
+        "Frontmatter reading covers common scalar fields; this is not a complete YAML implementation."
+      ]
+    },
+    "skills_ref": {
+      "exit": 0,
+      "stdout": "Valid skill: research/anthropics/skills/canvas-design",
+      "stderr": ""
+    }
+  },
+  {
+    "skill": "web-artifacts-builder",
+    "report": {
+      "tool": "skillpath-guard",
+      "version": "0.1.0",
+      "summary": {
+        "skills": 1,
+        "findings": 0,
+        "error": 0,
+        "warning": 0
+      },
+      "skills": [
+        {
+          "name": "web-artifacts-builder",
+          "file": "SKILL.md",
+          "references": [
+            {
+              "from": "SKILL.md",
+              "target": "scripts/init-artifact.sh",
+              "line": 10,
+              "status": "ok"
+            },
+            {
+              "from": "SKILL.md",
+              "target": "scripts/bundle-artifact.sh",
+              "line": 12,
+              "status": "ok"
+            },
+            {
+              "from": "SKILL.md",
+              "target": "scripts/init-artifact.sh",
+              "line": 28,
+              "status": "ok"
+            },
+            {
+              "from": "SKILL.md",
+              "target": "scripts/bundle-artifact.sh",
+              "line": 49,
+              "status": "ok"
+            }
+          ]
+        }
+      ],
+      "findings": [],
+      "limitations": [
+        "Heuristic resource detection may produce false positives or miss references in unusual Markdown.",
+        "Static analysis cannot prove how an individual AI agent will resolve a file at runtime.",
+        "Frontmatter reading covers common scalar fields; this is not a complete YAML implementation."
+      ]
+    },
+    "skills_ref": {
+      "exit": 0,
+      "stdout": "Valid skill: research/anthropics/skills/web-artifacts-builder",
+      "stderr": ""
+    }
+  }
+]
