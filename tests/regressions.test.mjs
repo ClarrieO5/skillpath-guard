@@ -140,3 +140,8 @@ test('bare folder names followed by punctuation are not dependencies',t=>{
   const {root}=fixture(t,'Creates scripts/, references/, and assets/. Also see assets/.');
   assert.deepEqual(scan(root).findings,[]);
 });
+
+test('placeholder link targets and output paths are not dependencies; real ones still are',t=>{
+  const {root}=fixture(t,'Syntax: [text](url) and [x](URL).\nRun `tool -o assets/logo.svg` or `tool --output scripts/out.txt` or `tool > references/out.md`.\nBut read scripts/real.py and [doc](missing.md).');
+  assert.deepEqual(scan(root).findings.filter(f=>f.rule==='MISSING_REFERENCE').map(f=>f.target).sort(),['missing.md','scripts/real.py']);
+});

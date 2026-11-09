@@ -18,3 +18,7 @@ jobs:
       - run: npm run verify
       - run: npm pack --dry-run
       - run: node src/cli.mjs scan examples/valid --github-annotations
+      - name: Composite action smoke test
+        uses: ./
+        with:
+          path: examples/valid

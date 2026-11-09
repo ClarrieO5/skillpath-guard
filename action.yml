@@ -1,0 +1,25 @@
+name: SkillPath Guard
+description: Offline static checks for Agent Skills resource paths and portability.
+inputs:
+  path:
+    description: Directory containing SKILL.md files.
+    default: .
+  baseline:
+    description: Optional baseline JSON report; with it, only new findings fail.
+    default: ''
+  strict:
+    description: Treat warnings as failures ("true" or "false").
+    default: 'false'
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        SPG_PATH: ${{ inputs.path }}
+        SPG_BASELINE: ${{ inputs.baseline }}
+        SPG_STRICT: ${{ inputs.strict }}
+      run: |
+        args=(scan "$SPG_PATH" --github-annotations)
+        if [ -n "$SPG_BASELINE" ]; then args+=(--baseline "$SPG_BASELINE" --fail-on-new); fi
+        if [ "$SPG_STRICT" = "true" ]; then args+=(--strict); fi
+        node "${{ github.action_path }}/src/cli.mjs" "${args[@]}"

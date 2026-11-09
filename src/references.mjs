@@ -24,6 +24,8 @@ export function findReferenceTokens(line,{links=true}={}) {
     }
     const end=line.indexOf(')',i);
     occupied.push([m.index,end<0?line.length:end+1]);
+    // Documentation placeholders such as [text](url) are not file references.
+    if(/^(?:url|link|path|file|filename|href|uri|target|destination)$/i.test(value.trim())){start.lastIndex=end<0?line.length:end+1;continue;}
     results.push({value,source:'markdown'});
     start.lastIndex=end<0?line.length:end+1;
   }
@@ -37,6 +39,8 @@ export function findReferenceTokens(line,{links=true}={}) {
     if(!/^(?:\.\/)?(?:references|scripts|assets)\//.test(m[0]))continue;
     // A bare folder name (`scripts/`) is a layout mention, not a file dependency.
     if(/^(?:\.\/)?(?:references|scripts|assets)\/$/.test(m[0].replace(/[,.;:!?]+$/,'')))continue;
+    // Output destinations (`-o assets/x.svg`, `--output x`, `> x`) are created, not read.
+    if(/(?:^|\s)(?:-o|-O|--out|--output|--output-file|>>?)\s*=?\s*$/.test(line.slice(0,m.index)))continue;
     results.push({value:m[0],source:'prose'});
   }
   return results;
