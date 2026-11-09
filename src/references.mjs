@@ -50,6 +50,6 @@ export function sanitizeReference(raw,source='markdown') {
   if(/\$|\*|<[^>]+>|\{\{|\[|\]/.test(value))return null;
   value=value.split('#')[0].split('?')[0];
   try{value=decodeURIComponent(value);}catch{return null;}
-  if(!value||value.includes('\0'))return null;
+  if(!value||value.includes('\0')||/\{[^}]+\}/.test(value))return null;
   return value.replace(/^\.\//,'');
 }

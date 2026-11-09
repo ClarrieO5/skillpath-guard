@@ -14,7 +14,7 @@ function pushFinding(out, {rule, severity, file, line=1, message, target='', ski
   out.push({rule, severity, file, line, message, target, skill});
 }
 
-function listFiles(directory) {
+function listFiles(directory, exclusions) {
   const out = [];
   const todo = [directory];
   const seen = new Set();
@@ -27,6 +27,8 @@ function listFiles(directory) {
     for (const entry of fs.readdirSync(dir, {withFileTypes: true}).sort((a,b)=>a.name.localeCompare(b.name))) {
       if (IGNORED.has(entry.name)) continue;
       const candidate = path.join(dir, entry.name);
+      const relative = rel(directory,candidate);
+      if(exclusions.some(p=>relative===p || relative.startsWith(p+'/')))continue;
       if (entry.isDirectory()) todo.push(candidate);
       else if (entry.isFile() || entry.isSymbolicLink()) out.push(candidate);
     }
@@ -48,6 +50,17 @@ function parseFrontmatter(content) {
     if(Object.hasOwn(fields,match[1]))problems.push({rule:'FRONTMATTER_DUPLICATE',line:i+1,message:`Duplicate frontmatter field: ${match[1]}`});
     if(!value.startsWith('\"') && !value.startsWith("'"))value=value.replace(/\s+#.*$/,'');
     if(['name','description'].includes(match[1]) && /^(?:[&*{\[]|!!)/.test(value))problems.push({rule:'FRONTMATTER_UNSUPPORTED',line:i+1,message:`Unsupported YAML for ${match[1]}; use a plain, quoted, or block string.`});
+    // Indented plain strings are a common YAML spelling in public skills.
+    if(value==='' && ['name','description'].includes(match[1])) {
+      const block=[];
+      while(i+1<end && (/^\s+/.test(lines[i+1]) || !lines[i+1].trim())) {
+        const next=lines[++i].trim();
+        if(next && !next.startsWith('#'))block.push(next.replace(/\s+#.*$/,''));
+      }
+      if(block.some(line=>/^(?:-\s|[^:]+:\s|[\[\{&*]|!!)/.test(line))) {
+        problems.push({rule:'FRONTMATTER_UNSUPPORTED',line:i+1,message:`Unsupported YAML for ${match[1]}; expected an indented plain string.`});
+      } else value=block.join(' ');
+    }
     if (/^[>|][+-]?$/.test(value)) {
       const block = [];
       while (i+1<end && (/^\s+/.test(lines[i+1]) || !lines[i+1].trim())) {
@@ -78,16 +91,37 @@ function insideDirectory(parent, candidate) {
   const p = path.relative(parent, candidate);
   return p === '' || (p !== '..' && !p.startsWith(`..${path.sep}`) && !path.isAbsolute(p));
 }
-function lineHasCwdSensitiveInstruction(line, reference) {
+function lineHasCwdSensitiveInstruction(line, reference, nextLine="") {
   const verbs = /\b(read|open|view|cat|run|execute|load|inspect|source|import)\b/i;
-  return verbs.test(line) && line.includes(reference) && !/\b(absolute path|skill directory|skill root|base directory|resolve against)\b/i.test(line);
+  return !/^\s*by (?:its|the|an) absolute path\b/i.test(nextLine) && verbs.test(line) && line.includes(reference) && !/\b(absolute path|skill directory|skill root|base directory|resolve against)\b/i.test(line);
 }
 
-export function scan(rootInput) {
+function normalizeExclusions(exclude) {
+  if(!Array.isArray(exclude))throw new Error('Exclusions must be an array of root-relative paths.');
+  return [...new Set(exclude.map(value=>{
+    if(typeof value!=='string')throw new Error('Invalid exclusion path.');
+    const p=normalizeSlash(value);
+    if(!p || /^(?:[a-z]:|\/|~)/i.test(p) || p.split('/').includes('..'))throw new Error('Exclusion must stay inside the scan root.');
+    const normalized=path.posix.normalize(p).replace(/\/$/,'');
+    if(normalized==='.')throw new Error('Cannot exclude the entire scan root.');
+    return normalized;
+  }))].sort();
+}
+
+export function scan(rootInput, {exclude=[]}={}) {
   const root = path.resolve(rootInput);
   if (!fs.existsSync(root) || !fs.statSync(root).isDirectory()) throw new Error(`Directory not found: ${root}`);
-  const files = listFiles(root);
+  const exclusions=normalizeExclusions(exclude);
+  const files = listFiles(root,exclusions);
   const skillFiles = files.filter(p => path.basename(p) === 'SKILL.md');
+  // Index resources under every containing skill once, including nested skills.
+  const resourceIndex=new Map(skillFiles.map(p=>[path.dirname(p),[]]));
+  for(const file of files) {
+    for(let dir=path.dirname(file);insideDirectory(root,dir);dir=path.dirname(dir)) {
+      if(resourceIndex.has(dir))resourceIndex.get(dir).push(file);
+      if(dir===root)break;
+    }
+  }
   const findings = [];
   const skills = [];
   if (!skillFiles.length) pushFinding(findings, {rule:'NO_SKILLS', severity:'error', file:'.', message:'No SKILL.md found in target directory.'});
@@ -162,10 +196,10 @@ export function scan(rootInput) {
         }
         }
         edges.push(edge);
-        if (!['absolute','escape','symlink-escape'].includes(edge.status) && lineHasCwdSensitiveInstruction(line, token.value)) pushFinding(findings,{rule:'AMBIGUOUS_CWD',severity:'warning',file:relativeFile,line:lineNo+1,skill:skillName,target:reference,message:`Instruction uses a relative resource path (${reference}); some agents resolve paths from the workspace instead of the skill directory. Verify with the target runtime.`});
+        if (!['absolute','escape','symlink-escape'].includes(edge.status) && lineHasCwdSensitiveInstruction(line, token.value, lines[lineNo+1]||'')) pushFinding(findings,{rule:'AMBIGUOUS_CWD',severity:'warning',file:relativeFile,line:lineNo+1,skill:skillName,target:reference,message:`Instruction uses a relative resource path (${reference}); some agents resolve paths from the workspace instead of the skill directory. Verify with the target runtime.`});
       }
     }
-    const skillFilesOnly=files.filter(p=>insideDirectory(skillDir,p) && p!==filename);
+    const skillFilesOnly=resourceIndex.get(skillDir).filter(p=>p!==filename);
     const lowerMap = new Map();
     for (const file of skillFilesOnly) {
       const rp=rel(skillDir,file);
@@ -177,12 +211,13 @@ export function scan(rootInput) {
   }
   findings.sort((a,b)=>a.file.localeCompare(b.file)||a.line-b.line||a.rule.localeCompare(b.rule));
   const counts={error:findings.filter(f=>f.severity==='error').length, warning:findings.filter(f=>f.severity==='warning').length};
-  return {tool:'skillpath-guard', version:'0.1.0', root, summary:{skills:skills.length, findings:findings.length, ...counts}, skills, findings, limitations:['Heuristic resource detection may produce false positives or miss references in unusual Markdown.','Static analysis cannot prove how an individual AI agent will resolve a file at runtime.','Frontmatter reading covers common scalar fields; this is not a complete YAML implementation.']};
+  return {tool:'skillpath-guard', version:'0.1.0', root, exclusions, summary:{skills:skills.length, findings:findings.length, ...counts}, skills, findings, limitations:['Heuristic resource detection may produce false positives or miss references in unusual Markdown.','Static analysis cannot prove how an individual AI agent will resolve a file at runtime.','Frontmatter reading covers common scalar fields; this is not a complete YAML implementation.']};
 }
 
 export function fingerprint(f) { return JSON.stringify([f.rule,f.severity,f.file,f.target||'',f.message]); }
 export function compareBaseline(report,baseline) {
   if (!baseline || baseline.tool!=='skillpath-guard' || !Array.isArray(baseline.findings) || baseline.findings.some(f=>!f || !['error','warning'].includes(f.severity) || !['rule','file','message'].every(k=>typeof f[k]==='string') || (f.target!==undefined && typeof f.target!=='string'))) throw new Error('Invalid baseline: expected a SkillPath Guard JSON report with valid findings.');
+  if(JSON.stringify(normalizeExclusions(report.exclusions??[]))!==JSON.stringify(normalizeExclusions(baseline.exclusions??[])))throw new Error('Baseline exclusions differ from this scan; compare identical discovery scopes.');
   const current=new Set(report.findings.map(fingerprint));
   const old=new Set((baseline.findings||[]).map(fingerprint));
   return {...report, comparison:{new:report.findings.filter(f=>!old.has(fingerprint(f))), resolved:(baseline.findings||[]).filter(f=>!current.has(fingerprint(f)))}};
