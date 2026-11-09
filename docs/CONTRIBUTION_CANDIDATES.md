@@ -18,3 +18,5 @@ Each entry was checked against a shallow clone made 2026-11-09 (commit shown). R
 Rejected after checking (our false positives, now fixed): K-Dense-AI `bulk-rnaseq` (prose cites another skill's script), `generate-image` (`-o assets/logo.svg` output path), `[text](url)` placeholders in anthropics/skills `academy-guide` and K-Dense `exa-search`.
 
 Suggested contribution form (for your approval): for #1 and #7, a PR fixing the links or a short issue with the exact lines; for design-choice items, an issue asking whether standalone installation is supported rather than asserting a bug.
+
+Update: see `EXTERNAL_CONTRIBUTIONS.md` for the re-check. Entry 7 (academic-research-skills) was rejected as a design choice; a stronger candidate found since is Yuan1z0825/nature-skills (`name: researchwrite` vs folder `nature-proposal-writer`).
