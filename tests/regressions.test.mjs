@@ -25,6 +25,8 @@ for(const [label,body,resources,rule] of [
   ['encoded space','[guide](references/my%20guide.md)',{'references/my guide.md':'ok'},null],
   ['dynamic example','Read `references/*.md`.',{},null],
   ['absolute path','[guide](/tmp/guide.md)',{},'ABSOLUTE_REFERENCE'],
+  ['windows absolute link','[guide](C:\\Users\\Example\\guide.md)',{},'ABSOLUTE_REFERENCE'],
+  ['windows absolute link, escaped backslashes','[guide](C:\\\\Users\\\\Example\\\\guide.md)',{},'ABSOLUTE_REFERENCE'],
   ['inline resource','Read `scripts/check.py`.',{},'MISSING_REFERENCE'],
 ]) test(label,t=>{const {root}=fixture(t,body,resources);const r=scan(root);if(rule)assert.ok(r.findings.some(f=>f.rule===rule),JSON.stringify(r.findings));else assert.equal(r.summary.error,0,JSON.stringify(r.findings));});
 test('baseline distinguishes same-named skills in different directories',t=>{
@@ -52,3 +54,17 @@ test('normalized local path is not a case mismatch',t=>{const {root}=fixture(t,'
 test('CRLF and BOM supported',t=>{const {root,dir}=fixture(t,'Hello');const f=path.join(dir,'SKILL.md');fs.writeFileSync(f,'\uFEFF'+fs.readFileSync(f,'utf8').replaceAll('\n','\r\n'));assert.equal(scan(root).summary.error,0);});
 
 test('baseline detects resolved findings and ignores line shifts',t=>{const {root,dir}=fixture(t,'[missing](references/missing.md)');const before=scan(root);const file=path.join(dir,'SKILL.md');fs.writeFileSync(file,fs.readFileSync(file,'utf8').replace('[missing]','\n\n[missing]'));assert.equal(compareBaseline(scan(root),before).comparison.new.length,0);fs.mkdirSync(path.join(dir,'references'));fs.writeFileSync(path.join(dir,'references','missing.md'),'ok');assert.equal(compareBaseline(scan(root),before).comparison.resolved.length,1);});
+
+test('dangling SKILL.md symlink yields a deterministic diagnostic',t=>{
+  const {root,dir}=fixture(t,'x');
+  fs.rmSync(path.join(dir,'SKILL.md'));
+  fs.symlinkSync(path.join(root,'nowhere.md'),path.join(dir,'SKILL.md'));
+  const r=scan(root);
+  assert.equal(r.summary.skills,1);
+  assert.ok(r.findings.some(f=>f.rule==='SYMLINK_BROKEN'&&f.file==='demo/SKILL.md'),JSON.stringify(r.findings));
+});
+test('illustrative paths in markdown fences are ignored, but shell fences are still checked',t=>{
+  const {root}=fixture(t,'```markdown\nSee references/example.md\n```\n\n```bash\npython scripts/missing.py\n```');
+  const r=scan(root);
+  assert.deepEqual(r.findings.map(f=>[f.rule,f.target]),[['MISSING_REFERENCE','scripts/missing.py']]);
+});

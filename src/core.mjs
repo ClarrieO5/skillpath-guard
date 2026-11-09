@@ -95,7 +95,14 @@ export function scan(rootInput) {
     const skillDir = path.dirname(filename);
     const skillName = path.basename(skillDir);
     const relativeFile = rel(root, filename);
-    if (!insideDirectory(fs.realpathSync(skillDir), fs.realpathSync(filename))) {
+    let realFile;
+    try { realFile = fs.realpathSync(filename); } catch { realFile = null; }
+    if (!realFile) {
+      skills.push({name:skillName,file:relativeFile,references:[]});
+      pushFinding(findings,{rule:'SYMLINK_BROKEN',severity:'error',file:relativeFile,skill:skillName,message:'SKILL.md is a dangling symlink or cannot be resolved; content was not read.'});
+      continue;
+    }
+    if (!insideDirectory(fs.realpathSync(skillDir), realFile)) {
       skills.push({name:skillName,file:relativeFile,references:[]});
       pushFinding(findings,{rule:'SYMLINK_ESCAPE',severity:'error',file:relativeFile,skill:skillName,message:'SKILL.md resolves outside its skill directory; content was not read.'});
       continue;
@@ -113,8 +120,12 @@ export function scan(rootInput) {
     if (!fields.description?.trim() || fields.description.length>1024) pushFinding(findings,{rule:'DESCRIPTION_INVALID',severity:'error',file:relativeFile,skill:skillName,message:'description must be non-empty and at most 1024 characters.'});
     const bodyStart = end<0 ? 0 : end+1;
     if (lines.slice(bodyStart).join('').trim().length===0) pushFinding(findings,{rule:'BODY_EMPTY',severity:'warning',file:relativeFile,skill:skillName,message:'The skill has no instructions after frontmatter.'});
+    let fence=null; // {marker, illustrative}
     for (let lineNo=bodyStart; lineNo<lines.length; lineNo++) {
       const line = lines[lineNo];
+      const fenceMatch=line.match(/^\s{0,3}(`{3,}|~{3,})\s*([\w-]*)/);
+      if (fence) { if (fenceMatch && fenceMatch[1][0]===fence.marker[0] && fenceMatch[1].length>=fence.marker.length && !line.replace(/^\s{0,3}[`~]+/,'').trim()) fence=null; else if (fence.illustrative) continue; }
+      else if (fenceMatch) { fence={marker:fenceMatch[1],illustrative:['markdown','md'].includes(fenceMatch[2].toLowerCase())}; if (fence.illustrative) continue; }
       const tokens = findReferenceTokens(line);
       for (const token of tokens) {
         const reference = sanitizeReference(token.value,token.source);
