@@ -89,6 +89,20 @@ function findSameNameDifferentCase(base, reference) {
   }
   return current;
 }
+// `./assets/card-builder` (TS import) or `references/open-coding` (table entry) names exactly one file with that stem.
+function resolvesByExtension(candidate) {
+  if (path.extname(candidate)) return false;
+  try { return fs.readdirSync(path.dirname(candidate)).filter(n => n.startsWith(path.basename(candidate)+'.')).length === 1; } catch { return false; }
+}
+// "Route to `other-skill`; its `references/x.md`": the file belongs to another skill named on this or the previous line.
+function belongsToNamedSkill(reference, context, skillDirsByName, ownName) {
+  for (const [name, dirs] of skillDirsByName) {
+    if (name === ownName || !context.includes(name)) continue;
+    if (!new RegExp(`(?<![\\w-])${name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}(?![\\w-])`).test(context)) continue;
+    if (dirs.some(d => fs.existsSync(path.resolve(d, reference)))) return true;
+  }
+  return false;
+}
 function insideDirectory(parent, candidate) {
   const p = path.relative(parent, candidate);
   return p === '' || (p !== '..' && !p.startsWith(`..${path.sep}`) && !path.isAbsolute(p));
@@ -126,6 +140,15 @@ export function scan(rootInput, {exclude=[]}={}) {
   }
   const findings = [];
   const skills = [];
+  const skillDirsByName = new Map();
+  for (const f of skillFiles) { const d=path.dirname(f), n=path.basename(d); if(!skillDirsByName.has(n))skillDirsByName.set(n,[]); skillDirsByName.get(n).push(d); }
+  // A skill folder that is a dangling symlink (plugins/x/skills/y -> missing) has no SKILL.md to find; report the link itself.
+  for (const file of files) {
+    if (path.basename(path.dirname(file)) !== 'skills' || path.basename(file) === 'SKILL.md') continue;
+    let target;
+    try { if (!fs.lstatSync(file).isSymbolicLink() || fs.existsSync(file)) continue; target = fs.readlinkSync(file); } catch { continue; }
+    pushFinding(findings,{rule:'SYMLINK_BROKEN',severity:'error',file:rel(root,file),skill:path.basename(file),target:normalizeSlash(target),message:`Skill folder is a dangling symlink to ${normalizeSlash(target)}, which does not exist; this skill cannot load.`});
+  }
   if (!skillFiles.length) pushFinding(findings, {rule:'NO_SKILLS', severity:'error', file:'.', message:'No SKILL.md found in target directory.'});
   // Index files by owning skill directory once (O(files x depth)) instead of filtering all files per skill.
   const skillDirs = new Set(skillFiles.map(f => path.dirname(f)));
@@ -193,6 +216,10 @@ export function scan(rootInput, {exclude=[]}={}) {
           if (alternate && rel(skillDir,alternate)!==path.posix.normalize(reference).replace(/\/$/,'')) {
             edge.status='case-mismatch';
             pushFinding(findings,{rule:'CASE_MISMATCH',severity:'error',file:relativeFile,line:lineNo+1,skill:skillName,target:reference,message:`Case mismatch for ${reference}; found ${rel(skillDir,alternate)}`});
+          } else if (!fs.existsSync(candidate) && !alternate && resolvesByExtension(candidate)) {
+            edge.status='ok';
+          } else if (!fs.existsSync(candidate) && !alternate && belongsToNamedSkill(reference, `${lines[lineNo-1]||''}\n${line}`, skillDirsByName, skillName)) {
+            edge.status='other-skill';
           } else if (!fs.existsSync(candidate)) {
           edge.status=alternate?'case-mismatch':'missing';
           pushFinding(findings,{rule:alternate?'CASE_MISMATCH':'MISSING_REFERENCE',severity:'error',file:relativeFile,line:lineNo+1,skill:skillName,target:reference,message:alternate?`Case mismatch for ${reference}; found ${rel(skillDir,alternate)}`:`Referenced file does not exist: ${reference}`});

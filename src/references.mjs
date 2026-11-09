@@ -33,6 +33,8 @@ export function findReferenceTokens(line,{links=true}={}) {
   const definition=!links?null:line.match(/^\s{0,3}\[[^\]]+\]:\s*(?:<([^>]+)>|(\S+))/);
   if(definition){results.push({value:definition[1]||definition[2],source:'markdown'});occupied.push([0,line.length]);}
   // Exclude complete URLs, dynamic tokens and substrings of longer paths.
+  const codeSpans=[];for(const c of line.matchAll(/(`+)[^`]*?\1/g))codeSpans.push([c.index,c.index+c[0].length]);
+  const inCode=i=>!links||codeSpans.some(([a,b])=>i>=a&&i<b);
   const tokens=/(?:https?:\/\/[^\s`<>]+)|(?:[^\s`<>"'()]*\b(?:references|scripts|assets)\/[^\s`<>"'()]*)/g;
   while((m=tokens.exec(line))) {
     if(occupied.some(([a,b])=>m.index>=a&&m.index<b))continue;
@@ -41,6 +43,10 @@ export function findReferenceTokens(line,{links=true}={}) {
     if(/^(?:\.\/)?(?:references|scripts|assets)\/$/.test(m[0].replace(/[,.;:!?]+$/,'')))continue;
     // Output destinations (`-o assets/x.svg`, `--output x`, `> x`) are created, not read.
     if(/(?:^|\s)(?:-o|-O|--out|--output|--output-file|>>?)\s*=?\s*$/.test(line.slice(0,m.index)))continue;
+    // A placeholder cuts the token short (`scripts/train_<variant>.py`, `assets/x_{name}`): the prefix is not a file.
+    if(/^[<{]/.test(line.slice(m.index+m[0].length)))continue;
+    // Outside code, an extensionless pair such as "scripts/CI commands" or "assets/variants" is prose.
+    if(links && !inCode(m.index) && /^[\w-]+$/.test(m[0].replace(/[,.;:!?]+$/,'').split('/').pop()))continue;
     results.push({value:m[0],source:'prose'});
   }
   return results;
