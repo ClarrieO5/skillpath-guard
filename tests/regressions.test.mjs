@@ -68,3 +68,14 @@ test('illustrative paths in markdown fences are ignored, but shell fences are st
   const r=scan(root);
   assert.deepEqual(r.findings.map(f=>[f.rule,f.target]),[['MISSING_REFERENCE','scripts/missing.py']]);
 });
+
+test('link-like syntax in code is not a reference; real resources in code still are',t=>{
+  const {root}=fixture(t,'Use `func f[T any](t T)` or `[x](y.md)`.\n\n```go\nfunc assertEqual[T comparable](t *testing.T, got T) {}\n```\n\nSee `scripts/real.py`.');
+  const r=scan(root);
+  assert.deepEqual(r.findings.map(f=>[f.rule,f.target]),[['MISSING_REFERENCE','scripts/real.py']]);
+});
+test('bare folder mentions are not dependencies, but files and subfolders are',t=>{
+  const {root}=fixture(t,'Layout: scripts/ and references/ hold code.\nBundle assets/templates/ too.');
+  const r=scan(root);
+  assert.deepEqual(r.findings.map(f=>f.target),['assets/templates/']);
+});

@@ -1,11 +1,13 @@
 /** A bounded Markdown subset, not a CommonMark parser. No code is evaluated. */
-export function findReferenceTokens(line) {
+export function findReferenceTokens(line,{links=true}={}) {
   const results=[];
   const occupied=[];
   // Inline links with angle destinations or balanced parentheses and optional titles.
+  // Link syntax inside code (fenced blocks, inline code spans) is code, not a link: e.g. Go `func f[T any](t T)`.
+  const scan=links?line.replace(/(`+)[^`]*?\1/g,x=>' '.repeat(x.length)):'';
   const start=/!?\[[^\]\n]*\]\(/g;
   let m;
-  while((m=start.exec(line))) {
+  while((m=start.exec(scan))) {
     let i=start.lastIndex, depth=0, value='';
     while(/\s/.test(line[i]||'') && i<line.length) i++;
     if(line[i]==='<') {const end=line.indexOf('>',i+1);if(end<0)continue;value=line.slice(i+1,end);i=end+1;}
@@ -26,13 +28,15 @@ export function findReferenceTokens(line) {
     start.lastIndex=end<0?line.length:end+1;
   }
   // Reference definitions are checked at their definition line, including unused ones.
-  const definition=line.match(/^\s{0,3}\[[^\]]+\]:\s*(?:<([^>]+)>|(\S+))/);
+  const definition=!links?null:line.match(/^\s{0,3}\[[^\]]+\]:\s*(?:<([^>]+)>|(\S+))/);
   if(definition){results.push({value:definition[1]||definition[2],source:'markdown'});occupied.push([0,line.length]);}
   // Exclude complete URLs, dynamic tokens and substrings of longer paths.
   const tokens=/(?:https?:\/\/[^\s`<>]+)|(?:[^\s`<>"'()]*\b(?:references|scripts|assets)\/[^\s`<>"'()]*)/g;
   while((m=tokens.exec(line))) {
     if(occupied.some(([a,b])=>m.index>=a&&m.index<b))continue;
     if(!/^(?:\.\/)?(?:references|scripts|assets)\//.test(m[0]))continue;
+    // A bare folder name (`scripts/`) is a layout mention, not a file dependency.
+    if(/^(?:\.\/)?(?:references|scripts|assets)\/$/.test(m[0]))continue;
     results.push({value:m[0],source:'prose'});
   }
   return results;

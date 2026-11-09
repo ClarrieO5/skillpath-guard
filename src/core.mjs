@@ -126,7 +126,7 @@ export function scan(rootInput) {
       const fenceMatch=line.match(/^\s{0,3}(`{3,}|~{3,})\s*([\w-]*)/);
       if (fence) { if (fenceMatch && fenceMatch[1][0]===fence.marker[0] && fenceMatch[1].length>=fence.marker.length && !line.replace(/^\s{0,3}[`~]+/,'').trim()) fence=null; else if (fence.illustrative) continue; }
       else if (fenceMatch) { fence={marker:fenceMatch[1],illustrative:['markdown','md'].includes(fenceMatch[2].toLowerCase())}; if (fence.illustrative) continue; }
-      const tokens = findReferenceTokens(line);
+      const tokens = findReferenceTokens(line,{links:!fence});
       for (const token of tokens) {
         const reference = sanitizeReference(token.value,token.source);
         if (!reference) continue;

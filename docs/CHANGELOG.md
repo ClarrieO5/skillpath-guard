@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Bare folder mentions (`scripts/`, `references/`) in prose are no longer reported as missing files.
+- Link-like syntax inside inline code and non-Markdown fenced blocks is no longer parsed as a Markdown link (e.g. Go generics).
+- Added `docs/CORPUS_VALIDATION.md` (23 public repositories, ranked findings).
+
 - Dangling `SKILL.md` symlinks now report `SYMLINK_BROKEN` instead of throwing.
 - Windows drive paths in Markdown links (`[g](C:\Users\x.md)`) are flagged `ABSOLUTE_REFERENCE`; backslashes now escape only ASCII punctuation, as in CommonMark.
 - Content inside ```` ```markdown ````/```` ```md ```` fences is skipped to avoid false positives; other fences (shell, etc.) are still checked.
