@@ -1,0 +1,39 @@
+From 87d17ea2bc0c37f14c82487141ec89744bec3e37 Mon Sep 17 00:00:00 2001
+From: ClarrieO5 <106720670+ClarrieO5@users.noreply.github.com>
+Date: Mon, 9 Nov 2026 22:31:19 +0000
+Subject: [PATCH] fix: remove reference-table rows that link to missing files
+
+azure-mgmt-apimanagement-dotnet links references/policies.md, which was not
+in the skill when the link was written (25e23b2) and is not there now.
+azure-cosmos-py links scripts/setup_cosmos_container.py, which was added in
+06fffee5 but not carried over when the skill moved to its plugin folder.
+Agents following either link get a file-not-found.
+---
+ .../skills/azure-mgmt-apimanagement-dotnet/SKILL.md              | 1 -
+ .github/plugins/azure-sdk-python/skills/azure-cosmos-py/SKILL.md | 1 -
+ 2 files changed, 2 deletions(-)
+
+diff --git a/.github/plugins/azure-sdk-dotnet/skills/azure-mgmt-apimanagement-dotnet/SKILL.md b/.github/plugins/azure-sdk-dotnet/skills/azure-mgmt-apimanagement-dotnet/SKILL.md
+index ed3fe2b..8512d89 100644
+--- a/.github/plugins/azure-sdk-dotnet/skills/azure-mgmt-apimanagement-dotnet/SKILL.md
++++ b/.github/plugins/azure-sdk-dotnet/skills/azure-mgmt-apimanagement-dotnet/SKILL.md
+@@ -308,7 +308,6 @@ catch (RequestFailedException ex)
+ | [references/service-management.md](references/service-management.md) | Service CRUD, SKUs, networking, backup/restore |
+ | [references/apis-operations.md](references/apis-operations.md) | APIs, operations, schemas, versioning |
+ | [references/products-subscriptions.md](references/products-subscriptions.md) | Products, subscriptions, access control |
+-| [references/policies.md](references/policies.md) | Policy XML patterns, scopes, common policies |
+ 
+ ## Related Resources
+ 
+diff --git a/.github/plugins/azure-sdk-python/skills/azure-cosmos-py/SKILL.md b/.github/plugins/azure-sdk-python/skills/azure-cosmos-py/SKILL.md
+index 9800d67..615fdf7 100644
+--- a/.github/plugins/azure-sdk-python/skills/azure-cosmos-py/SKILL.md
++++ b/.github/plugins/azure-sdk-python/skills/azure-cosmos-py/SKILL.md
+@@ -303,4 +303,3 @@ except CosmosHttpResponseError as e:
+ |------|----------|
+ | [references/partitioning.md](references/partitioning.md) | Partition key strategies, hierarchical keys, hot partition detection and mitigation |
+ | [references/query-patterns.md](references/query-patterns.md) | Query optimization, aggregations, pagination, transactions, change feed |
+-| [scripts/setup_cosmos_container.py](scripts/setup_cosmos_container.py) | CLI tool for creating containers with partitioning, throughput, and indexing |
+-- 
+2.43.0
+

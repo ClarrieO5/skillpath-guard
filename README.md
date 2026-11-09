@@ -30,17 +30,17 @@ The valid fixture exits **0**. The deliberately broken fixture exits **1**, repo
 
 ## Use in CI (GitHub Actions)
 
-SkillPath Guard is not on npm. Use the composite action, pinned to a tag or commit SHA:
+SkillPath Guard is not on npm. Use the composite action, pinned to a full commit SHA:
 
 ```yaml
 - uses: actions/checkout@v4
-- uses: ClarrieO5/skillpath-guard@V0.2.0   # note: the published tag has a capital V
+- uses: ClarrieO5/skillpath-guard@f6eaa00e19cf01f56b26e8f7aab1b2957dd41f44   # main, 2026-11-09
   with:
     path: skills            # folder containing your SKILL.md files
     # baseline: baseline.json   # optional: fail only on NEW findings
 ```
 
-The action itself is added after v0.2.0, so it works from a later tag or a commit SHA, not from `V0.2.0` (see the changelog). With `V0.2.0` use the manual form: `git clone --depth 1 --branch V0.2.0 https://github.com/ClarrieO5/skillpath-guard.git "$RUNNER_TEMP/spg"` then `node "$RUNNER_TEMP/spg/src/cli.mjs" scan skills --github-annotations`. Pair it with the reference validator `skills-ref` for frontmatter checks: the tools check different things (see [docs/COMPARISON.md](docs/COMPARISON.md)).
+The `V0.2.0` tag is older than `action.yml`, so `uses: ClarrieO5/skillpath-guard@V0.2.0` does **not** work. Pin a commit SHA (above) until the next release tag. Without the action, with `V0.2.0`: `git clone --depth 1 --branch V0.2.0 https://github.com/ClarrieO5/skillpath-guard.git "$RUNNER_TEMP/spg"` then `node "$RUNNER_TEMP/spg/src/cli.mjs" scan skills --github-annotations`. Pair it with the reference validator `skills-ref` for frontmatter checks: the tools check different things (see [docs/COMPARISON.md](docs/COMPARISON.md)).
 
 ## CLI
 
@@ -78,6 +78,7 @@ Use the same scan-root layout and tool version for both reports. Identity includ
 | `MISSING_REFERENCE` | Error | Add the resource or correct its link |
 | `CASE_MISMATCH` | Error | Match every path segment's exact spelling |
 | `PATH_ESCAPE`, `SYMLINK_ESCAPE` | Error | Bundle the resource inside the skill folder |
+| `SYMLINK_BROKEN` | Error | A `SKILL.md`, or a skill folder inside a `skills/` folder, is a symlink to something that does not exist: fix or remove the link |
 | `ABSOLUTE_REFERENCE` | Error | Replace a machine-specific link with a packaged relative link |
 | `FRONTMATTER_MISSING`, `NAME_MISSING`, `NAME_INVALID`, `DESCRIPTION_INVALID` | Error | Fix common required metadata |
 | `FRONTMATTER_DUPLICATE`, `FRONTMATTER_UNSUPPORTED` | Error | Remove duplicate fields or simplify unsupported required YAML values |
@@ -100,9 +101,9 @@ Run from the repository root so annotation paths point to the right files. For b
 
 ## Scope and limitations
 
-- Scans exact `SKILL.md` files recursively; does not parse linked documents or execute scripts. Directory symlinks are not followed during discovery. `.git`, `node_modules`, `.next`, `dist`, and `build` are skipped.
+- Scans exact `SKILL.md` files recursively; does not parse linked documents or execute scripts. Directory symlinks are not followed during discovery, but a dangling symlink directly inside a folder named `skills/` is reported. `.git`, `node_modules`, `.next`, `dist`, and `build` are skipped.
 - Supports ordinary inline Markdown links (including angle destinations, titles, URL-encoded spaces, and balanced parentheses), reference definitions, and heuristic bare `references/`, `scripts/`, `assets/` paths. Reference definitions are checked even if unused. Complex/multiline Markdown and HTML links are unsupported.
-- Prose and code examples can produce false positives; only `markdown`/`md` fenced blocks are skipped, so paths in other fences are still checked. Dynamic paths/globs and external URI schemes are skipped. Bare paths outside the three resource folders are not detected; use Markdown links. References are checked for existence, not file type or anchor validity.
+- Prose and code examples can produce false positives; only `markdown`/`md` fenced blocks are skipped, so paths in other fences are still checked. Dynamic paths/globs, placeholder paths (`scripts/train_<variant>.py`) and external URI schemes are skipped. Outside code spans, extensionless prose such as "scripts/CI commands" is not treated as a path, an extensionless name that matches exactly one file (`./assets/card-builder` -> `card-builder.ts`) counts as found, and a file that exists in another skill named on the same or previous line is treated as a cross-skill mention. Bare paths outside the three resource folders are not detected; use Markdown links. References are checked for existence, not file type or anchor validity.
 - Common frontmatter scalars and `>`/`|` blocks with optional chomping signs are supported, with the reference validator's Unicode-aware name rules. This is **not** a full YAML/spec validator: escapes, multiline quoted strings, complex types and optional fields are not fully validated. Use a standards-focused validator alongside it.
 - Cwd warnings use verbs and resolution hints on the **same line**. Context on other lines and actual agent behaviour are unknown. No automatic fix rewrites your instructions.
 - No external links are fetched; no telemetry is sent. Reports contain local paths and excerpts: review them before sharing. Filesystem checks assume a stable checkout; see [SECURITY.md](SECURITY.md).

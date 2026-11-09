@@ -145,3 +145,45 @@ test('placeholder link targets and output paths are not dependencies; real ones 
   const {root}=fixture(t,'Syntax: [text](url) and [x](URL).\nRun `tool -o assets/logo.svg` or `tool --output scripts/out.txt` or `tool > references/out.md`.\nBut read scripts/real.py and [doc](missing.md).');
   assert.deepEqual(scan(root).findings.filter(f=>f.rule==='MISSING_REFERENCE').map(f=>f.target).sort(),['missing.md','scripts/real.py']);
 });
+
+test('NAME_INVALID at the scan root explains clone-folder mismatch; nested skills get no hint',t=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),'owner__humanizer-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
+  fs.writeFileSync(path.join(root,'SKILL.md'),'---\nname: humanizer\ndescription: d\n---\nBody\n');
+  fs.mkdirSync(path.join(root,'nested'));fs.writeFileSync(path.join(root,'nested','SKILL.md'),'---\nname: other\ndescription: d\n---\nBody\n');
+  const f=scan(root).findings.filter(x=>x.rule==='NAME_INVALID');
+  assert.equal(f.length,2);
+  assert.match(f.find(x=>x.file==='SKILL.md').message,/scan root.*'humanizer'/);
+  assert.doesNotMatch(f.find(x=>x.file!=='SKILL.md').message,/scan root/);
+});
+
+// False positives found while scanning 33 public skill repositories (2026-11-10).
+test('placeholder segments cut a path short; the truncated prefix is not a dependency',t=>{
+  const {root}=fixture(t,'Use `scripts/train_<variant>_example.py` or assets/sample_{name}.txt.\nMissing: `scripts/real.py`');
+  assert.deepEqual(scan(root).findings.filter(f=>f.rule==='MISSING_REFERENCE').map(f=>f.target),['scripts/real.py']);
+});
+test('extensionless slash pairs in prose ("scripts/CI commands") are words, not files; code spans and links still count',t=>{
+  const {root}=fixture(t,'Preserve repository scripts/CI commands and links to assets/code.\nRun `scripts/lint --report`.\nSee [x](references/guide).');
+  assert.deepEqual(scan(root).findings.filter(f=>f.rule==='MISSING_REFERENCE').map(f=>f.target).sort(),['references/guide','scripts/lint']);
+});
+test('an extensionless reference resolves to a single file with that stem (TS import, table entry)',t=>{
+  const {root}=fixture(t,"```ts\nimport { buildCard } from './assets/card-builder';\n```\n| `references/open-coding` | notes |\n| `references/dup` | ambiguous |",{'assets/card-builder.ts':'x','references/open-coding.md':'x','references/dup.md':'x','references/dup.txt':'x'});
+  assert.deepEqual(scan(root).findings.filter(f=>f.rule==='MISSING_REFERENCE').map(f=>f.target),['references/dup']);
+});
+test('a file in another named skill is a cross-skill mention, not a missing dependency',t=>{
+  const {root}=fixture(t,"Route to `other-skill`; its\n`references/native.md` covers iOS.\nThe `other-skill` skill's `references/absent.md` is missing.\n\nOwn file: `references/native.md` alone is not enough without a mention.",{});
+  const o=path.join(root,'other-skill');fs.mkdirSync(path.join(o,'references'),{recursive:true});
+  fs.writeFileSync(path.join(o,'SKILL.md'),'---\nname: other-skill\ndescription: d\n---\nBody\n');fs.writeFileSync(path.join(o,'references','native.md'),'x');
+  const missing=scan(root).findings.filter(f=>f.rule==='MISSING_REFERENCE').map(f=>`${f.line}:${f.target}`);
+  assert.deepEqual(missing,['7:references/absent.md','9:references/native.md']);
+});
+test('a dangling symlink inside a skills/ folder is a broken skill link',t=>{
+  if(process.platform==='win32')return t.skip('symlink creation needs privileges on Windows');
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),'guard-skilllink-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
+  const skills=path.join(root,'plugin','skills');fs.mkdirSync(path.join(root,'real','ok'),{recursive:true});fs.mkdirSync(skills,{recursive:true});
+  fs.writeFileSync(path.join(root,'real','ok','SKILL.md'),'---\nname: ok\ndescription: d\n---\nBody\n');
+  fs.symlinkSync('../../real/ok',path.join(skills,'ok'));fs.symlinkSync('../../real/gone',path.join(skills,'gone'));
+  fs.symlinkSync('../real/gone',path.join(root,'plugin','unrelated-link'));
+  const f=scan(root).findings.filter(x=>x.rule==='SYMLINK_BROKEN');
+  assert.deepEqual(f.map(x=>x.file),['plugin/skills/gone']);
+  assert.match(f[0].message,/real\/gone/);
+});

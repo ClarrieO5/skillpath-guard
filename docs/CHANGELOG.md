@@ -4,6 +4,10 @@
 
 - Placeholder link targets (`[text](url)`) and command output paths (`-o assets/x.svg`, `--output`, `>`) are no longer reported as missing files (found by sampling real skills).
 - Added `action.yml` composite GitHub Action (smoke-tested in CI) and a beginner quick start in the README.
+- New: a dangling symlink directly inside a `skills/` folder is reported as `SYMLINK_BROKEN` (found in microsoft/skills, where a plugin's 10 skill links pointed to deleted folders).
+- Fewer false positives, measured on 33 public repositories (514 -> 439 `MISSING_REFERENCE`, all 75 removals reviewed): files in another skill named on the same or previous line; paths cut short by a `<placeholder>` or `{placeholder}`; extensionless prose pairs outside code ("scripts/CI commands"); extensionless names that match exactly one file.
+- README: the CI snippet now pins a commit SHA; `@V0.2.0` predates `action.yml` and does not work.
+- `NAME_INVALID` for a skill at the scan root now explains that the folder name comes from the checkout location (e.g. a clone named `owner__repo`); still an error, since the spec requires name = folder.
 - Docs: tag is `V0.2.0` (capital V); added `docs/CONTRIBUTION_CANDIDATES.md` and an expanded `CONTRIBUTING.md`.
 
 ## 0.2.0 — experimental (unreleased; see RELEASE_NOTES_v0.2.0.md)
