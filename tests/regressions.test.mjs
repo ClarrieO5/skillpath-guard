@@ -145,3 +145,13 @@ test('placeholder link targets and output paths are not dependencies; real ones 
   const {root}=fixture(t,'Syntax: [text](url) and [x](URL).\nRun `tool -o assets/logo.svg` or `tool --output scripts/out.txt` or `tool > references/out.md`.\nBut read scripts/real.py and [doc](missing.md).');
   assert.deepEqual(scan(root).findings.filter(f=>f.rule==='MISSING_REFERENCE').map(f=>f.target).sort(),['missing.md','scripts/real.py']);
 });
+
+test('NAME_INVALID at the scan root explains clone-folder mismatch; nested skills get no hint',t=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),'owner__humanizer-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
+  fs.writeFileSync(path.join(root,'SKILL.md'),'---\nname: humanizer\ndescription: d\n---\nBody\n');
+  fs.mkdirSync(path.join(root,'nested'));fs.writeFileSync(path.join(root,'nested','SKILL.md'),'---\nname: other\ndescription: d\n---\nBody\n');
+  const f=scan(root).findings.filter(x=>x.rule==='NAME_INVALID');
+  assert.equal(f.length,2);
+  assert.match(f.find(x=>x.file==='SKILL.md').message,/scan root.*'humanizer'/);
+  assert.doesNotMatch(f.find(x=>x.file!=='SKILL.md').message,/scan root/);
+});

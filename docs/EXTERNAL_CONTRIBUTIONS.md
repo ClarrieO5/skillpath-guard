@@ -24,7 +24,7 @@ Re-checked 2026-11-09 against fresh shallow clones, re-scanning with SkillPath G
 ## Checked and rejected (not bugs, or not ours to fix)
 - **Imbad0202/academic-research-skills:** `scripts/*.py` references in sub-skills are repo-root commands (the files exist at the root). Design choice, not a defect. (Their CONTRIBUTING.md accepts fork-and-PR; "Bug and drift fixes" need maintainer review.)
 - **open-design (14 SKILL.md files without frontmatter), marketingskills / nature-skills / superpowers (`../` sibling links), career-ops (symlinked SKILL.md):** plausible portability concerns but repo-specific design decisions; ask, don't assert.
-- **blader/humanizer `NAME_INVALID`:** an artifact of my clone folder name (`blader__humanizer`), not a bug in that repo. Scanning a repo-root skill from a differently named folder produces this false alarm; worth a SkillPath Guard note.
+- **blader/humanizer `NAME_INVALID`:** an artifact of my clone folder name (`blader__humanizer`), not a bug in that repo. Scanning a repo-root skill from a differently named folder produces this false alarm; worth a SkillPath Guard note. (Done: the message now says so when the skill is at the scan root.)
 - **K-Dense `bulk-rnaseq`, `generate-image`, `[text](url)` placeholders:** our false positives (already fixed).
 - **ECC `postgres-patterns` "Supabase" target:** the flagged line is the YAML `---`; likely an artifact of line mapping in a translated file. Not investigated further.
 
