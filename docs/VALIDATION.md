@@ -4,12 +4,13 @@ Date: 9 November 2026. Local environment: Linux, Node v24.22.1.
 
 - Supplied prototype: **9 tests passed** before edits.
 - First added regression suite: **18 tests, 8 passed / 10 failed** against the prototype. Failures reproduced links, path checks and baseline defects; then fixed.
-- Current local suite: **49 passed, 0 failed, 0 skipped**. See [recorded output](evidence/local-tests.txt).
+- Current local suite: **50 passed, 0 failed, 0 skipped**. See [recorded output](evidence/local-tests.txt).
 - `npm run verify`: passed unit/regression/CLI suite and valid, broken, and baseline exit contracts.
-- `npm pack --dry-run`: passed. No npm registry publication performed; `private: true` intentionally prevents accidental publication.
+- `npm pack --dry-run`: passed. Packed tarball extracted in a fresh directory and its CLI scanned the valid fixture successfully. No npm registry publication performed; `private: true` intentionally prevents accidental publication.
 - Public corpus: ten skills scanned; no errors, five uncertain cwd warnings. See [research](RESEARCH_LOG.md).
 - Independent users, live agent experiments, and human code review: **not completed**.
-- Hosted CI: pending first repository push at time of this record; consult Actions and the release for current status.
+- First hosted 49-test matrix: [Actions run 42578477378](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42578477378). Final 50-test release matrix is linked from the GitHub release; verify the tested commit there.
+- A fresh public clone independently ran the original 49-test release-candidate suite successfully in this same environment. This is a clean-checkout check, not an independent user trial.
 
 ## Reproduce
 

@@ -7,7 +7,7 @@ An offline Node.js CLI for SKILL.md local-resource checks, portability warnings,
 ## Release gate
 
 - [x] Supplied code reviewed; original nine tests run
-- [x] Regression and CLI tests added, 49 local tests pass
+- [x] Regression and CLI tests added, 50 local tests pass
 - [x] Expected valid/broken/baseline exits verified
 - [x] Ten public skill directories audited with source revision and licence checks
 - [x] MIT licence and AI assistance disclosure retained
@@ -27,4 +27,4 @@ An offline Node.js CLI for SKILL.md local-resource checks, portability warnings,
 
 ## Manual completion map
 
-Days 1–2: setup, research, source development and regression work completed in this environment. Day 3: baseline experiments completed; live-runtime experiment explicitly untested. Day 4: workflow prepared; hosted run tracked separately. Day 5: documentation and local usability checks completed; independent trials outstanding. Day 6: issues/contribution policies reviewed; no new confirmed upstream bug, outreach or PR. Day 7: release preparation and honest evidence audit completed; publication is conditional on CI. The seven-day plan is not fully complete merely because the CLI works.
+Days 1–2: setup, research, source development and regression work completed in this environment. Day 3: baseline experiments completed; live-runtime experiment explicitly untested. Day 4: workflow prepared; hosted run linked in validation evidence. Day 5: documentation and local usability checks completed; independent trials outstanding. Day 6: issues/contribution policies reviewed; no new confirmed upstream bug, outreach or PR. Day 7: release preparation and honest evidence audit completed; publication is conditional on CI. The seven-day plan is not fully complete merely because the CLI works.
