@@ -1,4 +1,6 @@
-# External contributions: investigation results (nothing has been submitted)
+# External contributions: investigation results
+
+> **Superseded 2026-11-09 (later session):** PR #283 for candidate 1 is now open upstream. Candidate 2 is a documented compatibility alias, not a defect, and candidate 3 duplicates many existing issues/PRs. See `CONTRIBUTION_LEDGER.md` for the current, evidence-backed status. The ranking below is kept as history.
 
 Re-checked 2026-11-09 against fresh shallow clones, re-scanning with SkillPath Guard `main` (a411edd). Only 1 of 10 repositories had new commits since the first scan (`career-ops`, `marketingskills`); the rest were unchanged.
 

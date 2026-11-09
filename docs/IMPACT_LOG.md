@@ -9,7 +9,8 @@ As of 9 November 2026:
 - Confirmed independent users: **0**
 - Confirmed external adopting projects: **0**
 - Confirmed newly reproduced upstream defects: **0**
-- Accepted upstream PRs from this work: **0**
+- Upstream PRs submitted from this work: **1** (shanraisshan/claude-code-best-practice#283, open, unreviewed as of 2026-11-09)
+- Accepted/merged upstream PRs from this work: **0**
 - External contributors demonstrated by this work: **0**
 - Registry downloads: **not measured; package not published to a registry**
 - Public-source evaluation: ten skills inspected; this is research, **not adoption**.
