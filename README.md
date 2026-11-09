@@ -6,6 +6,14 @@ An experimental, dependency-free, offline Node.js CLI. It checks `SKILL.md` refe
 
 A file can exist yet an agent may look for it in the wrong working directory. `AMBIGUOUS_CWD` highlights instructions worth reviewing; it does **not** prove a runtime failure. This is an independent MIT-licensed project, not an official Anthropic or Agent Skills validator.
 
+## New here? Start with these three steps
+
+1. Install Node.js 20 or newer (check with `node --version`).
+2. Download a release: `git clone --depth 1 --branch V0.2.0 https://github.com/ClarrieO5/skillpath-guard.git` (the tag is `V0.2.0`, capital V).
+3. Scan your skills: `node skillpath-guard/src/cli.mjs scan path/to/your/skills`.
+
+Reading the output: each line names a rule, a file and line, and what to fix. **error** findings (broken link, name mismatch) make the command exit 1; **warning** findings are worth reviewing. Rules are explained in "Checks and fixes" below. If a finding is wrong, please open an issue with the Markdown line that triggered it.
+
 ## Run in one minute
 
 Requires Node.js 20, 22, or 24. No API key, npm dependency installation, or account is needed to run the CLI.
@@ -22,16 +30,17 @@ The valid fixture exits **0**. The deliberately broken fixture exits **1**, repo
 
 ## Use in CI (GitHub Actions)
 
-SkillPath Guard is not published to npm. Pin a release tag and run it from a checkout; this needs no dependencies:
+SkillPath Guard is not on npm. Use the composite action, pinned to a tag or commit SHA:
 
 ```yaml
-- uses: actions/setup-node@v4
-  with: {node-version: 22}
-- run: git clone --depth 1 --branch v0.2.0 https://github.com/ClarrieO5/skillpath-guard.git "$RUNNER_TEMP/spg"
-- run: node "$RUNNER_TEMP/spg/src/cli.mjs" scan skills --baseline baseline.json --fail-on-new --github-annotations
+- uses: actions/checkout@v4
+- uses: ClarrieO5/skillpath-guard@V0.2.0   # note: the published tag has a capital V
+  with:
+    path: skills            # folder containing your SKILL.md files
+    # baseline: baseline.json   # optional: fail only on NEW findings
 ```
 
-(`v0.2.0` exists only after the release is published; use `v0.1.0` or a commit SHA until then.) Pair it with the reference validator `skills-ref` for frontmatter checks: the two tools check different things (see [docs/COMPARISON.md](docs/COMPARISON.md)).
+The action itself is added after v0.2.0, so it works from a later tag or a commit SHA, not from `V0.2.0` (see the changelog). With `V0.2.0` use the manual form: `git clone --depth 1 --branch V0.2.0 https://github.com/ClarrieO5/skillpath-guard.git "$RUNNER_TEMP/spg"` then `node "$RUNNER_TEMP/spg/src/cli.mjs" scan skills --github-annotations`. Pair it with the reference validator `skills-ref` for frontmatter checks: the tools check different things (see [docs/COMPARISON.md](docs/COMPARISON.md)).
 
 ## CLI
 

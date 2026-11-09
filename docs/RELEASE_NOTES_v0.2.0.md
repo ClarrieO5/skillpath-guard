@@ -17,6 +17,9 @@ Draft release notes. Not yet published; tag and release require maintainer appro
 - Two validators (`skills-ref`, `@vibe-agent-toolkit/agent-skills`) were compared by reading source only; installation was blocked and no identical-fixture run exists (see docs/COMPARISON.md). One Claude Code runtime trial; `AMBIGUOUS_CWD` is unvalidated.
 - No external adoption evidence yet.
 
-## Release checklist (maintainer)
+## Release note (added after publishing)
+The published tag is `V0.2.0` (capital V), not `v0.2.0` as these notes originally said; `git clone --branch v0.2.0` fails. Use `V0.2.0` or the commit SHA `a3ecd1b`. Verified 2026-11-09: a fresh clone of `V0.2.0` points at `main` commit `a3ecd1b`, `--version` prints 0.2.0, `examples/valid` exits 0, `examples/broken` exits 1, and 70/70 tests pass; the release CI run for that commit succeeded.
+
+## Release checklist (historical)
 1. Merge the v0.2.0 PR after CI is green.
 2. `git tag v0.2.0 && git push origin v0.2.0`; create a GitHub release marked pre-release with these notes.

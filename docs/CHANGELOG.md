@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased (next: 0.2.1)
+
+- Placeholder link targets (`[text](url)`) and command output paths (`-o assets/x.svg`, `--output`, `>`) are no longer reported as missing files (found by sampling real skills).
+- Added `action.yml` composite GitHub Action (smoke-tested in CI) and a beginner quick start in the README.
+- Docs: tag is `V0.2.0` (capital V); added `docs/CONTRIBUTION_CANDIDATES.md` and an expanded `CONTRIBUTING.md`.
+
 ## 0.2.0 — experimental (unreleased; see RELEASE_NOTES_v0.2.0.md)
 
 - Added `COMPATIBILITY_INVALID` (over 500 characters). Version bumped to 0.2.0.
