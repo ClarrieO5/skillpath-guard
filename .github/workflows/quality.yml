@@ -22,3 +22,12 @@ jobs:
         uses: ./
         with:
           path: examples/valid
+      - name: Composite action fails on a broken skill
+        id: broken
+        continue-on-error: true
+        uses: ./
+        with:
+          path: examples/broken
+      - name: Require the broken-skill run to fail
+        shell: bash
+        run: test "${{ steps.broken.outcome }}" = "failure"
