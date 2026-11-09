@@ -3,6 +3,7 @@
 ## 0.2.0 — experimental (unreleased; see RELEASE_NOTES_v0.2.0.md)
 
 - Added `COMPATIBILITY_INVALID` (over 500 characters). Version bumped to 0.2.0.
+- Bare folder mentions followed by punctuation are no longer reported as missing.
 
 - Performance: per-skill file indexing removes an O(skills x files) scan; a 562-skill repo drops from 8.9 s to 0.56 s.
 - Skill names now follow the reference validator: Unicode lowercase letters/digits and single hyphens (NFKC); uppercase and double hyphens remain errors.

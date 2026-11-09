@@ -36,7 +36,7 @@ export function findReferenceTokens(line,{links=true}={}) {
     if(occupied.some(([a,b])=>m.index>=a&&m.index<b))continue;
     if(!/^(?:\.\/)?(?:references|scripts|assets)\//.test(m[0]))continue;
     // A bare folder name (`scripts/`) is a layout mention, not a file dependency.
-    if(/^(?:\.\/)?(?:references|scripts|assets)\/$/.test(m[0]))continue;
+    if(/^(?:\.\/)?(?:references|scripts|assets)\/$/.test(m[0].replace(/[,.;:!?]+$/,'')))continue;
     results.push({value:m[0],source:'prose'});
   }
   return results;

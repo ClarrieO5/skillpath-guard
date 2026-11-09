@@ -32,3 +32,6 @@ After the fixes: MISSING_REFERENCE 593 to 445, AMBIGUOUS_CWD 875 to 870, PATH_ES
 
 ## Not done
 No human review of every finding. Results are not evidence of runtime compatibility. See `COMPARISON.md` and `RUNTIME_EVIDENCE.md`.
+
+## Precision spot check (second pass)
+A seeded random sample of 24 MISSING_REFERENCE findings (excluding the 9,013-skill repo) was read against its source line: 23 looked like genuine missing files for a standalone skill (many are `assets/...` or `scripts/...` files that live outside the skill folder), 1 was a false positive (`scripts/,` in a prose list), now fixed with a regression test. This is a small, single-reviewer sample and not an accuracy rate; AMBIGUOUS_CWD was not sampled and is unvalidated.
