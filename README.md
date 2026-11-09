@@ -20,6 +20,19 @@ node src/cli.mjs scan examples/broken --format md
 
 The valid fixture exits **0**. The deliberately broken fixture exits **1**, reports `MISSING_REFERENCE`, and demonstrates a working-directory warning. For your own library, replace `examples/valid` with its directory (quote paths containing spaces). Both a single skill directory and a parent containing many skills are supported.
 
+## Use in CI (GitHub Actions)
+
+SkillPath Guard is not published to npm. Pin a release tag and run it from a checkout; this needs no dependencies:
+
+```yaml
+- uses: actions/setup-node@v4
+  with: {node-version: 22}
+- run: git clone --depth 1 --branch v0.2.0 https://github.com/ClarrieO5/skillpath-guard.git "$RUNNER_TEMP/spg"
+- run: node "$RUNNER_TEMP/spg/src/cli.mjs" scan skills --baseline baseline.json --fail-on-new --github-annotations
+```
+
+(`v0.2.0` exists only after the release is published; use `v0.1.0` or a commit SHA until then.) Pair it with the reference validator `skills-ref` for frontmatter checks: the two tools check different things (see [docs/COMPARISON.md](docs/COMPARISON.md)).
+
 ## CLI
 
 ```text
@@ -31,6 +44,7 @@ node src/cli.mjs --version
 
 | Option | Behaviour |
 |---|---|
+| `--exclude` | Skip a root-relative path (see `--help`) |
 | `--format` | Text by default; JSON for automation or Markdown for review |
 | `--out` | Save the report, creating parent directories |
 | `--baseline` | Compare a previous SkillPath Guard JSON report |

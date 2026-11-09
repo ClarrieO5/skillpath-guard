@@ -128,3 +128,10 @@ test('unicode lowercase skill names are accepted like the reference validator; u
   assert.deepEqual(mk('Demo','Demo'),['NAME_INVALID']);
   assert.deepEqual(mk('a--b','a--b'),['NAME_INVALID']);
 });
+
+test('over-long compatibility field is an error; a short one is fine',t=>{
+  const mk=(compat)=>{const root=fs.mkdtempSync(path.join(os.tmpdir(),'guard-compat-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));fs.mkdirSync(path.join(root,'demo'));fs.writeFileSync(path.join(root,'demo','SKILL.md'),`---\nname: demo\ndescription: d\ncompatibility: ${compat}\n---\nBody\n`);return scan(root).findings.map(f=>f.rule);};
+  assert.deepEqual(mk('Needs Node 20'),[]);
+  assert.deepEqual(mk('x'.repeat(501)),['COMPATIBILITY_INVALID']);
+  assert.deepEqual(mk('x'.repeat(500)),[]);
+});
