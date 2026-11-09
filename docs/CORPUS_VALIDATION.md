@@ -1,4 +1,4 @@
-# Public-corpus validation (unreleased 0.2.0 work)
+# Public-corpus validation (0.2.0 work, released as `V0.2.0`; round 2 with 38 more repositories: `docs/CONTRIBUTION_RESEARCH_2026-11.md`)
 
 ## Corrections (second pass)
 

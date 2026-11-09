@@ -10,11 +10,11 @@ Re-run these searches monthly and record the numbers in `docs/IMPACT_LOG.md`. Co
 
 ## Before announcing (blockers)
 
-1. **Merge the internal PR and tag a release** (suggest `v0.2.1`, lowercase like `v0.1.0`; the mixed `V0.2.0` tag has already confused the docs once). The `V0.2.0` tag predates `action.yml`, so `uses: ClarrieO5/skillpath-guard@V0.2.0` fails. The v0.2.1 release PR already switches the README to `@v0.2.1`, so tag immediately after merging it.
-2. Verify the Action from a **separate** repository (not this one): create a throwaway public repo with one skill and the workflow below, push, and confirm the run passes; then add a broken link and confirm it fails with an annotation. Record the run URLs in `docs/VALIDATION.md`.
+1. ~~Merge the internal PR and tag a release.~~ **Done 2026-11-10:** [v0.2.1](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.2.1) (pre-release) at f1802cd. The `release-check` workflow ran `uses: ClarrieO5/skillpath-guard@v0.2.1` against the published tag and passed: valid skill passes, broken skill fails, CLI prints 0.2.1 ([run 42716652601](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42716652601)).
+2. **Still open:** verify the Action from a **separate** repository (the release check above ran inside this repository): create a throwaway public repo with one skill and the workflow below, push, and confirm the run passes; then add a broken link and confirm it fails with an annotation. Record the run URLs in `docs/VALIDATION.md`.
 3. Get one person other than you to follow the README from scratch.
 
-Install instructions checked 2026-11-10: the composite action script runs with `examples/valid` (exit 0), `examples/broken` (exit 1) and `strict: true` (exit 0); `action.yml` exists at f6eaa00. Not yet checked: a run from an external repository.
+Install instructions checked 2026-11-10: README install (`git clone --branch v0.2.1`) and CI snippet (`@v0.2.1`) match the published tag, and the release check passed. Not yet checked: a run from an external repository.
 
 ```yaml
 # .github/workflows/skills.yml
@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ClarrieO5/skillpath-guard@<tag-or-full-sha>
+      - uses: ClarrieO5/skillpath-guard@v0.2.1
         with:
           path: skills
 ```
@@ -36,7 +36,7 @@ Evidence from `docs/CONTRIBUTION_RESEARCH_2026-11.md`. Lead with the fix, not th
 
 | Repository | Why | Existing checks |
 |---|---|---|
-| github/awesome-copilot (478 skills) | Real case bug that only appears on Linux | `skill:validate` (not run here; may not check link targets or case) |
+| github/awesome-copilot (478 skills) | Real case bug that only appears on Linux | `skill:validate`, which passes the broken skill (checked 2026-11-10): it does not check link targets or case |
 | microsoft/skills (210 skills) | Dead links plus 10 dangling skill symlinks (fixed by open PR #414) | Has a test harness; excluded microsoft-foundry from a SKILL.md existence test |
 | wshobson/agents (185 skills) | Dead pointers missed by its own `DEAD_CROSS_REF` checker | Strong in-house tooling; likely **not** an adopter, but a source of false-positive comparisons |
 | firebase/agent-skills | Name/folder mismatch | mdformat only |

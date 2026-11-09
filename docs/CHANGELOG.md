@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Docs: project status handoff (`docs/STATUS.md`), v0.2.1 CI evidence, refreshed contribution ledger.
+
 ## 0.2.1 — experimental (2026-11-10; tag `v0.2.1`, see RELEASE_NOTES_v0.2.1.md)
 
 - First release that includes the composite GitHub Action: `uses: ClarrieO5/skillpath-guard@v0.2.1`. CI now also checks that the action fails on a broken skill, and a release workflow runs the exact consumer line against the published tag.
