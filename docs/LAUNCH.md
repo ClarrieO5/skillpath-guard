@@ -10,7 +10,7 @@ Re-run these searches monthly and record the numbers in `docs/IMPACT_LOG.md`. Co
 
 ## Before announcing (blockers)
 
-1. **Merge the internal PR and tag a release** (suggest `v0.2.1`, lowercase like `v0.1.0`; the mixed `V0.2.0` tag has already confused the docs once). The `V0.2.0` tag predates `action.yml`, so `uses: ClarrieO5/skillpath-guard@V0.2.0` fails. Until a new tag exists the README pins commit `f6eaa00`. After tagging, update the README snippet to `@v0.2.1`.
+1. **Merge the internal PR and tag a release** (suggest `v0.2.1`, lowercase like `v0.1.0`; the mixed `V0.2.0` tag has already confused the docs once). The `V0.2.0` tag predates `action.yml`, so `uses: ClarrieO5/skillpath-guard@V0.2.0` fails. The v0.2.1 release PR already switches the README to `@v0.2.1`, so tag immediately after merging it.
 2. Verify the Action from a **separate** repository (not this one): create a throwaway public repo with one skill and the workflow below, push, and confirm the run passes; then add a broken link and confirm it fails with an annotation. Record the run URLs in `docs/VALIDATION.md`.
 3. Get one person other than you to follow the README from scratch.
 

@@ -28,3 +28,11 @@ An offline Node.js CLI for SKILL.md local-resource checks, portability warnings,
 ## Manual completion map
 
 Days 1–2: setup, research, source development and regression work completed in this environment. Day 3: baseline experiments completed; live-runtime experiment explicitly untested. Day 4: all nine hosted matrix jobs passed. Day 5: documentation and local usability checks completed; independent trials outstanding. Day 6: issues/contribution policies reviewed; no new confirmed upstream bug, outreach or PR. Day 7: release preparation and honest evidence audit completed; experimental prerelease published after CI passed. The seven-day plan is not fully complete merely because the CLI works.
+
+## v0.2.1 and later
+
+1. Merge the release PR only after all nine `quality` jobs pass on it. They now include a check that the Action **fails** on `examples/broken`.
+2. Make sure the tag in `.github/workflows/release-check.yml` matches the new version. Use lowercase `v` tags from now on (`v0.2.1`); `V0.2.0` was a one-off.
+3. Create the release in the GitHub UI: tag `v0.2.1` on `main`, mark it **pre-release**, and paste in `docs/RELEASE_NOTES_v0.2.1.md`.
+4. Publishing triggers `release-check`, which runs `uses: ClarrieO5/skillpath-guard@v0.2.1` exactly as a consumer would. If it fails, edit the release back to draft and fix forward. Never move a published tag.
+5. Record both run links in the release notes and in `docs/VALIDATION.md`.
