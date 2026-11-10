@@ -12,7 +12,7 @@ Status: **not released, not tagged, not published.** v0.3.2 is the current relea
 | Action: case-insensitive booleans, clear error on invalid values | `strict: 'True'` was silently ignored | 1 regression test that runs the action's real shell script |
 | README rewrite; new reports | Phases 2, 3, 5, 6 | README commands and workflow YAML run/parsed by hand (below) |
 
-Tests: 90 to 96 passing. Each new behavioural test was confirmed to fail on the previous code (3 of the 4 behaviour tests fail without the source change; the baseline-compatibility test passes either way by design, it guards against regression).
+Tests: 90 to 96 passing. Checked against the previous code: 3 of the 5 new core tests fail without the source change (the multi-line-quote and baseline-compatibility tests pass either way, by design: they guard against regressions), and the action test fails without the `action.yml` change.
 
 ## Test results (this machine: Linux, Node 22.23.4)
 

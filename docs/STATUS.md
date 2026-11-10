@@ -1,6 +1,6 @@
 # Project status and handoff
 
-Snapshot: **2026-11-10** (seventh session: after the v0.3.0 release). Read this first when continuing in a new session. Keep it current: update it at the end of every session.
+Snapshot: **2026-11-10** (eighth session: real-world validation, comparison, Marketplace and README work on top of the published v0.3.2; PR open, nothing merged or released). Read this first when continuing in a new session. Keep it current: update it at the end of every session.
 
 ## Where things stand
 
@@ -8,7 +8,8 @@ Snapshot: **2026-11-10** (seventh session: after the v0.3.0 release). Read this 
 |---|---|
 | Latest release | [v0.3.0](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.3.0) is the last correct release. [v0.3.1](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.3.1) is a published pre-release **created in error** (tag at 4053f81, package version 0.3.0); preserved, not to be used. Not on npm. |
 | Adoption audit | Merged as PR #15 (a44b885); hosted `quality` green ([run 42789258700](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42789258700)). Report: `docs/ADOPTION_AUDIT_2026-11.md`. |
-| v0.3.2 | Release PR open: version 0.3.2, tag/version guards, release notes `docs/RELEASE_NOTES_v0.3.2.md`. **Not merged, not tagged, not published.** Merge only when ready to publish to npm within the hour. |
+| v0.3.2 | Published (tag `v0.3.2`, npm `skillpath-guard@0.3.2`, verified installable from a clean directory on 2026-11-10). |
+| Next (proposed 0.3.3) | Branch `claude/sharp-wright-mamcij`: unterminated-quote detection, clearer metadata messages, action boolean validation, README rewrite, new reports. See `docs/RELEASE_READINESS_v0.3.3.md`. **Not merged, tagged or published.** |
 | Consumer-repo Action test | `ClarrieO5/skillpath-guard-consumer-test`: 6 jobs green at `@v0.3.0` ([run 42794375114](https://github.com/ClarrieO5/skillpath-guard-consumer-test/actions/runs/42794375114)). Earlier runs 1-4 were red from test-workflow mistakes (`docs/VALIDATION.md`). Not yet at `@v0.3.1`. Job-summary content not verified by eye. |
 | npm | Not published (registry 404 for the package, so no version exists). `private` removed on `main`; 0.3.2 prepared. No npm auth in sessions. Steps and provenance: `docs/RELEASE.md`. |
 | Tests | 90 pass; `npm run verify` passes (Node 22 locally; CI covers 20/22/24). |
@@ -31,6 +32,12 @@ Released 2026-11-10; run links recorded in session 5. "Stable" (not a pre-releas
 7. **awesome-copilot #6339:** nothing to do unless a maintainer asks for changes.
 
 Withdrawn on 2026-11-10 (do not submit): microsoft/skills (already reported in #422/#464, fix PR #448 open), anthropics/skills `claude-api` (3 issues and 6 PRs already open), nature-skills (deliberate, allowlisted alias).
+
+## Session 8 results (2026-11-10)
+
+- `docs/REAL_WORLD_VALIDATION.md`: 25 repos, exact SHAs, v0.3.2 results and triage. `docs/COMPARISON.md`: measured fixtures (`docs/evidence/comparison/`) vs skills-ref and vat. Blocked by the permission system and therefore NOT measured: building `agent-ecosystem/skill-validator` (Go) and running `skillspec-check`.
+- `docs/MARKETPLACE_READINESS.md` has the owner's exact steps. Name uniqueness and the Developer Agreement remain unverified/owner-only.
+- Open follow-ups: plugin-root script cue for MISSING_REFERENCE (trailofbits), PATH_ESCAPE line-by-line triage, hosted CI result for the PR, consumer repo at the new tag.
 
 ## Next work for an AI session
 
