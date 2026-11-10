@@ -1,15 +1,17 @@
 # Project status and handoff
 
-Snapshot: **2026-11-10** (fifth session: adoption audit). Read this first when continuing in a new session. Keep it current: update it at the end of every session.
+Snapshot: **2026-11-10** (sixth session: v0.3.0 preparation). Read this first when continuing in a new session. Keep it current: update it at the end of every session.
 
 ## Where things stand
 
 | Item | State |
 |---|---|
 | Latest release | [v0.2.2](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.2.2), pre-release, tag at cc739d3 (= `main`, PR #14). CI and `release-check` green; links in `docs/VALIDATION.md`. |
-| Adoption audit PR | Branch `claude/awesome-euler-41wdzj`: `AMBIGUOUS_CWD` opt-in (behaviour change), `--allow-shared`, ignore comments, Action inputs and job summary, trimmed npm package. Report: `docs/ADOPTION_AUDIT_2026-11.md`. Not merged. |
+| Adoption audit | Merged as PR #15 (a44b885); hosted `quality` green ([run 42789258700](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42789258700)). Report: `docs/ADOPTION_AUDIT_2026-11.md`. |
+| v0.3.0 | Release PR prepared (version bump, `docs/RELEASE_NOTES_v0.3.0.md`, changelog, README, migration notes). **Not merged, not tagged.** |
+| Consumer-repo Action test | **Not done on GitHub.** Session 6 could not create a repository (`create_repository` is disabled for sessions; scope is only this repo). Kit ready in `docs/external-action-test/`; a local simulation of the Action's shell is recorded in `docs/VALIDATION.md`. |
 | npm | Not published; `private: true`. Name unclaimed (404). Runbook in `docs/RELEASE.md`. `npx github:ClarrieO5/skillpath-guard#v0.2.2` works today. |
-| Tests | 87 pass on the audit branch; `npm run verify` passes (Node 22 locally; CI covers 20/22/24). |
+| Tests | 87 pass on `main`; `npm run verify` passes (Node 22 locally; CI covers 20/22/24). |
 | Real usage | 0 repositories use the Action (last searched 2026-11-10). No external users. |
 | Upstream PRs | Merged 0. Open 2: [github/awesome-copilot#6339](https://github.com/github/awesome-copilot/pull/6339) (awaiting a maintainer; bot checks and two Copilot reviews positive, no change requests) and shanraisshan/claude-code-best-practice#283 (duplicate of #142). |
 | Internal PRs | #9 (old draft, superseded) still open. |
@@ -20,7 +22,7 @@ Released 2026-11-10; run links recorded in session 5. "Stable" (not a pre-releas
 
 ## Waiting on you (nothing below has been done)
 
-1. **Adoption audit PR** (`claude/awesome-euler-41wdzj`): review, decide on the `AMBIGUOUS_CWD` default change, merge if you agree. Then a v0.3.0 pre-release (behaviour change), following `docs/RELEASE.md`. Next actions in `docs/ADOPTION_AUDIT_2026-11.md`.
+1. **v0.3.0 release PR:** review, check hosted CI, and before tagging run the consumer test (steps in `docs/external-action-test/README.md`: create a public throwaway repo, push the kit, run the workflow). Add the run URLs to `docs/VALIDATION.md` and the release notes. Then merge, tag `v0.3.0` (pre-release) following `docs/RELEASE.md`; `release-check` runs on publish. The `AMBIGUOUS_CWD` default change is already merged; v0.3.0 is where users first see it.
 2. **firebase/agent-skills** (PR; re-verified 2026-11-10: upstream unchanged at 99954a3, no duplicate, `skills-ref` fails before and passes after). Sign the Google CLA first: https://cla.developers.google.com/ . Then fork, `git am docs/patches/firebase-agent-skills-data-connect-name.patch`, `git commit --amend --reset-author --no-edit` (with your CLA email), push, and open a PR to `main` using `docs/drafts/firebase-agent-skills-data-connect-name-PR.md`.
 3. **wshobson/agents** (PR; upstream unchanged at 9c61ab2, no duplicate). The description, in their template, is in `docs/drafts/wshobson-agents-ml-pipeline-workflow-PR.md`. Their `make validate STRICT=1 / garden / test` were **not** run: the permission system blocked them. Either run them locally, or submit with those boxes unticked and let their CI run them.
 4. **tech-leads-club/agent-skills** (issue, not PR: the repo is issue-first): `docs/drafts/tech-leads-club-routing-names-ISSUE.md`.
@@ -32,7 +34,7 @@ Withdrawn on 2026-11-10 (do not submit): microsoft/skills (already reported in #
 
 ## Next work for an AI session
 
-- After the audit PR is merged and released: test the Action from a throwaway repo once the maintainer creates one; do not publish to npm or the Marketplace without approval.
+- Once the maintainer creates the throwaway repo (or enables repo creation for the session): run the kit, record real run URLs and results, and report failures too. Do not publish to npm or the Marketplace without approval.
 - The 12-repo first-run test (`docs/ADOPTION_AUDIT_2026-11.md`) is the adoption benchmark: re-run it with fresh clones after any rule change and compare repos failing / errors / warnings.
 
 - After any external PR is opened: subscribe to it, respond to review, and record the outcome in the ledger and `docs/IMPACT_LOG.md`.
@@ -65,4 +67,5 @@ Do not merge, publish, submit external issues or PRs, or contact maintainers wit
 - Evidence: `docs/VALIDATION.md`, `docs/IMPACT_LOG.md`, `docs/RUNTIME_EVIDENCE.md`, `docs/CORPUS_VALIDATION.md`.
 - Contributions: `docs/CONTRIBUTION_LEDGER.md` (status of every external item), `docs/CONTRIBUTION_RESEARCH_2026-11.md` (round 2 evidence), `docs/EXTERNAL_CONTRIBUTIONS.md` and `docs/CONTRIBUTION_CANDIDATES.md` (round 1), `docs/patches/`, `docs/drafts/`.
 - Adoption audit (session 5): `docs/ADOPTION_AUDIT_2026-11.md`.
-- Release and outreach: `docs/RELEASE.md`, `docs/RELEASE_NOTES_v0.2.1.md`, `docs/CHANGELOG.md`, `docs/LAUNCH.md`, `docs/ADOPTION.md`.
+- Consumer test kit: `docs/external-action-test/`.
+- Release and outreach: `docs/RELEASE.md`, `docs/RELEASE_NOTES_v0.3.0.md`, `docs/RELEASE_NOTES_v0.2.1.md`, `docs/CHANGELOG.md`, `docs/LAUNCH.md`, `docs/ADOPTION.md`.

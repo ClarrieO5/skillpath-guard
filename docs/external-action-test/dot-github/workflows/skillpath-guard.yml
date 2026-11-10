@@ -1,0 +1,72 @@
+# Independent consumer test of SkillPath Guard (main). Expected outcome of each job is in its name.
+name: skillpath-guard-consumer-test
+on: [push, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  valid-passes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ClarrieO5/skillpath-guard@main
+        with: { path: skills/good-skill }
+  broken-fails:
+    name: broken-fails (job must be green: the Action step must fail)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: scan
+        continue-on-error: true
+        uses: ClarrieO5/skillpath-guard@main
+        with: { path: broken }
+      - run: test "${{ steps.scan.outcome }}" = "failure"
+  shared-default-fails-allow-shared-passes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: off
+        continue-on-error: true
+        uses: ClarrieO5/skillpath-guard@main
+        with: { path: . , exclude: "broken\nvendored" }
+      - run: test "${{ steps.off.outcome }}" = "failure"
+      - uses: ClarrieO5/skillpath-guard@main
+        with:
+          path: .
+          allow-shared: 'true'
+          exclude: |
+            broken
+            vendored
+  exclude-works:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: noexclude
+        continue-on-error: true
+        uses: ClarrieO5/skillpath-guard@main
+        with: { path: vendored }
+      - run: test "${{ steps.noexclude.outcome }}" = "failure"
+      - uses: ClarrieO5/skillpath-guard@main
+        with:
+          path: .
+          allow-shared: 'true'
+          exclude: |
+            broken
+              vendored
+  summary-on-off:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: summary default (on) writes the job summary
+        id: on
+        continue-on-error: true
+        uses: ClarrieO5/skillpath-guard@main
+        with: { path: broken }
+      - run: test -s "$GITHUB_STEP_SUMMARY" && grep -q MISSING_REFERENCE "$GITHUB_STEP_SUMMARY"
+      - name: record size, then run with summary off
+        run: wc -c < "$GITHUB_STEP_SUMMARY" > "$RUNNER_TEMP/size"
+      - id: off
+        continue-on-error: true
+        uses: ClarrieO5/skillpath-guard@main
+        with: { path: broken, summary: 'false' }
+      - name: summary off adds nothing
+        run: test "$(wc -c < "$GITHUB_STEP_SUMMARY")" = "$(cat "$RUNNER_TEMP/size")"

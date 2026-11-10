@@ -28,6 +28,12 @@ Date: 9 November 2026. Local environment: Linux, Node v24.22.1.
 - Local suite: 80 passed. Hosted matrix green on `main` at cc739d3 ([run 42781586690](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42781586690)) and on tag `v0.2.2` ([run 42781732941](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42781732941)). Release check against the published tag passed ([run 42781733481](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42781733481)).
 - Clean install checks (session 5, empty `HOME` and npm cache, Node 22, npm 10.9): `npm install <packed tarball>` then `npx skillpath-guard --version` and a scan of `examples/broken` (exit 1, as expected); `npx --yes github:ClarrieO5/skillpath-guard#v0.2.2 scan skills` on the valid fixture (exit 0). `skillpath-guard` is not on the npm registry (404).
 
+## v0.3.0 (prepared 2026-11-10, not released)
+
+- Local suite: 87 passed, `npm run verify` passes (Node 22.23). Hosted matrix on `main` at a44b885 (PR #15 merged): [run 42789258700](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42789258700), green.
+- Consumer-repository test of the Action (`docs/external-action-test/`): **not run on GitHub.** The session could not create a repository (tooling for repository creation was disabled; only `ClarrieO5/skillpath-guard` was reachable). Local simulation of the Action's shell step on a copy of the kit, in a separate directory: valid skill exit 0; broken link exit 1 (`MISSING_REFERENCE ... references/missing.md`, annotation emitted); shared link without `allow-shared` exit 1 (`PATH_ESCAPE`, message names the flag), with it exit 0 (`SHARED_REFERENCE` warning); `exclude` with a blank-padded line skips the broken vendored skill; `summary: false` writes 0 bytes, default writes 234-706 bytes. This is not evidence that the hosted Action works from another repository.
+- Hosted consumer run URLs: *to be added*.
+
 The sections above and below this one describe v0.1.0 (9 November) and are kept as history.
 
 ## Reproduce

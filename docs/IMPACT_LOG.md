@@ -2,7 +2,7 @@
 
 Repository: https://github.com/ClarrieO5/skillpath-guard
 
-Latest release: https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.2.2 (pre-release, 2026-11-10). Earlier: `v0.2.1`, `V0.2.0`, `v0.1.0`.
+Latest release: https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.3.0 (prepared, not yet published). Previous: `v0.2.2` (pre-release, 2026-11-10), `v0.2.1`, `V0.2.0`, `v0.1.0`.
 
 As of 10 November 2026:
 
