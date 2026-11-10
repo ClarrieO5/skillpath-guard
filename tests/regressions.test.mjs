@@ -294,3 +294,60 @@ test('release version agrees across package, CLI, JSON report, workflow pins and
   assert.ok(read('docs/CHANGELOG.md').includes(`## ${v} `));
   assert.ok(fs.existsSync(new URL(`../docs/RELEASE_NOTES_v${v}.md`,import.meta.url)));
 });
+function writeSkill(t,frontmatter,dirName='demo'){
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),'guard-fm-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
+  const dir=path.join(root,dirName);fs.mkdirSync(dir);fs.writeFileSync(path.join(dir,'SKILL.md'),`---\n${frontmatter}\n---\nBody.\n`);return root;
+}
+test('unterminated quoted frontmatter value is reported (skills-ref rejects it as invalid YAML)',t=>{
+  const root=writeSkill(t,'name: demo\ndescription: "unterminated');
+  const f=scan(root).findings.find(x=>x.rule==='FRONTMATTER_UNSUPPORTED');
+  assert.ok(f,'expected FRONTMATTER_UNSUPPORTED');assert.match(f.message,/Unterminated quoted string for description/);assert.equal(f.line,3);
+  const single=writeSkill(t,"name: demo\ndescription: 'it''s fine but 'broken");
+  assert.ok(!scan(single).findings.some(x=>x.message.includes('Unterminated')),'escaped single quotes and later quotes are not unterminated');
+});
+test('multi-line and escaped quoted frontmatter values are accepted',t=>{
+  const root=writeSkill(t,'name: demo\ndescription: "Does a thing,\n  then another \\" thing."\nlicense: \'it\'\'s MIT\'');
+  const r=scan(root);assert.equal(r.summary.error,0,JSON.stringify(r.findings));
+});
+test('NAME_INVALID message names the actual value and the failed check',t=>{
+  const msg=(fm,dir)=>scan(writeSkill(t,fm,dir)).findings.find(x=>x.rule==='NAME_INVALID')?.message;
+  assert.match(msg('name: other\ndescription: d','demo'),/^name 'other' does not match the folder name 'demo'/);
+  assert.match(msg('name: Demo\ndescription: d','demo'),/contains uppercase letters/);
+  assert.match(msg('name: de--mo\ndescription: d','de--mo'),/single hyphens/);
+  assert.match(msg(`name: ${'a'.repeat(65)}\ndescription: d`,'a'.repeat(65)),/is 65 characters \(maximum 64\)/);
+  assert.equal(msg('name: demo\ndescription: d','demo'),undefined);
+});
+test('DESCRIPTION_INVALID and COMPATIBILITY_INVALID messages include the measured length',t=>{
+  const r=scan(writeSkill(t,`name: demo\ndescription: ${'x'.repeat(1100)}\ncompatibility: ${'y'.repeat(600)}`));
+  assert.ok(r.findings.some(f=>f.rule==='DESCRIPTION_INVALID'&&/is 1100 characters/.test(f.message)));
+  assert.ok(r.findings.some(f=>f.rule==='COMPATIBILITY_INVALID'&&/is 600 characters/.test(f.message)));
+  assert.ok(scan(writeSkill(t,'name: demo\nmetadata: x')).findings.some(f=>f.rule==='DESCRIPTION_INVALID'&&/missing or empty/.test(f.message)));
+});
+test('v0.3.2 baselines stay valid after message rewording of metadata rules',t=>{
+  const root=writeSkill(t,'name: other\ndescription: d','demo');const cur=scan(root);
+  const old=JSON.parse(JSON.stringify(cur));for(const f of old.findings)if(f.rule==='NAME_INVALID')f.message="name must match folder 'demo' and contain 1-64 lowercase letters, digits or single hyphens (no leading or trailing hyphen).";
+  assert.equal(compareBaseline(cur,old).comparison.new.length,0);
+});
+test('action.yml shell: boolean inputs are case-insensitive and invalid values fail loudly',{skip:process.platform==='win32'&&'bash script, covered by the Linux/macOS matrix and the hosted action smoke test'},async()=>{
+  const {spawnSync}=await import('node:child_process');
+  const yml=fs.readFileSync(new URL('../action.yml',import.meta.url),'utf8');
+  const script=yml.slice(yml.indexOf('run: |\n')+7).replace(/^ {8}/gm,'').replaceAll('${{ github.action_path }}',new URL('..',import.meta.url).pathname.replace(/\/$/,''));
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),'guard-action-'));const dir=path.join(root,'demo');fs.mkdirSync(dir);
+  fs.writeFileSync(path.join(dir,'SKILL.md'),'---\nname: demo\ndescription: d\n---\n[x](references/missing.md)\n');
+  const sh=fs.mkdtempSync(path.join(os.tmpdir(),'guard-action-sh-'));fs.writeFileSync(path.join(sh,'run.sh'),script);
+  const run=env=>spawnSync('bash',[path.join(sh,'run.sh')],{env:{PATH:process.env.PATH,SPG_PATH:root,SPG_BASELINE:'',SPG_STRICT:'',SPG_EXCLUDE:'',SPG_ALLOW_SHARED:'',SPG_CWD_HINTS:'',SPG_SUMMARY:'false',...env},encoding:'utf8'});
+  try{
+    assert.equal(run({}).status,1,'a missing reference fails by default');
+    assert.equal(run({SPG_ALLOW_SHARED:'True'}).status,1);
+    const bad=run({SPG_STRICT:'yes'});assert.equal(bad.status,2);assert.match(bad.stderr,/Input 'strict' must be 'true' or 'false', got 'yes'/);
+    // "True" must really enable the flag: with a shared (escaping, existing) link, allow-shared turns the error into a warning.
+    fs.writeFileSync(path.join(root,'shared.md'),'ok');fs.writeFileSync(path.join(dir,'SKILL.md'),'---\nname: demo\ndescription: d\n---\n[x](../shared.md)\n');
+    assert.equal(run({}).status,1);assert.equal(run({SPG_ALLOW_SHARED:'True'}).status,0);assert.equal(run({SPG_ALLOW_SHARED:'TRUE',SPG_STRICT:'true'}).status,1);
+  }finally{fs.rmSync(root,{recursive:true,force:true});fs.rmSync(sh,{recursive:true,force:true});}
+});
+test('a quote is not closed by a later field; trailing comments after a quoted value are dropped',t=>{
+  const r=scan(writeSkill(t,'name: demo\ndescription: "open\nlicense: "MIT"'));
+  assert.ok(r.findings.some(f=>f.rule==='FRONTMATTER_UNSUPPORTED'&&/Unterminated/.test(f.message)));
+  const c=scan(writeSkill(t,`name: demo\ndescription: "${'x'.repeat(1020)}" # note`));
+  assert.equal(c.summary.error,0,JSON.stringify(c.findings));
+});

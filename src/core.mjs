@@ -38,6 +38,16 @@ function listFiles(directory, exclusions) {
   return out.sort();
 }
 
+// Index of the closing quote in `text` (a scalar that starts with `quote`), or -1.
+function closesQuote(text,quote,continuation=false) {
+  let k=continuation?0:1;
+  for(; k<text.length; k++) {
+    if(quote==='"' && text[k]==='\\') { k++; continue; }
+    if(text[k]===quote) { if(quote==="'" && text[k+1]==="'") { k++; continue; } return k; }
+  }
+  return -1;
+}
+
 function parseFrontmatter(content) {
   const lines = content.replaceAll('\r\n', '\n').split('\n');
   if (lines[0]?.trim() !== '---') return {fields: {}, end: -1};
@@ -48,6 +58,7 @@ function parseFrontmatter(content) {
   for (let i=1; i<end; i++) {
     const match = lines[i].match(/^([a-z][\w-]*):\s*(.*)$/);
     if (!match) continue;
+    const startLine=i;
     let value = match[2].trim();
     if(Object.hasOwn(fields,match[1]))problems.push({rule:'FRONTMATTER_DUPLICATE',line:i+1,message:`Duplicate frontmatter field: ${match[1]}`});
     if(!value.startsWith('\"') && !value.startsWith("'"))value=value.replace(/\s+#.*$/,'');
@@ -70,7 +81,17 @@ function parseFrontmatter(content) {
       }
       value = block.join(value.startsWith('>')?' ':'\n');
     }
-    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) value = value.slice(1,-1);
+    const quote=value[0];
+    if((quote==='"'||quote==="'") && closesQuote(value,quote)<0) {
+      // A quoted scalar may continue on following lines (YAML folds them); if no line closes it, the frontmatter is not valid YAML.
+      const parts=[value]; let closed=false;
+      // YAML continuation lines must be indented: an unindented `key:` line ends the search.
+      for(let j=i+1; j<end && !closed; j++) { if(/^[^\s#]/.test(lines[j])) break; parts.push(lines[j].trim()); i=j; closed=closesQuote(lines[j].trim(),quote,true)>=0; }
+      if(closed) value=parts.join(' ');
+      else { i=startLine; problems.push({rule:'FRONTMATTER_UNSUPPORTED',line:i+1,message:`Unterminated quoted string for ${match[1]}: the closing ${quote} is missing, so this is not valid YAML and a strict parser will reject the whole frontmatter.`}); }
+    }
+    if(quote==='"'||quote==="'") { const c=closesQuote(value,quote); if(c>0) value=value.slice(0,c+1); }
+    if ((value.startsWith('"') && value.endsWith('"') && value.length>1) || (value.startsWith("'") && value.endsWith("'") && value.length>1)) value = value.slice(1,-1);
     fields[match[1]] = value;
   }
   return {fields, end, problems};
@@ -202,9 +223,17 @@ export function scan(rootInput, {exclude=[], cwdHints=false, allowShared=false}=
     skills.push({name:skillName, file:relativeFile, references:edges});
     if (end<0) pushFinding(findings, {rule:'FRONTMATTER_MISSING',severity:'error',file:relativeFile,skill:skillName,message:'SKILL.md requires opening and closing --- frontmatter.'});
     if (!fields.name) pushFinding(findings, {rule:'NAME_MISSING',severity:'error',file:relativeFile,skill:skillName,message:'Frontmatter is missing name.'});
-    else if (nfkc(fields.name).length>64 || !SKILL_NAME.test(nfkc(fields.name)) || nfkc(fields.name)!==nfkc(fields.name).toLowerCase() || nfkc(fields.name)!==nfkc(skillName)) pushFinding(findings,{rule:'NAME_INVALID',severity:'error',file:relativeFile,skill:skillName,message:`name must match folder '${skillName}' and contain 1-64 lowercase letters, digits or single hyphens (no leading or trailing hyphen).`+(skillDir===root && SKILL_NAME.test(nfkc(fields.name)) && nfkc(fields.name)!==nfkc(skillName) ? ` This skill is at the scan root, so the folder name comes from where it was checked out; if the repository is named '${fields.name}', clone it into a folder of that name before scanning.` : '')});
-    if (!fields.description?.trim() || fields.description.length>1024) pushFinding(findings,{rule:'DESCRIPTION_INVALID',severity:'error',file:relativeFile,skill:skillName,message:'description must be non-empty and at most 1024 characters.'});
-    if (fields.compatibility !== undefined && fields.compatibility.length>500) pushFinding(findings,{rule:'COMPATIBILITY_INVALID',severity:'error',file:relativeFile,skill:skillName,message:'compatibility must be at most 500 characters (Agent Skills specification).'});
+    else {
+      const n=nfkc(fields.name), reasons=[];
+      if (n.length>64) reasons.push(`is ${n.length} characters (maximum 64)`);
+      if (n!==n.toLowerCase()) reasons.push('contains uppercase letters');
+      if (!SKILL_NAME.test(n)) reasons.push('must be only letters, digits and single hyphens, with no leading or trailing hyphen');
+      const mismatch=n!==nfkc(skillName);
+      if (mismatch) reasons.push(`does not match the folder name '${skillName}' (the specification requires them to be equal)`);
+      if (reasons.length) pushFinding(findings,{rule:'NAME_INVALID',severity:'error',file:relativeFile,skill:skillName,message:`name '${fields.name}' ${reasons.join('; ')}.`+(skillDir===root && mismatch && SKILL_NAME.test(n) ? ` This skill is at the scan root, so the folder name comes from where it was checked out; if the repository is named '${fields.name}', clone it into a folder of that name before scanning.` : '')});
+    }
+    if (!fields.description?.trim() || fields.description.length>1024) pushFinding(findings,{rule:'DESCRIPTION_INVALID',severity:'error',file:relativeFile,skill:skillName,message:fields.description?.trim() ? `description is ${fields.description.length} characters; the maximum is 1024.` : 'description is missing or empty; it must be non-empty and at most 1024 characters.'});
+    if (fields.compatibility !== undefined && fields.compatibility.length>500) pushFinding(findings,{rule:'COMPATIBILITY_INVALID',severity:'error',file:relativeFile,skill:skillName,message:`compatibility is ${fields.compatibility.length} characters; the maximum is 500 (Agent Skills specification).`});
     const bodyStart = end<0 ? 0 : end+1;
     if (lines.slice(bodyStart).join('').trim().length===0) pushFinding(findings,{rule:'BODY_EMPTY',severity:'warning',file:relativeFile,skill:skillName,message:'The skill has no instructions after frontmatter.'});
     for (let i=bodyStart; i<lines.length; i++) {
@@ -282,7 +311,9 @@ export function scan(rootInput, {exclude=[], cwdHints=false, allowShared=false}=
   return {tool:'skillpath-guard', version:'0.3.2', root, exclusions, options:{cwdHints, allowShared}, summary:{skills:skills.length, findings:findings.length, ...counts, suppressed}, skills, findings, limitations:['Heuristic resource detection may produce false positives or miss references in unusual Markdown.','Static analysis cannot prove how an individual AI agent will resolve a file at runtime.','Frontmatter reading covers common scalar fields; this is not a complete YAML implementation.']};
 }
 
-export function fingerprint(f) { return JSON.stringify([f.rule,f.severity,f.file,f.target||'',f.message]); }
+// Message wording of these metadata rules improved in 0.3.3; their identity ignores the message so v0.3.2 baselines stay valid.
+const MESSAGE_FREE_IDENTITY = new Set(['NAME_INVALID','DESCRIPTION_INVALID','COMPATIBILITY_INVALID']);
+export function fingerprint(f) { return JSON.stringify([f.rule,f.severity,f.file,f.target||'',MESSAGE_FREE_IDENTITY.has(f.rule)?'':f.message]); }
 export function compareBaseline(report,baseline) {
   if (!baseline || baseline.tool!=='skillpath-guard' || !Array.isArray(baseline.findings) || baseline.findings.some(f=>!f || !['error','warning'].includes(f.severity) || !['rule','file','message'].every(k=>typeof f[k]==='string') || (f.target!==undefined && typeof f.target!=='string'))) throw new Error('Invalid baseline: expected a SkillPath Guard JSON report with valid findings.');
   if(JSON.stringify(normalizeExclusions(report.exclusions??[]))!==JSON.stringify(normalizeExclusions(baseline.exclusions??[])))throw new Error('Baseline exclusions differ from this scan; compare identical discovery scopes.');

@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Frontmatter: an unterminated quoted value (`description: "oops`) is now reported as `FRONTMATTER_UNSUPPORTED`; multi-line quoted values are read instead of truncated.
+- `NAME_INVALID`, `DESCRIPTION_INVALID`, `COMPATIBILITY_INVALID` messages now name the actual value or length and which check failed. These three rules no longer include the message in baseline identity, so v0.3.2 baselines keep working.
+- Action: boolean inputs are case-insensitive; invalid values fail with a clear error (previously ignored silently).
+- README restructured for new users; new docs: real-world validation, measured comparison, Marketplace readiness, release readiness.
+
 ## 0.3.2 — experimental (prepared 2026-11-10; tag `v0.3.2` after approval, see RELEASE_NOTES_v0.3.2.md)
 
 - First release meant for npm as `skillpath-guard` (after the maintainer's approval). No scanner behaviour change.
