@@ -90,3 +90,14 @@ The third scan above deliberately exits 1; the baseline comparison exits 0. Test
 ## Live runtime protocol — not yet executed
 
 Use an original disposable skill containing `references/guide.md`. Record runtime/version, OS, install location, prompt, and actual accessed file. Run once from the source folder, once installed outside an unrelated workspace, and once after explicitly resolving resources against the skill directory. Redact private paths. Static warnings and third-party issue reports cannot substitute for this experiment.
+
+## v0.3.3 release verification (2026-11-10)
+
+- Tag `v0.3.3` and `main` both resolve to `67e456c6c1002238634192d2af00174244ef1574` (`git ls-remote`, run by the maintainer). Release is a pre-release.
+- `release-check` on the release: [run 42898781863](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42898781863), success. `quality` on the tag push: [run 42898780384](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42898780384), success.
+- Maintainer's clone of the tag on macOS: `npm run verify` passed (97 tests, 96 pass, 1 skipped: the case-insensitive-filesystem collision test, expected on macOS); `npm pack --dry-run` listed the 8 expected files; `npm publish` printed `+ skillpath-guard@0.3.3`.
+- Registry: `npm view skillpath-guard versions` lists `0.0.0-stage`, `0.3.2`, `0.3.3`; `dist-tags.latest` = 0.3.3; `dist.shasum` 351d20144c038e5f0f842ee73b751d13eeb6951a equals the `npm pack` shasum shown before publishing. The `0.0.0-stage` entry was not created in these sessions and its origin is unverified.
+- Immediately after publishing, `npx skillpath-guard@0.3.3` returned ETARGET; it worked with `--prefer-online` a few minutes later (registry/cache delay).
+- Clean-directory check from a separate machine (the session container): `npx --yes --prefer-online skillpath-guard@0.3.3 --version` printed `0.3.3`, and scanning a skill with `description: "oops` exits 1 with `FRONTMATTER_UNSUPPORTED ... Unterminated quoted string`.
+- **Not done:** consumer repository run at `@v0.3.3` (session could not attach `ClarrieO5/skillpath-guard-consumer-test`). Marketplace listing not done.
+
