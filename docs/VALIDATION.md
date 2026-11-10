@@ -23,6 +23,11 @@ Date: 9 November 2026. Local environment: Linux, Node v24.22.1.
 - Public corpus: 33 repositories (3,375 skills); see `docs/CONTRIBUTION_RESEARCH_2026-11.md`.
 - Still not done: a run from a separate consumer repository, independent users, human code review.
 
+## v0.2.2 (2026-11-10)
+
+- Local suite: 80 passed. Hosted matrix green on `main` at cc739d3 ([run 42781586690](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42781586690)) and on tag `v0.2.2` ([run 42781732941](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42781732941)). Release check against the published tag passed ([run 42781733481](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42781733481)).
+- Clean install checks (session 5, empty `HOME` and npm cache, Node 22, npm 10.9): `npm install <packed tarball>` then `npx skillpath-guard --version` and a scan of `examples/broken` (exit 1, as expected); `npx --yes github:ClarrieO5/skillpath-guard#v0.2.2 scan skills` on the valid fixture (exit 0). `skillpath-guard` is not on the npm registry (404).
+
 The sections above and below this one describe v0.1.0 (9 November) and are kept as history.
 
 ## Reproduce

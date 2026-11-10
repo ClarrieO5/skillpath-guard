@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {scan, compareBaseline, githubAnnotations} from '../src/core.mjs';
+import {scan, compareBaseline, githubAnnotations, toMarkdown} from '../src/core.mjs';
 function fixture(t, body, resources={}) {
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'guard-regression-'));
   t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
@@ -114,11 +114,11 @@ test('indented mappings and sequences are not accepted as strings',t=>{
 });
 test('wrapped absolute-path instruction does not produce cwd warning',t=>{
  const {root}=fixture(t,"Run this skill's `scripts/task-done`\nby its absolute path, from the working tree.",{'scripts/task-done':'ok'});
- assert.equal(scan(root).findings.filter(f=>f.rule==='AMBIGUOUS_CWD').length,0);
+ assert.equal(scan(root,{cwdHints:true}).findings.filter(f=>f.rule==='AMBIGUOUS_CWD').length,0);
 });
 test('separate absolute-path note does not suppress cwd warning',t=>{
  const {root}=fixture(t,'Run `scripts/task-done`.\n\nby its absolute path, from the working tree.',{'scripts/task-done':'ok'});
- assert.equal(scan(root).findings.filter(f=>f.rule==='AMBIGUOUS_CWD').length,1);
+ assert.equal(scan(root,{cwdHints:true}).findings.filter(f=>f.rule==='AMBIGUOUS_CWD').length,1);
 });
 
 test('unicode lowercase skill names are accepted like the reference validator; uppercase and double hyphens are not',t=>{
@@ -201,4 +201,58 @@ test('root-relative web routes in links are not machine paths; filesystem-lookin
   const f=scan(root).findings;
   assert.deepEqual(f.filter(x=>x.rule==='ABSOLUTE_REFERENCE').map(x=>x.target),['/Users/alice/notes','/home/bob/x','/references/guide.md','/srv/skills/scripts/run','/workspaces/repo/tool']);
   assert.equal(f.filter(x=>x.line===5).length,0);
+});
+// Adoption audit (2026-11-10): first scans of 12 public skill repositories; see docs/ADOPTION_AUDIT_2026-11.md.
+test('AMBIGUOUS_CWD is opt-in: the Agent Skills spec recommends skill-relative paths',t=>{
+  const {root}=fixture(t,'See [the reference guide](references/REFERENCE.md) for details.\nRead `references/REFERENCE.md` before proceeding.',{'references/REFERENCE.md':'ok'});
+  const r=scan(root);
+  assert.equal(r.summary.warning,0,JSON.stringify(r.findings));
+  assert.deepEqual(r.options,{cwdHints:false,allowShared:false});
+  assert.equal(scan(root,{cwdHints:true}).findings.filter(f=>f.rule==='AMBIGUOUS_CWD').length,1);
+});
+test('--allow-shared downgrades only escaping links whose target exists inside the scan root',t=>{
+  const {root}=fixture(t,'Shared: [s](../shared/style.md)\nGone: [g](../shared/gone.md)\nOutside: [o](../../outside.md)\nLocal: [l](references/absent.md)');
+  fs.mkdirSync(path.join(root,'shared'));fs.writeFileSync(path.join(root,'shared','style.md'),'x');
+  fs.writeFileSync(path.join(path.dirname(root),'outside.md'),'x');t.after(()=>fs.rmSync(path.join(path.dirname(root),'outside.md'),{force:true}));
+  const pick=r=>r.findings.map(f=>`${f.line}:${f.rule}:${f.severity}`);
+  assert.deepEqual(pick(scan(root)),['5:PATH_ESCAPE:error','6:PATH_ESCAPE:error','7:PATH_ESCAPE:error','8:MISSING_REFERENCE:error']);
+  const shared=scan(root,{allowShared:true});
+  assert.deepEqual(pick(shared),['5:SHARED_REFERENCE:warning','6:PATH_ESCAPE:error','7:PATH_ESCAPE:error','8:MISSING_REFERENCE:error']);
+  assert.match(shared.findings[0].message,/shared\/style\.md/);
+  const plain=scan(root).findings;
+  assert.match(plain[0].message,/exists at shared\/style\.md.*--allow-shared/);
+  assert.doesNotMatch(plain[1].message,/--allow-shared/);
+});
+test('--allow-shared does not accept a symlink that resolves outside the scan root',t=>{
+  if(process.platform==='win32')return t.skip('symlink creation needs privileges on Windows');
+  const {root}=fixture(t,'[s](../link.md)');
+  const outside=fs.mkdtempSync(path.join(os.tmpdir(),'guard-out-'));t.after(()=>fs.rmSync(outside,{recursive:true,force:true}));
+  fs.writeFileSync(path.join(outside,'x.md'),'x');fs.symlinkSync(path.join(outside,'x.md'),path.join(root,'link.md'));
+  assert.deepEqual(scan(root,{allowShared:true}).findings.map(f=>f.rule),['PATH_ESCAPE']);
+});
+test('ignore comments silence findings on their line only, and are counted',t=>{
+  const {root}=fixture(t,[
+    'Example: `scripts/your_script.py` <!-- skillpath-guard-ignore -->',
+    '<!-- skillpath-guard-ignore-next-line -->',
+    'Create [a file](references/new-notes.md) for the user.',
+    'Still checked: [x](references/absent.md)',
+    'Mentioning <!-- skillpath-guard-ignore-next-line --> mid-line does not skip the next line: `scripts/also-absent.sh`',
+    '[y](references/next-absent.md)',
+  ].join('\n'));
+  const r=scan(root);
+  assert.deepEqual(r.findings.map(f=>f.target),['references/absent.md','scripts/also-absent.sh','references/next-absent.md']);
+  assert.equal(r.summary.suppressed,2);
+  assert.match(toMarkdown(r),/2 finding\(s\) silenced/);
+});
+test('Markdown report caps rows for GitHub job summaries',()=>{
+  const findings=Array.from({length:503},(_,i)=>({rule:'MISSING_REFERENCE',severity:'error',file:'a/SKILL.md',line:i+1,message:'m'}));
+  const md=toMarkdown({summary:{skills:1,error:503,warning:0},findings});
+  assert.equal(md.split('\n').filter(l=>l.startsWith('| error')).length,500);
+  assert.match(md,/3 more finding\(s\) not shown/);
+});
+test('npm package ships the tool, not internal drafts or third-party patches',()=>{
+  const pkg=JSON.parse(fs.readFileSync(new URL('../package.json',import.meta.url),'utf8'));
+  assert.ok(pkg.files.includes('src/'));
+  assert.ok(!pkg.files.some(f=>f==='docs/'||f.startsWith('docs/drafts')||f.startsWith('docs/patches')),JSON.stringify(pkg.files));
+  assert.equal(pkg.bin['skillpath-guard'],'src/cli.mjs');
 });
