@@ -7,16 +7,16 @@ Snapshot: **2026-11-10**. Read this first when continuing in a new session. Keep
 | Item | State |
 |---|---|
 | Latest release | [v0.2.1](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.2.1), pre-release, tag at `main` f1802cd. First tag that contains the GitHub Action. |
-| Unreleased on a branch | Three scanner fixes from the round-3 re-scan (footnotes, `:line` suffixes, web routes), in the PR stacked on #12. Not released. |
+| Unreleased on a branch | Three scanner fixes from the round-3 re-scan (footnotes, `:line` suffixes, web routes), in PR #13. Not released. |
 | Tests | 80 pass locally; `npm run verify` passes. |
 | CI | All nine `quality` jobs green on `main`, on the tag, and on release PR #11. `release-check` passed against the published tag. Links in `docs/VALIDATION.md`. |
 | Real usage | 0 repositories use the Action (code search, 2026-11-10). No external issues, PRs or users. |
 | Upstream PRs merged | 0. Open: 1 (#283, fully overlapped by #142). |
-| Internal PRs | **#12** (docs refresh) open. A second PR, **stacked on #12**, has the round-3 scanner fixes and ledger corrections. **#9** (older draft) is still open; its scanner fixes are already in `main`, so it can be closed as superseded. |
+| Internal PRs | **#12** (docs refresh) squash-merged as `main` 3d9c3ef. **#13** (round-3 scanner fixes and ledger corrections) targets `main` and is a draft. **#9** (older draft) is still open; its scanner fixes are already in `main`, so it can be closed as superseded. |
 
 ## Waiting on you (nothing below has been done)
 
-1. **Review and merge internal PRs:** first #12, then the stacked round-3 PR. If #12 is squash-merged and its branch deleted, GitHub retargets the stacked PR to `main`. If it shows #12's commits again, ask Claude to rebase it onto `main`.
+1. **Review and merge PR #13** (mark ready for review, then squash-merge). #12's branch `claude/adoring-feynman-q1ygqd` can be deleted.
 2. **Decide on PR #283** (shanraisshan/claude-code-best-practice). It overlaps #142 completely (re-verified 2026-11-10). Options:
    - (a) close it without a comment;
    - (b) close it with the drafted comment in `docs/CONTRIBUTION_LEDGER.md`;
