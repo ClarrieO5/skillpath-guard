@@ -1,6 +1,6 @@
 {
   "name": "skillpath-guard",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "type": "module",
   "description": "Offline checks for broken, case-mismatched and non-portable file references in Agent Skills (SKILL.md)",
   "keywords": [

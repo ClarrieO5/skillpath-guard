@@ -4,7 +4,7 @@
 
 SkillPath Guard is a small, dependency-free command-line tool and GitHub Action. It reads every `SKILL.md` in a folder, checks that the files each skill points to (`references/guide.md`, `scripts/run.py`, ...) really exist inside that skill, and checks the basic frontmatter rules (`name`, `description`). It works offline and sends no data anywhere.
 
-Latest release: [v0.3.2](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.3.2) (pre-release, also on npm as `skillpath-guard`). Independent MIT-licensed project, not an official Anthropic or Agent Skills tool. Experimental: expect false positives (see "Limitations").
+Latest release: [v0.3.3](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.3.3) (pre-release, also on npm as `skillpath-guard`). Independent MIT-licensed project, not an official Anthropic or Agent Skills tool. Experimental: expect false positives (see "Limitations").
 
 ## Why you might want it
 
@@ -15,13 +15,13 @@ A skill is a folder. If `SKILL.md` links to `references/api.md` and that file is
 Requires Node.js 20 or newer. Nothing is installed globally:
 
 ```sh
-npx --yes skillpath-guard@0.3.2 scan path/to/your/skills
+npx --yes skillpath-guard@0.3.3 scan path/to/your/skills
 ```
 
 Exit code **0** means no blocking findings, **1** means errors were found, **2** means a usage or filesystem problem. Try it on a broken example (clone this repository first, or make a folder with a `SKILL.md` that links to a missing file):
 
 ```sh
-git clone --depth 1 --branch v0.3.2 https://github.com/ClarrieO5/skillpath-guard.git
+git clone --depth 1 --branch v0.3.3 https://github.com/ClarrieO5/skillpath-guard.git
 cd skillpath-guard
 node src/cli.mjs scan examples/valid     # exit 0
 node src/cli.mjs scan examples/broken    # exit 1
@@ -34,7 +34,7 @@ SkillPath Guard | 1 skills | 1 errors | 0 warnings
 ERROR MISSING_REFERENCE demo-skill/SKILL.md:9 Referenced file does not exist: references/not-there.md
 ```
 
-Each finding is `SEVERITY RULE file:line message`. Fix the link or add the file. Other ways to install: `npm install --save-dev skillpath-guard` then `npx skillpath-guard scan skills`; or straight from the tag, `npx --yes github:ClarrieO5/skillpath-guard#v0.3.2 scan path/to/your/skills`. Point it at one skill folder or at a parent folder with many skills.
+Each finding is `SEVERITY RULE file:line message`. Fix the link or add the file. Other ways to install: `npm install --save-dev skillpath-guard` then `npx skillpath-guard scan skills`; or straight from the tag, `npx --yes github:ClarrieO5/skillpath-guard#v0.3.3 scan path/to/your/skills`. Point it at one skill folder or at a parent folder with many skills.
 
 ## Use in GitHub Actions
 
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ClarrieO5/skillpath-guard@v0.3.2
+      - uses: ClarrieO5/skillpath-guard@v0.3.3
         with:
           path: skills            # folder containing your SKILL.md files
           # baseline: baseline.json   # optional: fail only on NEW findings
@@ -66,11 +66,11 @@ Findings appear as annotations on the pull request, and a full Markdown report i
 | `cwd-hints` | `false` | Also report the experimental `AMBIGUOUS_CWD` hint |
 | `summary` | `true` | Write the report to the job summary |
 
-Boolean inputs accept `true` or `false` in any letter case; any other value fails the step with a clear message (on `main`; v0.3.2 silently ignores them). `exclude`, `allow-shared`, `cwd-hints` and `summary` need v0.3.0 or later.
+Boolean inputs accept `true` or `false` in any letter case; any other value fails the step with a clear message (from v0.3.3; v0.3.2 silently ignores them). `exclude`, `allow-shared`, `cwd-hints` and `summary` need v0.3.0 or later.
 
 If your repository is installed as one bundle (a plugin or a whole-repo install) and skills deliberately link to shared files such as `../shared/style.md`, set `allow-shared: 'true'`: those links become `SHARED_REFERENCE` warnings instead of `PATH_ESCAPE` errors. Links whose target is missing, or outside the repository, stay errors.
 
-Without the action: `git clone --depth 1 --branch v0.3.2 https://github.com/ClarrieO5/skillpath-guard.git "$RUNNER_TEMP/spg"` then `node "$RUNNER_TEMP/spg/src/cli.mjs" scan skills --github-annotations`.
+Without the action: `git clone --depth 1 --branch v0.3.3 https://github.com/ClarrieO5/skillpath-guard.git "$RUNNER_TEMP/spg"` then `node "$RUNNER_TEMP/spg/src/cli.mjs" scan skills --github-annotations`.
 
 ## Reading the results
 
