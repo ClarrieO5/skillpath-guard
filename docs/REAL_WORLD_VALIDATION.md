@@ -89,5 +89,5 @@ Clone depth 1 fetches the default branch head, which is what the SHAs above reco
 
 ## Gaps in this validation
 - One reviewer, no second opinion. The PATH_ESCAPE set was not re-read this round. AMBIGUOUS_CWD was not run (it is opt-in since 0.3.0).
-- Selection is not random: popular, public, mostly well-maintained repositories found by earlier sessions plus a few new ones (vercel-labs, langchain-ai, neondatabase, firebase, tech-leads-club). At least 20 of the 25 were already scanned in earlier rounds, so this is not independent of the tool's history (new here: vercel-labs, langchain-ai, neondatabase, firebase and tech-leads-club were only partly or never scanned).
+- Selection is not random: popular, public, mostly well-maintained repositories found by earlier sessions plus a few new ones (vercel-labs, langchain-ai, neondatabase, firebase, tech-leads-club). At least 20 of the 25 were already scanned in earlier rounds, so this is not independent of the tool's history (to my knowledge, new here: vercel-labs, langchain-ai and neondatabase).
 - No runtime check that any flagged skill actually fails to load in a given agent.
