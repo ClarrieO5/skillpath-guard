@@ -30,7 +30,8 @@ export function findReferenceTokens(line,{links=true}={}) {
     start.lastIndex=end<0?line.length:end+1;
   }
   // Reference definitions are checked at their definition line, including unused ones.
-  const definition=!links?null:line.match(/^\s{0,3}\[[^\]]+\]:\s*(?:<([^>]+)>|(\S+))/);
+  // `[^1]: text` is a GFM footnote, not a link: its text is prose (paths in it are still found below).
+  const definition=!links?null:line.match(/^\s{0,3}\[(?!\^)[^\]]+\]:\s*(?:<([^>]+)>|(\S+))/);
   if(definition){results.push({value:definition[1]||definition[2],source:'markdown'});occupied.push([0,line.length]);}
   // Exclude complete URLs, dynamic tokens and substrings of longer paths.
   const codeSpans=[];for(const c of line.matchAll(/(`+)[^`]*?\1/g))codeSpans.push([c.index,c.index+c[0].length]);
@@ -53,7 +54,8 @@ export function findReferenceTokens(line,{links=true}={}) {
 }
 export function sanitizeReference(raw,source='markdown') {
   let value=raw.trim();
-  if(source==='prose')value=value.replace(/[,.;:]+$/,'');
+  // A location suffix names a place in the file, not the file: `x.py:42`, `x.py:3-9`, Docker `./x.sql:/container/path`.
+  if(source==='prose')value=value.replace(/[,.;:]+$/,'').replace(/:(?:\d+(?:[:-]\d+)?|\/.*)$/,'');
   if(!value||value.startsWith('#')||value.startsWith('//'))return null;
   // Windows drive paths are local, all other URI schemes are external.
   if(/^[a-z][a-z0-9+.-]*:/i.test(value)&&! /^[a-z]:[\\/]/i.test(value))return null;

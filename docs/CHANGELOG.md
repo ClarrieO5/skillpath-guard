@@ -2,7 +2,11 @@
 
 ## Unreleased
 
-- Docs: project status handoff (`docs/STATUS.md`), v0.2.1 CI evidence, refreshed contribution ledger.
+- Fix: GFM footnote definitions (`[^1]: GitHub Blog. (2022)...`) were read as link reference definitions, which reported the first word (`GitHub`) as a missing file and hid real paths written inside the footnote.
+- Fix: a location suffix on a bare path is no longer part of the file name. `scripts/helper.py:42`, `scripts/x.py:3-9` and Docker `./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql` are now checked as `scripts/helper.py`, `scripts/x.py` and `scripts/init.sql`. Before this fix, a file that existed but was cited with a line number was reported missing.
+- Fix: root-relative web routes in links (`[analytics](/features/analytics)`, `[home](/)`) are no longer `ABSOLUTE_REFERENCE` errors. Targets that look like filesystem paths are still errors: a known OS root (`/Users`, `/home`, `/tmp`, `/workspaces`...), a `references`/`scripts`/`assets` segment, or a file extension.
+- Measured on 20 public repositories (3,165 skills, including mirrored copies): 3 false positives removed and 15 targets corrected; no other finding changed (see `docs/CORPUS_VALIDATION.md`, round 3).
+- Docs: project status handoff (`docs/STATUS.md`), v0.2.1 CI evidence, contribution ledger re-verified and corrected.
 
 ## 0.2.1 — experimental (2026-11-10; tag `v0.2.1`, see RELEASE_NOTES_v0.2.1.md)
 

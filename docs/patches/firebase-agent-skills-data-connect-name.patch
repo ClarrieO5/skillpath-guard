@@ -1,0 +1,28 @@
+From 09bea404524917053a906942beb4a1ef93aa2393 Mon Sep 17 00:00:00 2001
+From: ClarrieO5 <ClarrieO5@users.noreply.github.com>
+Date: Tue, 10 Nov 2026 00:37:24 +0000
+Subject: [PATCH] fix(data-connect): match skill name to its folder
+
+The skill in skills/firebase-data-connect-basics/ declared
+`name: firebase-data-connect`. The Agent Skills specification requires
+the name to match the parent folder, every other skill in this repository
+already does (see #93), and the firebase-tools Data Connect MCP tools refer
+to it as the `firebase-data-connect-basics` skill.
+---
+ skills/firebase-data-connect-basics/SKILL.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/skills/firebase-data-connect-basics/SKILL.md b/skills/firebase-data-connect-basics/SKILL.md
+index 16d1be6..cf2979b 100644
+--- a/skills/firebase-data-connect-basics/SKILL.md
++++ b/skills/firebase-data-connect-basics/SKILL.md
+@@ -1,5 +1,5 @@
+ ---
+-name: firebase-data-connect
++name: firebase-data-connect-basics
+ description: Builds and deploys Firebase SQL Connect (aka Firebase Data Connect) backends with PostgreSQL securely. Use when designing schemas with tables and relations, writing authorized queries and mutations, configuring real-time data updates, or generating type-safe SDKs. Use when you need a relational database with Firebase, or when the user mentions SQL Connect or Data Connect.
+ metadata:
+   author: Google LLC
+-- 
+2.43.0
+
