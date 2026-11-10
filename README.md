@@ -2,14 +2,14 @@
 
 **Catch broken local resource links before shipping an Agent Skills package.**
 
-An experimental, dependency-free, offline Node.js CLI and GitHub Action (latest release: [v0.2.1](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.2.1), pre-release). It checks `SKILL.md` references against the skill's own folder, detects filename-case and path-escape problems, and lets CI block new findings while you work through existing ones.
+An experimental, dependency-free, offline Node.js CLI and GitHub Action (latest release: [v0.2.2](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.2.2), pre-release). It checks `SKILL.md` references against the skill's own folder, detects filename-case and path-escape problems, and lets CI block new findings while you work through existing ones.
 
 A file can exist yet an agent may look for it in the wrong working directory. `AMBIGUOUS_CWD` highlights instructions worth reviewing; it does **not** prove a runtime failure. This is an independent MIT-licensed project, not an official Anthropic or Agent Skills validator.
 
 ## New here? Start with these three steps
 
 1. Install Node.js 20 or newer (check with `node --version`).
-2. Download a release: `git clone --depth 1 --branch v0.2.1 https://github.com/ClarrieO5/skillpath-guard.git`.
+2. Download a release: `git clone --depth 1 --branch v0.2.2 https://github.com/ClarrieO5/skillpath-guard.git`.
 3. Scan your skills: `node skillpath-guard/src/cli.mjs scan path/to/your/skills`.
 
 Reading the output: each line names a rule, a file and line, and what to fix. **error** findings (broken link, name mismatch) make the command exit 1; **warning** findings are worth reviewing. Rules are explained in "Checks and fixes" below. If a finding is wrong, please open an issue with the Markdown line that triggered it.
@@ -34,13 +34,13 @@ SkillPath Guard is not on npm. Use the composite action, pinned to a release tag
 
 ```yaml
 - uses: actions/checkout@v4
-- uses: ClarrieO5/skillpath-guard@v0.2.1
+- uses: ClarrieO5/skillpath-guard@v0.2.2
   with:
     path: skills            # folder containing your SKILL.md files
     # baseline: baseline.json   # optional: fail only on NEW findings
 ```
 
-The action needs `v0.2.1` or later; the older `V0.2.0` tag predates `action.yml`. Without the action: `git clone --depth 1 --branch v0.2.1 https://github.com/ClarrieO5/skillpath-guard.git "$RUNNER_TEMP/spg"` then `node "$RUNNER_TEMP/spg/src/cli.mjs" scan skills --github-annotations`. Pair it with the reference validator `skills-ref` for frontmatter checks: the tools check different things (see [docs/COMPARISON.md](docs/COMPARISON.md)).
+The action needs `v0.2.1` or later; the older `V0.2.0` tag predates `action.yml`. Without the action: `git clone --depth 1 --branch v0.2.2 https://github.com/ClarrieO5/skillpath-guard.git "$RUNNER_TEMP/spg"` then `node "$RUNNER_TEMP/spg/src/cli.mjs" scan skills --github-annotations`. Pair it with the reference validator `skills-ref` for frontmatter checks: the tools check different things (see [docs/COMPARISON.md](docs/COMPARISON.md)).
 
 ## CLI
 
