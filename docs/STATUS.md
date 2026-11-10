@@ -1,12 +1,12 @@
 # Project status and handoff
 
-Snapshot: **2026-11-10** (sixth session: v0.3.0 preparation). Read this first when continuing in a new session. Keep it current: update it at the end of every session.
+Snapshot: **2026-11-10** (seventh session: after the v0.3.0 release). Read this first when continuing in a new session. Keep it current: update it at the end of every session.
 
 ## Where things stand
 
 | Item | State |
 |---|---|
-| Latest release | [v0.2.2](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.2.2), pre-release, tag at cc739d3 (= `main`, PR #14). CI and `release-check` green; links in `docs/VALIDATION.md`. |
+| Latest release | [v0.3.0](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.3.0), pre-release, tag at c55c6b4 (= `main`). `release-check` [run 42793577019](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42793577019) and consumer repo at `@v0.3.0` [run 42794375114](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42794375114) green. Release body is the auto-generated list, not the release notes. |
 | Adoption audit | Merged as PR #15 (a44b885); hosted `quality` green ([run 42789258700](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42789258700)). Report: `docs/ADOPTION_AUDIT_2026-11.md`. |
 | v0.3.0 | Release PR prepared (version bump, `docs/RELEASE_NOTES_v0.3.0.md`, changelog, README, migration notes). **Not merged, not tagged.** |
 | Consumer-repo Action test | Done on GitHub (`ClarrieO5/skillpath-guard-consumer-test`, Action at `@main`): [run 5](https://github.com/ClarrieO5/skillpath-guard-consumer-test/actions/runs/42791209903) all 6 jobs green after three fixes to the test workflow itself (runs 1-4 red, see `docs/VALIDATION.md`). Job-summary *content* NOT verified (rendered panel fails to load for outside readers; check the Summary tab by eye while signed in). The `%3A` annotation bug found by these runs is fixed in PR #16 but not yet exercised on a hosted consumer run. Not yet re-run at `@v0.3.0`. |
