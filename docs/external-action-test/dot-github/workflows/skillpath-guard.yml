@@ -11,7 +11,7 @@ jobs:
       - uses: ClarrieO5/skillpath-guard@main
         with: { path: skills/good-skill }
   broken-fails:
-    name: broken-fails (job must be green: the Action step must fail)
+    name: broken-fails (green means the Action step failed as expected)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -52,21 +52,23 @@ jobs:
           exclude: |
             broken
               vendored
-  summary-on-off:
+  # The runner consumes each step's summary file, so content cannot be asserted from a later step.
+  # Compare the two jobs' "Summary" pages by eye: summary-on shows the Markdown report, summary-off shows none.
+  summary-on:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: summary default (on) writes the job summary
-        id: on
+      - id: scan
         continue-on-error: true
         uses: ClarrieO5/skillpath-guard@main
         with: { path: broken }
-      - run: test -s "$GITHUB_STEP_SUMMARY" && grep -q MISSING_REFERENCE "$GITHUB_STEP_SUMMARY"
-      - name: record size, then run with summary off
-        run: wc -c < "$GITHUB_STEP_SUMMARY" > "$RUNNER_TEMP/size"
-      - id: off
+      - run: test "${{ steps.scan.outcome }}" = "failure"
+  summary-off:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: scan
         continue-on-error: true
         uses: ClarrieO5/skillpath-guard@main
         with: { path: broken, summary: 'false' }
-      - name: summary off adds nothing
-        run: test "$(wc -c < "$GITHUB_STEP_SUMMARY")" = "$(cat "$RUNNER_TEMP/size")"
+      - run: test "${{ steps.scan.outcome }}" = "failure"

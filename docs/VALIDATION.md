@@ -31,8 +31,20 @@ Date: 9 November 2026. Local environment: Linux, Node v24.22.1.
 ## v0.3.0 (prepared 2026-11-10, not released)
 
 - Local suite: 87 passed, `npm run verify` passes (Node 22.23). Hosted matrix on `main` at a44b885 (PR #15 merged): [run 42789258700](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42789258700), green.
-- Consumer-repository test of the Action (`docs/external-action-test/`): **not run on GitHub.** The session could not create a repository (tooling for repository creation was disabled; only `ClarrieO5/skillpath-guard` was reachable). Local simulation of the Action's shell step on a copy of the kit, in a separate directory: valid skill exit 0; broken link exit 1 (`MISSING_REFERENCE ... references/missing.md`, annotation emitted); shared link without `allow-shared` exit 1 (`PATH_ESCAPE`, message names the flag), with it exit 0 (`SHARED_REFERENCE` warning); `exclude` with a blank-padded line skips the broken vendored skill; `summary: false` writes 0 bytes, default writes 234-706 bytes. This is not evidence that the hosted Action works from another repository.
-- Hosted consumer run URLs: *to be added*.
+- **Hosted consumer-repository test** (public repo `ClarrieO5/skillpath-guard-consumer-test`, workflow uses `ClarrieO5/skillpath-guard@main` = a44b885, i.e. the Action with the new inputs, before the version bump). Five runs, three of them red because of defects in the test workflow itself, not the Action:
+  - [run 1](https://github.com/ClarrieO5/skillpath-guard-consumer-test/actions/runs/42790624458): **failed to start**, no jobs. My workflow YAML was invalid (an unquoted `: ` in a job name).
+  - [run 2](https://github.com/ClarrieO5/skillpath-guard-consumer-test/actions/runs/42790742726): 4 of 5 jobs green; `summary-on-off` red. My assertion read `$GITHUB_STEP_SUMMARY` in a later step, but GitHub gives each step its own summary file.
+  - [run 3](https://github.com/ClarrieO5/skillpath-guard-consumer-test/actions/runs/42790904612) and [run 4](https://github.com/ClarrieO5/skillpath-guard-consumer-test/actions/runs/42791058642): same job red again. Even with `GITHUB_STEP_SUMMARY` redirected to a shared path (the variable did reach the Action step), the file was gone by the next step, and a 5 ms polling watcher captured nothing. The runner appears to consume the file after each step. **Inconclusive: this does not show the Action failed to write the summary.**
+  - [run 5](https://github.com/ClarrieO5/skillpath-guard-consumer-test/actions/runs/42791209903) at 2f29bcd: **all 6 jobs green** (summary split into `summary-on` and `summary-off`).
+- Results in run 5 (assertions in the workflow, checked in the job logs/conclusions):
+  - `valid-passes`: Action step succeeded on the valid skill.
+  - `broken-fails`: Action step failed (outcome `failure`) on `references/missing.md`; the log shows `ERROR MISSING_REFERENCE broken-skill/SKILL.md:8 Referenced file does not exist: references/missing.md`.
+  - `shared-default-fails-allow-shared-passes`: without `allow-shared` the step failed; with `allow-shared: 'true'` (and a two-line `exclude`) it succeeded.
+  - `exclude-works`: `vendored/` fails alone; passes when excluded via the multi-line input, including a line with extra leading spaces.
+  - `summary-on` / `summary-off`: both Action steps failed on the broken skill as asserted. **The summary content itself was not verified by automation.** To check by eye: open the two jobs' Summary tab (on should show the Markdown report, off should show none). Local simulation (summary on wrote 234-706 bytes, off wrote 0) is the only other evidence.
+- **Defect found by the hosted run:** annotation messages contain a literal `%3A` (`Referenced file does not exist%3A references/missing.md`), because `src/core.mjs:308` also percent-escapes `:` and `,` in the message (only needed in properties). Cosmetic; present since earlier versions; not fixed in this PR.
+- Node.js 20 deprecation warning appears for `actions/checkout@v4` in the consumer runs (harmless).
+- Release-check against the published tag: pending publication.
 
 The sections above and below this one describe v0.1.0 (9 November) and are kept as history.
 
