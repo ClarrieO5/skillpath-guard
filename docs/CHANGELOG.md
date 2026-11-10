@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.2 — experimental (unreleased; prepared 2026-11-10, see RELEASE_NOTES_v0.2.2.md)
 
 - Fix: GFM footnote definitions (`[^1]: GitHub Blog. (2022)...`) were read as link reference definitions, which reported the first word (`GitHub`) as a missing file and hid real paths written inside the footnote.
 - Fix: a location suffix on a bare path is no longer part of the file name. `scripts/helper.py:42`, `scripts/x.py:3-9` and Docker `./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql` are now checked as `scripts/helper.py`, `scripts/x.py` and `scripts/init.sql`. Before this fix, a file that existed but was cited with a line number was reported missing.
