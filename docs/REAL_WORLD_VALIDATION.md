@@ -52,7 +52,7 @@ The specification requires `name` to equal the parent directory name. Examples r
 | Class | Count | Examples |
 |---|---|---|
 | Genuine broken link / missing file | 9 | `microsoft/skills` `azure-mgmt-apimanagement-dotnet` links `references/policies.md`; `azure-cosmos-py` links `scripts/setup_cosmos_container.py`; `github/awesome-copilot` `gdpr-compliant` links `references/operations.md`; `wshobson/agents` `ml-pipeline-workflow` (4) and `grounded-vault` `scripts/check_vault.py` (searched the whole clone: no such file); `tech-leads-club` `render-deploy` links the directory `assets/` (absent) |
-| Illustrative text in a skill-writing guide | 33 | `microsoft/skills` `skill-creator` (17), `openai/skills` `skill-creator` (12), `obra/superpowers` `writing-skills` (`scripts/tool.sh`), `dotnet/skills` `create-skill` (2) |
+| Illustrative text in a skill-writing guide | 33 | `microsoft/skills` `skill-creator` (17), `openai/skills` `skill-creator` (12), `obra/superpowers` `writing-skills` (2: `scripts/tool.sh`, `scripts/tool.js`), `dotnet/skills` `create-skill` (2) |
 | File the skill tells the agent to create or ask for | 10 | `microsoft/skills` `wiki-onboarding` (4 guides generated for the user), `wiki-ado-convert` (script it generates); `create-canvas-extension` `assets/preview.png`; `openai/skills` `hatch-pet` (`references/canonical-base.png`, created at run time) |
 | Plugin-level resource (exists one level above the skill) | 4 | `trailofbits/skills` `rust-review` and `testing-handbook-generator` use `scripts/*.py` that live at the plugin root (verified to exist) |
 | Placeholder / optional / negative example | 7 | `references/filename.md`, "if `references/firm-standards.md` is present", `./scripts/deploy.sh` as an example of what *not* to include (getsentry), user-supplied `./scripts/train.py` in a code sample (huggingface), directory convention `scripts/azd` |
@@ -77,7 +77,9 @@ The classes sum to 63 (9+33+10+4+7). Single reviewer; the `hatch-pet` run-time c
 `skills-ref` 0.1.1 uses `strictyaml`, which rejects YAML flow sequences. `allowed-tools: ['A', 'B']` (awesome-copilot `azure-role-selector`) and `argument-hint: [apk-file-or-directory]` (trailofbits `firebase-apk-scanner`) are valid YAML but reported as "Invalid YAML". Also reproduced on a fixture. This is a property of the reference validator, listed here only as evidence for the comparison; no one has been told.
 
 ## Performance
-Largest scans: `github/awesome-copilot` 478 skills in 0.70 s, `microsoft/skills` 211 skills in 0.62 s, `K-Dense-AI/scientific-agent-skills` 177 skills in 0.80 s. No bottleneck on this corpus. Earlier rounds measured a 9,013-skill repository at about 22 s.
+Largest by skill count: `github/awesome-copilot` 478 skills in 0.70 s, `microsoft/skills` 211 in 0.62 s, `wshobson/agents` 185 in 0.26 s; slowest: `K-Dense-AI/scientific-agent-skills` (177 skills) at 0.80 s. No bottleneck on this corpus. Earlier rounds measured a 9,013-skill repository at about 22 s.
+
+Raw per-repository figures (full SHAs, exit codes, times, findings by rule, skills-ref counts): [`evidence/comparison/corpus-run-2026-11-10.tsv`](evidence/comparison/corpus-run-2026-11-10.tsv). The classification of individual findings is my reading and is not stored as data.
 
 ## Reproduce
 ```sh
@@ -89,5 +91,5 @@ Clone depth 1 fetches the default branch head, which is what the SHAs above reco
 
 ## Gaps in this validation
 - One reviewer, no second opinion. The PATH_ESCAPE set was not re-read this round. AMBIGUOUS_CWD was not run (it is opt-in since 0.3.0).
-- Selection is not random: popular, public, mostly well-maintained repositories found by earlier sessions plus a few new ones (vercel-labs, langchain-ai, neondatabase, firebase, tech-leads-club). At least 20 of the 25 were already scanned in earlier rounds, so this is not independent of the tool's history (to my knowledge, new here: vercel-labs, langchain-ai and neondatabase).
+- Selection is not random: popular, public, mostly well-maintained repositories found by earlier sessions plus a few new ones. At least 20 of the 25 were already scanned in earlier rounds, so this is not independent of the tool's history (to my knowledge, new here: vercel-labs, langchain-ai and neondatabase).
 - No runtime check that any flagged skill actually fails to load in a given agent.

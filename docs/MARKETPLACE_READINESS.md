@@ -9,7 +9,7 @@
 | Public repository | Public |
 | One action metadata file at the root | `action.yml` is the only one (examples contain none) |
 | Valid `branding` | `icon: link`, `color: blue` (both on GitHub's allowed lists) |
-| `name` and `description` present | `SkillPath Guard`; description is 72 characters |
+| `name` and `description` present | `SkillPath Guard`; description is 70 characters |
 | Inputs documented, with defaults | Seven inputs, each with `description` and `default`; all documented in the README |
 | No secrets, minimal permissions | The action reads files only. A consumer needs `permissions: contents: read` (the README example sets it). No network, token or telemetry |
 | Safe handling of inputs | Inputs are passed through `env:` and quoted, never interpolated into the shell script, so a crafted `path`/`exclude` value cannot inject commands. Annotation text is escaped (regression test) |

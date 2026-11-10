@@ -38,14 +38,14 @@ function listFiles(directory, exclusions) {
   return out.sort();
 }
 
-// True when `text` (the rest of a scalar that starts with `quote`) contains the matching closing quote.
+// Index of the closing quote in `text` (a scalar that starts with `quote`), or -1.
 function closesQuote(text,quote,continuation=false) {
   let k=continuation?0:1;
   for(; k<text.length; k++) {
     if(quote==='"' && text[k]==='\\') { k++; continue; }
-    if(text[k]===quote) { if(quote==="'" && text[k+1]==="'") { k++; continue; } return true; }
+    if(text[k]===quote) { if(quote==="'" && text[k+1]==="'") { k++; continue; } return k; }
   }
-  return false;
+  return -1;
 }
 
 function parseFrontmatter(content) {
@@ -82,13 +82,15 @@ function parseFrontmatter(content) {
       value = block.join(value.startsWith('>')?' ':'\n');
     }
     const quote=value[0];
-    if((quote==='"'||quote==="'") && !closesQuote(value,quote)) {
+    if((quote==='"'||quote==="'") && closesQuote(value,quote)<0) {
       // A quoted scalar may continue on following lines (YAML folds them); if no line closes it, the frontmatter is not valid YAML.
       const parts=[value]; let closed=false;
-      for(let j=i+1; j<end && !closed; j++) { parts.push(lines[j].trim()); i=j; closed=closesQuote(lines[j].trim(),quote,true); }
-      if(closed) value=parts.join(' ').replace(/\s+#.*$/,'');
+      // YAML continuation lines must be indented: an unindented `key:` line ends the search.
+      for(let j=i+1; j<end && !closed; j++) { if(/^[^\s#]/.test(lines[j])) break; parts.push(lines[j].trim()); i=j; closed=closesQuote(lines[j].trim(),quote,true)>=0; }
+      if(closed) value=parts.join(' ');
       else { i=startLine; problems.push({rule:'FRONTMATTER_UNSUPPORTED',line:i+1,message:`Unterminated quoted string for ${match[1]}: the closing ${quote} is missing, so this is not valid YAML and a strict parser will reject the whole frontmatter.`}); }
     }
+    if(quote==='"'||quote==="'") { const c=closesQuote(value,quote); if(c>0) value=value.slice(0,c+1); }
     if ((value.startsWith('"') && value.endsWith('"') && value.length>1) || (value.startsWith("'") && value.endsWith("'") && value.length>1)) value = value.slice(1,-1);
     fields[match[1]] = value;
   }

@@ -345,3 +345,9 @@ test('action.yml shell: boolean inputs are case-insensitive and invalid values f
     assert.equal(run({}).status,1);assert.equal(run({SPG_ALLOW_SHARED:'True'}).status,0);assert.equal(run({SPG_ALLOW_SHARED:'TRUE',SPG_STRICT:'true'}).status,1);
   }finally{fs.rmSync(root,{recursive:true,force:true});fs.rmSync(sh,{recursive:true,force:true});}
 });
+test('a quote is not closed by a later field; trailing comments after a quoted value are dropped',t=>{
+  const r=scan(writeSkill(t,'name: demo\ndescription: "open\nlicense: "MIT"'));
+  assert.ok(r.findings.some(f=>f.rule==='FRONTMATTER_UNSUPPORTED'&&/Unterminated/.test(f.message)));
+  const c=scan(writeSkill(t,`name: demo\ndescription: "${'x'.repeat(1020)}" # note`));
+  assert.equal(c.summary.error,0,JSON.stringify(c.findings));
+});
