@@ -47,6 +47,15 @@ Date: 9 November 2026. Local environment: Linux, Node v24.22.1.
 - Node.js 20 deprecation warning appears for `actions/checkout@v4` in the consumer runs (harmless).
 - Release-check against the published tag: pending publication.
 
+## v0.3.1 (prepared 2026-11-10, not released, not published to npm)
+
+- Local: 89 tests pass, `npm run verify` passes (Node 22.23, npm 10.9.9). `npm publish --dry-run`: 8 files, 19.3 kB, "tag latest and public access", `prepublishOnly` ran.
+- Clean install (empty project, empty HOME): `npm install <tarball>`, `--version` 0.3.1, valid fixture exit 0, broken fixture exit 1 (`MISSING_REFERENCE`), JSON `version` 0.3.1, `npm audit` 0 vulnerabilities; the packed `package.json` has no `private`, no dependencies, `publishConfig.access: public`.
+- npm authentication: **none available in the session** (`npm whoami` fails, no `~/.npmrc`, no token variables), as expected. Account, 2FA and publish rights are unverified.
+- Registry: `skillpath-guard` still 404 (unclaimed) at 2026-11-10 10:03 UTC.
+- Provenance and trusted publishing: requirements read from the npm documentation source; not exercised. Provenance requires a GitHub Actions publish; trusted publishing requires an existing package, npm >= 11.5.1 and Node >= 22.14.
+- Hosted CI on the release PR, `release-check` at the tag, and the post-publish `npx` check: pending (to be recorded by the release steps).
+
 ## After the v0.3.0 release (2026-11-10)
 
 - Release: [v0.3.0](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.3.0), pre-release, tag at c55c6b4 (= `main`, PR #16 squash merge), published 09:46 UTC. Its body is GitHub's auto-generated notes, not `docs/RELEASE_NOTES_v0.3.0.md`.

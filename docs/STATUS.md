@@ -8,10 +8,10 @@ Snapshot: **2026-11-10** (seventh session: after the v0.3.0 release). Read this 
 |---|---|
 | Latest release | [v0.3.0](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.3.0), pre-release, tag at c55c6b4 (= `main`). `release-check` [run 42793577019](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42793577019) and consumer repo at `@v0.3.0` [run 42794375114](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42794375114) green. Release body is the auto-generated list, not the release notes. |
 | Adoption audit | Merged as PR #15 (a44b885); hosted `quality` green ([run 42789258700](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42789258700)). Report: `docs/ADOPTION_AUDIT_2026-11.md`. |
-| v0.3.0 | Release PR prepared (version bump, `docs/RELEASE_NOTES_v0.3.0.md`, changelog, README, migration notes). **Not merged, not tagged.** |
-| Consumer-repo Action test | Done on GitHub (`ClarrieO5/skillpath-guard-consumer-test`, Action at `@main`): [run 5](https://github.com/ClarrieO5/skillpath-guard-consumer-test/actions/runs/42791209903) all 6 jobs green after three fixes to the test workflow itself (runs 1-4 red, see `docs/VALIDATION.md`). Job-summary *content* NOT verified (rendered panel fails to load for outside readers; check the Summary tab by eye while signed in). The `%3A` annotation bug found by these runs is fixed in PR #16 but not yet exercised on a hosted consumer run. Not yet re-run at `@v0.3.0`. |
-| npm | Not published; `private: true`. Name unclaimed (404). Runbook in `docs/RELEASE.md`. `npx github:ClarrieO5/skillpath-guard#v0.2.2` works today. |
-| Tests | 88 pass on the v0.3.0 branch; `npm run verify` passes (Node 22 locally; CI covers 20/22/24). |
+| v0.3.1 | Release PR open (version 0.3.1, README npm install line, release notes `docs/RELEASE_NOTES_v0.3.1.md`). **Not merged, not tagged, not published.** Merge only when ready to publish to npm within the hour (the README ships in the package). |
+| Consumer-repo Action test | `ClarrieO5/skillpath-guard-consumer-test`: 6 jobs green at `@v0.3.0` ([run 42794375114](https://github.com/ClarrieO5/skillpath-guard-consumer-test/actions/runs/42794375114)). Earlier runs 1-4 were red from test-workflow mistakes (`docs/VALIDATION.md`). Not yet at `@v0.3.1`. Job-summary content not verified by eye. |
+| npm | Not published. `private` removed on `main`; 0.3.1 prepared. Name and variants unclaimed (404). No npm auth in sessions. Steps, provenance and trusted publishing: `docs/RELEASE.md`. |
+| Tests | 89 pass; `npm run verify` passes (Node 22 locally; CI covers 20/22/24). |
 | Real usage | 0 repositories use the Action (last searched 2026-11-10). No external users. |
 | Upstream PRs | Merged 0. Open 2: [github/awesome-copilot#6339](https://github.com/github/awesome-copilot/pull/6339) (awaiting a maintainer; bot checks and two Copilot reviews positive, no change requests) and shanraisshan/claude-code-best-practice#283 (duplicate of #142). |
 | Internal PRs | #9 (old draft, superseded) still open. |
@@ -22,7 +22,7 @@ Released 2026-11-10; run links recorded in session 5. "Stable" (not a pre-releas
 
 ## Waiting on you (nothing below has been done)
 
-1. **v0.3.0 release PR:** review, check hosted CI, and look at the `summary-on` / `summary-off` job pages in [run 5](https://github.com/ClarrieO5/skillpath-guard-consumer-test/actions/runs/42791209903), then merge, tag `v0.3.0` (pre-release) following `docs/RELEASE.md`; `release-check` runs on publish. The `AMBIGUOUS_CWD` default change is already merged; v0.3.0 is where users first see it.
+1. **v0.3.1 release PR:** review, check CI, then follow `docs/RELEASE.md` ("npm publication"): merge, release `v0.3.1` (pre-release) with the notes, `npm publish` from the tag, verify with `npx`. Separate decisions: Marketplace (`docs/MARKETPLACE.md`), outreach (`docs/FIRST_USERS_PLAN.md`). Also: replace the v0.3.0 release body with `docs/RELEASE_NOTES_v0.3.0.md`; look at the `summary-on`/`summary-off` job pages.
 2. **firebase/agent-skills** (PR; re-verified 2026-11-10: upstream unchanged at 99954a3, no duplicate, `skills-ref` fails before and passes after). Sign the Google CLA first: https://cla.developers.google.com/ . Then fork, `git am docs/patches/firebase-agent-skills-data-connect-name.patch`, `git commit --amend --reset-author --no-edit` (with your CLA email), push, and open a PR to `main` using `docs/drafts/firebase-agent-skills-data-connect-name-PR.md`.
 3. **wshobson/agents** (PR; upstream unchanged at 9c61ab2, no duplicate). The description, in their template, is in `docs/drafts/wshobson-agents-ml-pipeline-workflow-PR.md`. Their `make validate STRICT=1 / garden / test` were **not** run: the permission system blocked them. Either run them locally, or submit with those boxes unticked and let their CI run them.
 4. **tech-leads-club/agent-skills** (issue, not PR: the repo is issue-first): `docs/drafts/tech-leads-club-routing-names-ISSUE.md`.
@@ -34,7 +34,7 @@ Withdrawn on 2026-11-10 (do not submit): microsoft/skills (already reported in #
 
 ## Next work for an AI session
 
-- Once the maintainer creates the throwaway repo (or enables repo creation for the session): run the kit, record real run URLs and results, and report failures too. Do not publish to npm or the Marketplace without approval.
+- After the v0.3.1 tag: re-run the consumer repo at `@v0.3.1` and record the run; after an approved npm publish, verify `npx skillpath-guard@0.3.1` from a clean directory. Do not publish to npm or the Marketplace without approval.
 - The 12-repo first-run test (`docs/ADOPTION_AUDIT_2026-11.md`) is the adoption benchmark: re-run it with fresh clones after any rule change and compare repos failing / errors / warnings.
 
 - After any external PR is opened: subscribe to it, respond to review, and record the outcome in the ledger and `docs/IMPACT_LOG.md`.

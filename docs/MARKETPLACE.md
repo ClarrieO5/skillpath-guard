@@ -34,3 +34,7 @@ Requirements read from the `github/docs` source (docs.github.com is not reachabl
 7. To withdraw: edit each listed release and untick the box.
 
 Recommendation: list only after the first external user, or together with the README reorder. The listing adds little discovery for a v0.x tool with no users, and it makes the research docs more visible.
+
+## Blockers as of v0.3.1 preparation (2026-11-10)
+
+Hard blockers I could not clear from a session (each is a few clicks for the owner): the `name` uniqueness check, the Developer Agreement, 2FA. Everything else in the table above is met. Soft blockers: repository contents (research, drafts and patches for other projects are visible from the listing), a README whose upper half is user documentation but whose lower half links the launch kit, and zero external users. Nothing in the code or `action.yml` blocks listing. Do it on the `v0.3.1` release (after the npm decision) so the listing shows the current README.
