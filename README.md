@@ -2,16 +2,17 @@
 
 **Catch broken local resource links before shipping an Agent Skills package.**
 
-An experimental, dependency-free, offline Node.js CLI and GitHub Action (latest release: [v0.3.0](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.3.0), pre-release). It checks `SKILL.md` references against the skill's own folder, detects filename-case and path-escape problems, and lets CI block new findings while you work through existing ones.
+An experimental, dependency-free, offline Node.js CLI and GitHub Action (latest release: [v0.3.1](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.3.1), pre-release; also on npm as `skillpath-guard`). It checks `SKILL.md` references against the skill's own folder, detects filename-case and path-escape problems, and lets CI block new findings while you work through existing ones.
 
 Relative links such as `[guide](references/guide.md)` are the form the [Agent Skills specification](https://agentskills.io/specification#file-references) recommends, and SkillPath Guard does not warn about them by default. `--cwd-hints` turns on the experimental `AMBIGUOUS_CWD` hint for runtimes you suspect resolve paths from the workspace; it does **not** prove a runtime failure. This is an independent MIT-licensed project, not an official Anthropic or Agent Skills validator.
 
 ## New here? Start with these three steps
 
 1. Install Node.js 20 or newer (check with `node --version`).
-2. Scan your skills straight from the release tag (npm downloads it from GitHub; nothing is installed globally):
-   `npx --yes github:ClarrieO5/skillpath-guard#v0.3.0 scan path/to/your/skills`
-3. Or download it once: `git clone --depth 1 --branch v0.3.0 https://github.com/ClarrieO5/skillpath-guard.git` and run `node skillpath-guard/src/cli.mjs scan path/to/your/skills`.
+2. Scan your skills with npx (nothing is installed globally):
+   `npx --yes skillpath-guard@0.3.1 scan path/to/your/skills`
+3. Or without npm's registry, straight from the release tag: `npx --yes github:ClarrieO5/skillpath-guard#v0.3.1 scan path/to/your/skills`, or `git clone --depth 1 --branch v0.3.1 https://github.com/ClarrieO5/skillpath-guard.git` and run `node skillpath-guard/src/cli.mjs scan path/to/your/skills`.
+   To add it to a project: `npm install --save-dev skillpath-guard`, then `npx skillpath-guard scan skills`.
 
 Reading the output: each line names a rule, a file and line, and what to fix. **error** findings (broken link, name mismatch) make the command exit 1; **warning** findings are worth reviewing. Rules are explained in "Checks and fixes" below. If a finding is wrong, please open an issue with the Markdown line that triggered it.
 
@@ -31,11 +32,11 @@ The valid fixture exits **0**. The deliberately broken fixture exits **1** and r
 
 ## Use in CI (GitHub Actions)
 
-SkillPath Guard is not on npm. Use the composite action, pinned to a release tag (or a full commit SHA):
+The CLI is on npm, but in CI use the composite action, pinned to a release tag (or a full commit SHA):
 
 ```yaml
 - uses: actions/checkout@v4
-- uses: ClarrieO5/skillpath-guard@v0.3.0
+- uses: ClarrieO5/skillpath-guard@v0.3.1
   with:
     path: skills            # folder containing your SKILL.md files
     # baseline: baseline.json   # optional: fail only on NEW findings
@@ -45,7 +46,7 @@ Inputs: `path`, `baseline`, `strict`; since v0.3.0 also `exclude` (one path per 
 
 If your repository is installed as one bundle (a plugin or a whole-repo install) and skills deliberately link to shared files such as `../shared/style.md`, set `allow-shared: 'true'`: those links become `SHARED_REFERENCE` warnings instead of `PATH_ESCAPE` errors. Links whose target is missing, or outside the repository, stay errors.
 
-The action needs `v0.2.1` or later (`exclude`, `allow-shared`, `cwd-hints` and `summary` need `v0.3.0`); the older `V0.2.0` tag predates `action.yml`. Without the action: `git clone --depth 1 --branch v0.3.0 https://github.com/ClarrieO5/skillpath-guard.git "$RUNNER_TEMP/spg"` then `node "$RUNNER_TEMP/spg/src/cli.mjs" scan skills --github-annotations`. Pair it with the reference validator `skills-ref` for frontmatter checks: the tools check different things (see [docs/COMPARISON.md](docs/COMPARISON.md)).
+The action needs `v0.2.1` or later (`exclude`, `allow-shared`, `cwd-hints` and `summary` need `v0.3.0`); the older `V0.2.0` tag predates `action.yml`. Without the action: `git clone --depth 1 --branch v0.3.1 https://github.com/ClarrieO5/skillpath-guard.git "$RUNNER_TEMP/spg"` then `node "$RUNNER_TEMP/spg/src/cli.mjs" scan skills --github-annotations`. Pair it with the reference validator `skills-ref` for frontmatter checks: the tools check different things (see [docs/COMPARISON.md](docs/COMPARISON.md)).
 
 ## CLI
 

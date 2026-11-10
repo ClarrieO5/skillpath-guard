@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.3.1 — experimental (prepared 2026-11-10; tag `v0.3.1` after approval, see RELEASE_NOTES_v0.3.1.md)
 
+- First release published to npm as `skillpath-guard` (after the maintainer's approval). No scanner behaviour change since 0.3.0.
 - Package: `private: true` removed and `publishConfig.access: public` added so the package can be published once the maintainer decides; a test guards package metadata (no dependencies, no install-time scripts, version equals `--version`). Nothing is published to npm. See `docs/RELEASE.md`, "npm publication".
 
 ## 0.3.0 — experimental (prepared 2026-11-10; tag `v0.3.0` after approval, see RELEASE_NOTES_v0.3.0.md and ADOPTION_AUDIT_2026-11.md)
