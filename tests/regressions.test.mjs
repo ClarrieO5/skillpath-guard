@@ -294,3 +294,37 @@ test('release version agrees across package, CLI, JSON report, workflow pins and
   assert.ok(read('docs/CHANGELOG.md').includes(`## ${v} `));
   assert.ok(fs.existsSync(new URL(`../docs/RELEASE_NOTES_v${v}.md`,import.meta.url)));
 });
+function writeSkill(t,frontmatter,dirName='demo'){
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),'guard-fm-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
+  const dir=path.join(root,dirName);fs.mkdirSync(dir);fs.writeFileSync(path.join(dir,'SKILL.md'),`---\n${frontmatter}\n---\nBody.\n`);return root;
+}
+test('unterminated quoted frontmatter value is reported (skills-ref rejects it as invalid YAML)',t=>{
+  const root=writeSkill(t,'name: demo\ndescription: "unterminated');
+  const f=scan(root).findings.find(x=>x.rule==='FRONTMATTER_UNSUPPORTED');
+  assert.ok(f,'expected FRONTMATTER_UNSUPPORTED');assert.match(f.message,/Unterminated quoted string for description/);assert.equal(f.line,3);
+  const single=writeSkill(t,"name: demo\ndescription: 'it''s fine but 'broken");
+  assert.ok(!scan(single).findings.some(x=>x.message.includes('Unterminated')),'escaped single quotes and later quotes are not unterminated');
+});
+test('multi-line and escaped quoted frontmatter values are accepted',t=>{
+  const root=writeSkill(t,'name: demo\ndescription: "Does a thing,\n  then another \\" thing."\nlicense: \'it\'\'s MIT\'');
+  const r=scan(root);assert.equal(r.summary.error,0,JSON.stringify(r.findings));
+});
+test('NAME_INVALID message names the actual value and the failed check',t=>{
+  const msg=(fm,dir)=>scan(writeSkill(t,fm,dir)).findings.find(x=>x.rule==='NAME_INVALID')?.message;
+  assert.match(msg('name: other\ndescription: d','demo'),/^name 'other' does not match the folder name 'demo'/);
+  assert.match(msg('name: Demo\ndescription: d','demo'),/contains uppercase letters/);
+  assert.match(msg('name: de--mo\ndescription: d','de--mo'),/single hyphens/);
+  assert.match(msg(`name: ${'a'.repeat(65)}\ndescription: d`,'a'.repeat(65)),/is 65 characters \(maximum 64\)/);
+  assert.equal(msg('name: demo\ndescription: d','demo'),undefined);
+});
+test('DESCRIPTION_INVALID and COMPATIBILITY_INVALID messages include the measured length',t=>{
+  const r=scan(writeSkill(t,`name: demo\ndescription: ${'x'.repeat(1100)}\ncompatibility: ${'y'.repeat(600)}`));
+  assert.ok(r.findings.some(f=>f.rule==='DESCRIPTION_INVALID'&&/is 1100 characters/.test(f.message)));
+  assert.ok(r.findings.some(f=>f.rule==='COMPATIBILITY_INVALID'&&/is 600 characters/.test(f.message)));
+  assert.ok(scan(writeSkill(t,'name: demo\nmetadata: x')).findings.some(f=>f.rule==='DESCRIPTION_INVALID'&&/missing or empty/.test(f.message)));
+});
+test('v0.3.2 baselines stay valid after message rewording of metadata rules',t=>{
+  const root=writeSkill(t,'name: other\ndescription: d','demo');const cur=scan(root);
+  const old=JSON.parse(JSON.stringify(cur));for(const f of old.findings)if(f.rule==='NAME_INVALID')f.message="name must match folder 'demo' and contain 1-64 lowercase letters, digits or single hyphens (no leading or trailing hyphen).";
+  assert.equal(compareBaseline(cur,old).comparison.new.length,0);
+});
