@@ -29,6 +29,21 @@ An offline Node.js CLI for SKILL.md local-resource checks, portability warnings,
 
 Days 1–2: setup, research, source development and regression work completed in this environment. Day 3: baseline experiments completed; live-runtime experiment explicitly untested. Day 4: all nine hosted matrix jobs passed. Day 5: documentation and local usability checks completed; independent trials outstanding. Day 6: issues/contribution policies reviewed; no new confirmed upstream bug, outreach or PR. Day 7: release preparation and honest evidence audit completed; experimental prerelease published after CI passed. The seven-day plan is not fully complete merely because the CLI works.
 
+## npm publication (prepared, not done; needs the maintainer's decision)
+
+The package is publish-ready apart from `private: true`, which is deliberate. The name `skillpath-guard` was unclaimed on 2026-11-10 (registry 404). To publish:
+
+1. Decide that npm is worth maintaining (see `docs/ADOPTION_AUDIT_2026-11.md`: `npx github:...` already works without it).
+2. On the release commit: `npm run verify`, then `npm pack --dry-run` and check that it lists only `src/`, README, LICENSE, SECURITY, `docs/CHANGELOG.md` and `package.json`.
+3. Remove `"private": true` in the release PR (one line, reviewed like any other change).
+4. With 2FA on your npm account: `npm publish --access public` from a clean checkout of the tag. `prepublishOnly` runs `npm run verify` first. Note: `npm publish --dry-run` does **not** fail on `private: true`, so a dry run is not evidence the flag works.
+5. Check: `npx --yes skillpath-guard@<version> --version` in an empty directory.
+6. Optional, later: configure npm trusted publishing (provenance) from a GitHub Actions workflow; check npm's current documentation first.
+
+## GitHub Marketplace (prepared, not done)
+
+Requirements read from the `github/docs` source on 2026-11-10: a public repository, a single `action.yml` at the root, a `name` that is not an existing Marketplace action, GitHub user/org or category; the owner accepts the Marketplace Developer Agreement and uses 2FA. `action.yml` now has `branding`. To list: open `action.yml` on GitHub, choose **Draft a release**, tick **Publish this Action to the GitHub Marketplace**, pick a primary category (Continuous integration or Code quality), and publish the release. Recommended only after the Action has run from a separate repository.
+
 ## v0.2.1 and later
 
 1. Merge the release PR only after all nine `quality` jobs pass on it. They now include a check that the Action **fails** on `examples/broken`.

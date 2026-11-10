@@ -22,7 +22,7 @@ If you use `--baseline` with `--fail-on-new`: findings whose target changed (for
 
 ## Verification
 - 80 tests pass locally; `npm run verify` passes.
-- CI on the release commit and `release-check` against the tag: to be filled in after the release (see `docs/RELEASE.md`).
+- CI on the release commit: `main` [run 42781586690](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42781586690), tag [run 42781732941](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42781732941), all green. `release-check` against the published tag: [run 42781733481](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42781733481), passed.
 
 ## Known limits
 Unchanged from v0.2.1: not on npm; YAML-subset frontmatter; heuristic detection (illustrative example paths, repo-root scripts and files a skill tells the agent to create can still be reported); `AMBIGUOUS_CWD` is not precision-checked; no independent human review or confirmed external users yet.

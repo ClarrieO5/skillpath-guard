@@ -28,6 +28,13 @@ jobs:
         uses: ./
         with:
           path: examples/broken
+      - name: Composite action honours exclude and allow-shared inputs
+        uses: ./
+        with:
+          path: examples
+          allow-shared: 'true'
+          exclude: |
+            broken
       - name: Require the broken-skill run to fail
         shell: bash
         run: test "${{ steps.broken.outcome }}" = "failure"

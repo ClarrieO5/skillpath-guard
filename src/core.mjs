@@ -112,6 +112,9 @@ function isWebRoute(reference) {
   if (!parts.length) return true;
   return !OS_ROOTS.has(parts[0]) && !parts.some(p => /^(?:references|scripts|assets)$/.test(p)) && !path.posix.extname(parts.at(-1));
 }
+function isSharedInsideRoot(root, candidate) {
+  try { return fs.existsSync(candidate) && insideDirectory(fs.realpathSync(root), fs.realpathSync(candidate)); } catch { return false; }
+}
 function insideDirectory(parent, candidate) {
   const p = path.relative(parent, candidate);
   return p === '' || (p !== '..' && !p.startsWith(`..${path.sep}`) && !path.isAbsolute(p));
@@ -133,7 +136,12 @@ function normalizeExclusions(exclude) {
   }))].sort();
 }
 
-export function scan(rootInput, {exclude=[]}={}) {
+// `<!-- skillpath-guard-ignore -->` on a line, or `<!-- skillpath-guard-ignore-next-line -->` alone on the line before,
+// silences line-level findings there: a maintainer's decision about an illustrative or intentionally absent path.
+const IGNORE_LINE = /<!--\s*skillpath-guard-ignore\s*-->/;
+const IGNORE_NEXT = /^\s*<!--\s*skillpath-guard-ignore-next-line\s*-->\s*$/;
+
+export function scan(rootInput, {exclude=[], cwdHints=false, allowShared=false}={}) {
   const root = path.resolve(rootInput);
   if (!fs.existsSync(root) || !fs.statSync(root).isDirectory()) throw new Error(`Directory not found: ${root}`);
   const exclusions=normalizeExclusions(exclude);
@@ -149,6 +157,7 @@ export function scan(rootInput, {exclude=[]}={}) {
   }
   const findings = [];
   const skills = [];
+  const ignoredLines = new Set();
   const skillDirsByName = new Map();
   for (const f of skillFiles) { const d=path.dirname(f), n=path.basename(d); if(!skillDirsByName.has(n))skillDirsByName.set(n,[]); skillDirsByName.get(n).push(d); }
   // A skill folder that is a dangling symlink (plugins/x/skills/y -> missing) has no SKILL.md to find; report the link itself.
@@ -198,6 +207,10 @@ export function scan(rootInput, {exclude=[]}={}) {
     if (fields.compatibility !== undefined && fields.compatibility.length>500) pushFinding(findings,{rule:'COMPATIBILITY_INVALID',severity:'error',file:relativeFile,skill:skillName,message:'compatibility must be at most 500 characters (Agent Skills specification).'});
     const bodyStart = end<0 ? 0 : end+1;
     if (lines.slice(bodyStart).join('').trim().length===0) pushFinding(findings,{rule:'BODY_EMPTY',severity:'warning',file:relativeFile,skill:skillName,message:'The skill has no instructions after frontmatter.'});
+    for (let i=bodyStart; i<lines.length; i++) {
+      if (IGNORE_NEXT.test(lines[i])) ignoredLines.add(`${relativeFile}:${i+2}`);
+      else if (IGNORE_LINE.test(lines[i])) ignoredLines.add(`${relativeFile}:${i+1}`);
+    }
     let fence=null; // {marker, illustrative}
     for (let lineNo=bodyStart; lineNo<lines.length; lineNo++) {
       const line = lines[lineNo];
@@ -216,9 +229,13 @@ export function scan(rootInput, {exclude=[]}={}) {
         if (/^(?:[a-z]:[\\/]|[\\/]|~)/i.test(reference)) {
           edge.status='absolute';
           pushFinding(findings,{rule:'ABSOLUTE_REFERENCE',severity:'error',file:relativeFile,line:lineNo+1,skill:skillName,target:reference,message:`Machine-specific absolute reference: ${reference}`});
+        } else if (!insideDirectory(skillDir,candidate) && allowShared && isSharedInsideRoot(root,candidate)) {
+          // Opt-in: a repository installed as one bundle (plugin, monorepo) may share files between skills.
+          edge.status='shared';
+          pushFinding(findings,{rule:'SHARED_REFERENCE',severity:'warning',file:relativeFile,line:lineNo+1,skill:skillName,target:reference,message:`Reference leaves the skill folder but exists in this repository (${rel(root,candidate)}). It works only when the whole repository or bundle is installed; installing this skill on its own breaks it.`});
         } else if (!insideDirectory(skillDir,candidate)) {
           edge.status='escape';
-          pushFinding(findings,{rule:'PATH_ESCAPE',severity:'error',file:relativeFile,line:lineNo+1,skill:skillName,target:reference,message:`Reference escapes skill directory: ${reference}`});
+          pushFinding(findings,{rule:'PATH_ESCAPE',severity:'error',file:relativeFile,line:lineNo+1,skill:skillName,target:reference,message:`Reference escapes skill directory: ${reference}`+(isSharedInsideRoot(root,candidate)?` (the file exists at ${rel(root,candidate)}; if this repository is always installed as a whole, --allow-shared reports this as a warning).`:'')});
         } else {
           let alternate=null;
           try { alternate=findSameNameDifferentCase(skillDir,reference); } catch {}
@@ -244,7 +261,7 @@ export function scan(rootInput, {exclude=[]}={}) {
         }
         }
         edges.push(edge);
-        if (!['absolute','escape','symlink-escape'].includes(edge.status) && lineHasCwdSensitiveInstruction(line, token.value, lines[lineNo+1]||'')) pushFinding(findings,{rule:'AMBIGUOUS_CWD',severity:'warning',file:relativeFile,line:lineNo+1,skill:skillName,target:reference,message:`Instruction uses a relative resource path (${reference}); some agents resolve paths from the workspace instead of the skill directory. Verify with the target runtime.`});
+        if (cwdHints && !['absolute','escape','shared','symlink-escape'].includes(edge.status) && lineHasCwdSensitiveInstruction(line, token.value, lines[lineNo+1]||'')) pushFinding(findings,{rule:'AMBIGUOUS_CWD',severity:'warning',file:relativeFile,line:lineNo+1,skill:skillName,target:reference,message:`Instruction uses a relative resource path (${reference}); some agents resolve paths from the workspace instead of the skill directory. Verify with the target runtime.`});
       }
     }
     const skillFilesOnly=resourceIndex.get(skillDir).filter(p=>p!==filename);
@@ -257,9 +274,12 @@ export function scan(rootInput, {exclude=[]}={}) {
       else lowerMap.set(key,rp);
     }
   }
+  const kept = findings.filter(f => !ignoredLines.has(`${f.file}:${f.line}`));
+  const suppressed = findings.length - kept.length;
+  findings.length = 0; findings.push(...kept);
   findings.sort((a,b)=>a.file.localeCompare(b.file)||a.line-b.line||a.rule.localeCompare(b.rule));
   const counts={error:findings.filter(f=>f.severity==='error').length, warning:findings.filter(f=>f.severity==='warning').length};
-  return {tool:'skillpath-guard', version:'0.2.2', root, exclusions, summary:{skills:skills.length, findings:findings.length, ...counts}, skills, findings, limitations:['Heuristic resource detection may produce false positives or miss references in unusual Markdown.','Static analysis cannot prove how an individual AI agent will resolve a file at runtime.','Frontmatter reading covers common scalar fields; this is not a complete YAML implementation.']};
+  return {tool:'skillpath-guard', version:'0.2.2', root, exclusions, options:{cwdHints, allowShared}, summary:{skills:skills.length, findings:findings.length, ...counts, suppressed}, skills, findings, limitations:['Heuristic resource detection may produce false positives or miss references in unusual Markdown.','Static analysis cannot prove how an individual AI agent will resolve a file at runtime.','Frontmatter reading covers common scalar fields; this is not a complete YAML implementation.']};
 }
 
 export function fingerprint(f) { return JSON.stringify([f.rule,f.severity,f.file,f.target||'',f.message]); }
@@ -273,9 +293,13 @@ export function compareBaseline(report,baseline) {
 export function toMarkdown(report) {
   const s=report.summary;
   const heading=`# SkillPath Guard report\n\nScanned ${s.skills} skill(s); ${s.error} errors, ${s.warning} warnings.\n\n`;
-  const rows=report.findings.length ? report.findings.map(f=>`| ${f.severity} | ${f.rule} | \`${f.file}:${f.line}\` | ${f.message.replaceAll('|','\\|')} |`).join('\n') : '| OK | - | - | No findings |';
+  const MAX_ROWS=500; // GitHub job summaries are limited to 1 MiB.
+  const shown=report.findings.slice(0,MAX_ROWS);
+  const rows=report.findings.length ? shown.map(f=>`| ${f.severity} | ${f.rule} | \`${f.file}:${f.line}\` | ${f.message.replaceAll('|','\\|')} |`).join('\n') : '| OK | - | - | No findings |';
+  const more=report.findings.length>MAX_ROWS ? `\n\n${report.findings.length-MAX_ROWS} more finding(s) not shown; use --format json for the full list.` : '';
+  const suppressedNote=s.suppressed ? `\n\n${s.suppressed} finding(s) silenced by skillpath-guard-ignore comments.` : '';
   const compare=report.comparison ? `\n\nBaseline comparison: ${report.comparison.new.length} new, ${report.comparison.resolved.length} resolved.\n` : '';
-  return `${heading}| Severity | Rule | Location | Explanation |\n|---|---|---|---|\n${rows}${compare}\n\nNote: static checks do not replace actual tests in each agent runtime.\n`;
+  return `${heading}| Severity | Rule | Location | Explanation |\n|---|---|---|---|\n${rows}${more}${suppressedNote}${compare}\n\nNote: static checks do not replace actual tests in each agent runtime.\n`;
 }
 export function githubAnnotations(report) {
   return report.findings.map(f=>{
