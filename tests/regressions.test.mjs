@@ -280,3 +280,17 @@ test('package metadata is publishable and consistent with the CLI',async()=>{
   const out=execFileSync(process.execPath,[new URL('src/cli.mjs',root).pathname.replace(/^\/([A-Za-z]:)/,'$1'),'--version'],{encoding:'utf8'}).trim();
   assert.equal(out,pkg.version);
 });
+test('release version agrees across package, CLI, JSON report, workflow pins and README',async()=>{
+  const {execFileSync}=await import('node:child_process');
+  const read=f=>fs.readFileSync(new URL('../'+f,import.meta.url),'utf8');
+  const v=JSON.parse(read('package.json')).version;
+  assert.match(read('src/cli.mjs'),new RegExp(`console\\.log\\('${v.replaceAll('.','\\.')}'\\)`));
+  assert.ok(read('src/cli.mjs').includes(`SkillPath Guard v${v}`));
+  assert.ok(read('src/core.mjs').includes(`version:'${v}'`));
+  const rc=read('.github/workflows/release-check.yml');
+  assert.ok(rc.includes(`skillpath-guard@v${v}`)&&rc.includes(`--branch v${v}`)&&rc.includes(`= "${v}"`));
+  const readme=read('README.md');
+  for(const s of [`releases/tag/v${v}`,`skillpath-guard@${v} scan`,`#v${v} scan`,`ClarrieO5/skillpath-guard@v${v}`])assert.ok(readme.includes(s),`README lacks ${s}`);
+  assert.ok(read('docs/CHANGELOG.md').includes(`## ${v} `));
+  assert.ok(fs.existsSync(new URL(`../docs/RELEASE_NOTES_v${v}.md`,import.meta.url)));
+});

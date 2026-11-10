@@ -1,8 +1,13 @@
 # Changelog
 
-## 0.3.1 — experimental (prepared 2026-11-10; tag `v0.3.1` after approval, see RELEASE_NOTES_v0.3.1.md)
+## 0.3.2 — experimental (prepared 2026-11-10; tag `v0.3.2` after approval, see RELEASE_NOTES_v0.3.2.md)
 
-- First release published to npm as `skillpath-guard` (after the maintainer's approval). No scanner behaviour change since 0.3.0.
+- First release meant for npm as `skillpath-guard` (after the maintainer's approval). No scanner behaviour change.
+- Release safeguards: `quality` fails when a pushed `v*` tag differs from `package.json`; `release-check` fails a published release whose tag differs from `package.json`; a test checks that package, CLI, JSON report, workflow pins, README, changelog and release notes agree.
+- Replaces 0.3.1, whose GitHub tag was created before the release PR merged and points at a commit with version 0.3.0. `v0.3.1` is left in place and must not be used; nothing was published to npm under that number.
+
+## 0.3.1 — not usable (tag `v0.3.1` points at 4053f81, package version 0.3.0)
+
 - Package: `private: true` removed and `publishConfig.access: public` added so the package can be published once the maintainer decides; a test guards package metadata (no dependencies, no install-time scripts, version equals `--version`). Nothing is published to npm. See `docs/RELEASE.md`, "npm publication".
 
 ## 0.3.0 — experimental (prepared 2026-11-10; tag `v0.3.0` after approval, see RELEASE_NOTES_v0.3.0.md and ADOPTION_AUDIT_2026-11.md)

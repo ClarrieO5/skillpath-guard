@@ -1,3 +1,5 @@
+> **Superseded, never released as intended.** The `v0.3.1` tag was published before PR #18 merged and points at 4053f81 (package version 0.3.0). Use v0.3.2. See `RELEASE_NOTES_v0.3.2.md`.
+
 # SkillPath Guard v0.3.1 (experimental)
 
 The first release published to npm. Changes since `v0.3.0` (c55c6b4): packaging only, **no scanner behaviour change**.

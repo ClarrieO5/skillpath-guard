@@ -47,6 +47,12 @@ Date: 9 November 2026. Local environment: Linux, Node v24.22.1.
 - Node.js 20 deprecation warning appears for `actions/checkout@v4` in the consumer runs (harmless).
 - Release-check against the published tag: pending publication.
 
+## v0.3.1 incident and v0.3.2 (2026-11-10)
+
+- **Incident:** release `v0.3.1` (pre-release, published 10:10:53 UTC) was created from `main` at 4053f81 five minutes before PR #18 merged (10:15:46, `main` = ab62d5e). The tag's `package.json` says 0.3.0. Its `release-check` ([run 42796944637](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42796944637)) passed anyway: it was still pinned to `@v0.3.0` and compared nothing with the new tag. npm has no `skillpath-guard` version (registry 404 for the package, 0.3.0 and 0.3.1). Decision: published tags are not moved; `v0.3.1` is preserved and superseded by 0.3.2.
+- **Fix:** version 0.3.2; `quality` and `release-check` now fail when the tag differs from `package.json`; a unit test (`release version agrees across ...`) fails when package, CLI, JSON report, workflow pins, README, changelog or release notes disagree (checked by mutating the README: the test failed; restored: passes).
+- Local: 90 tests pass; hosted CI, packaging and clean-install results for the release PR are recorded below once the PR checks finish.
+
 ## v0.3.1 (prepared 2026-11-10, not released, not published to npm)
 
 - Local: 89 tests pass, `npm run verify` passes (Node 22.23, npm 10.9.9). `npm publish --dry-run`: 8 files, 19.3 kB, "tag latest and public access", `prepublishOnly` ran.
