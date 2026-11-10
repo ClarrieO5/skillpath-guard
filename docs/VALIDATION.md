@@ -30,7 +30,7 @@ Date: 9 November 2026. Local environment: Linux, Node v24.22.1.
 
 ## v0.3.0 (prepared 2026-11-10, not released)
 
-- Local suite: 87 passed, `npm run verify` passes (Node 22.23). Hosted matrix on `main` at a44b885 (PR #15 merged): [run 42789258700](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42789258700), green.
+- Local suite: 88 passed (87 + the annotation regression test), `npm run verify` passes (Node 22.23). Hosted matrix on `main` at a44b885 (PR #15 merged): [run 42789258700](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42789258700), green.
 - **Hosted consumer-repository test** (public repo `ClarrieO5/skillpath-guard-consumer-test`, workflow uses `ClarrieO5/skillpath-guard@main` = a44b885, i.e. the Action with the new inputs, before the version bump). Five runs, three of them red because of defects in the test workflow itself, not the Action:
   - [run 1](https://github.com/ClarrieO5/skillpath-guard-consumer-test/actions/runs/42790624458): **failed to start**, no jobs. My workflow YAML was invalid (an unquoted `: ` in a job name).
   - [run 2](https://github.com/ClarrieO5/skillpath-guard-consumer-test/actions/runs/42790742726): 4 of 5 jobs green; `summary-on-off` red. My assertion read `$GITHUB_STEP_SUMMARY` in a later step, but GitHub gives each step its own summary file.
