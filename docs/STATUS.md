@@ -23,14 +23,8 @@ Snapshot: **2026-11-10**. Read this first when continuing in a new session. Keep
    - (c) leave it open.
 
    Either close is a public action; nothing has been done.
-3. **awesome-copilot GDPR fix: ready to submit.** Your fork `ClarrieO5/awesome-copilot` exists with only `main` (at upstream e45ee93).
-   - To have Claude push it: start a session and say "push the awesome-copilot GDPR branch to my fork". It needs `ClarrieO5/awesome-copilot` added to the session with push access.
-   - To do it yourself:
-     1. Clone your fork.
-     2. `git checkout -b fix-gdpr-compliant-reference-paths`
-     3. `git am <path-to>/skillpath-guard/docs/patches/awesome-copilot-gdpr-compliant.patch`
-     4. Push the branch, then open a PR to `github/awesome-copilot` `main`.
-   - PR title and description: `docs/drafts/awesome-copilot-gdpr-compliant-PR.md`.
+3. **awesome-copilot GDPR fix: pushed to your fork, PR not opened.** Branch [`fix-gdpr-compliant-reference-paths`](https://github.com/ClarrieO5/awesome-copilot/tree/fix-gdpr-compliant-reference-paths) (commit a854019) is the patch applied on upstream `main` 6afbe78 (re-checked 2026-11-10: still broken, no duplicate). SkillPath Guard: 4 errors before, 0 after.
+   - To submit: open https://github.com/github/awesome-copilot/compare/main...ClarrieO5:awesome-copilot:fix-gdpr-compliant-reference-paths?expand=1 and paste the title and body from `docs/drafts/awesome-copilot-gdpr-compliant-PR.md`.
 4. **firebase/agent-skills name fix: ready, needs the Google CLA.** Patch `docs/patches/firebase-agent-skills-data-connect-name.patch`, description `docs/drafts/firebase-agent-skills-data-connect-name-PR.md`. Fork the repo, `git am` the patch, and make sure the commit email is your CLA email (`git commit --amend --reset-author --no-edit`). Then open a PR to `main`.
 5. **wshobson/agents:** the #447 question is resolved (it was fixed, not declined), so the patch is a reasonable PR. Before submitting, someone must run their `make validate STRICT=1`, `make garden` and `make test` (third-party code; not run here).
 6. **Close internal PR #9** as superseded (optional).
