@@ -31,10 +31,11 @@ Changes since `v0.2.2` (cc739d3). Source: the adoption audit, PR #15 (`docs/ADOP
 6. Pin `@v0.3.0` (or a SHA). `exclude`, `allow-shared`, `cwd-hints` and `summary` do not exist in `v0.2.2`.
 
 ## Verification
-- 87 tests pass locally; `npm run verify` passes (Node 22.23). Hosted matrix on `main` at a44b885 (PR #15 merged): [run 42789258700](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42789258700), green.
+- 88 tests pass locally; `npm run verify` passes (Node 22.23). Hosted matrix on `main` at a44b885 (PR #15 merged): [run 42789258700](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42789258700), green.
 - 12-repository first-run benchmark (`docs/ADOPTION_AUDIT_2026-11.md`): 594 warnings removed, nothing else changed; with `--allow-shared` 196 errors become warnings and repositories failing drop from 9 to 7.
 - Consumer-repository test (public `ClarrieO5/skillpath-guard-consumer-test`, Action at `@main` = a44b885): [run 5](https://github.com/ClarrieO5/skillpath-guard-consumer-test/actions/runs/42791209903), all 6 jobs green: valid passes, broken link fails, `allow-shared` turns `PATH_ESCAPE` into a passing `SHARED_REFERENCE` warning, `exclude` (multi-line, whitespace trimmed) works, `summary: 'false'` runs. Runs 1-4 were red because of errors in the test workflow itself (invalid YAML; the runner deletes step summary files so their content cannot be read back); see `docs/VALIDATION.md`. **The job-summary content was not machine-verified**: check the `summary-on` and `summary-off` job pages by eye.
-- Known cosmetic defect: annotation messages show a literal `%3A` for `:` (`src/core.mjs:308`).
+- Fixed in this release: annotation messages no longer show `%3A`/`%2C` for `:` and `,` (properties are still escaped). Regression test added; 88 tests pass.
+- **Job-summary content is not independently verified** (the rendered summary panel could not be loaded from outside; see `docs/VALIDATION.md`).
 - Release-check run against the published tag: *pending publication*.
 
 ## Known limits

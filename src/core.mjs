@@ -305,7 +305,9 @@ export function githubAnnotations(report) {
   return report.findings.map(f=>{
     const level=f.severity==='error'?'error':'warning';
     const annotationFile=report.root?rel(process.cwd(),path.resolve(report.root,f.file)):f.file;
-    const escape=s=>String(s).replaceAll('%','%25').replaceAll('\r','%0D').replaceAll('\n','%0A').replaceAll(':','%3A').replaceAll(',','%2C');
-    return `::${level} file=${escape(annotationFile)},line=${f.line},title=${escape(f.rule)}::${escape(f.message)}`;
+    // Workflow-command escaping: message data escapes only % \r \n; properties also escape : and ,
+    const escapeData=s=>String(s).replaceAll('%','%25').replaceAll('\r','%0D').replaceAll('\n','%0A');
+    const escapeProperty=s=>escapeData(s).replaceAll(':','%3A').replaceAll(',','%2C');
+    return `::${level} file=${escapeProperty(annotationFile)},line=${f.line},title=${escapeProperty(f.rule)}::${escapeData(f.message)}`;
   });
 }
