@@ -23,7 +23,7 @@ An offline Node.js CLI for SKILL.md local-resource checks, portability warnings,
 3. Push source and wait for all nine quality jobs. Do not waive failures to publish.
 4. Create GitHub tag `v0.1.0` at the tested commit and mark the release **pre-release**.
 5. Include the validation command, actual CI link, known limitations, and links to research and impact log in release notes. GitHub automatically provides source archives.
-6. Keep `private: true` until an npm name and publication decision have been verified. GitHub source releases do not require npm publication.
+6. (v0.3.0 and earlier kept `private: true`; see "npm publication" below.) GitHub source releases do not require npm publication.
 
 ## Manual completion map
 
@@ -31,14 +31,16 @@ Days 1–2: setup, research, source development and regression work completed in
 
 ## npm publication (prepared, not done; needs the maintainer's decision)
 
-The package is publish-ready apart from `private: true`, which is deliberate. The name `skillpath-guard` was unclaimed on 2026-11-10 (registry 404). To publish:
+Audit, 2026-11-10 (details in `docs/VALIDATION.md`): the name `skillpath-guard` and the near variants `skillpathguard`, `skillpath`, `skill-path-guard`, `skillpath_guard` are all unclaimed (registry 404). The tarball has 8 files / 19 kB: `src/`, README, LICENSE, SECURITY, changelog, `package.json`; no dependencies, no install-time scripts, nothing from `docs/drafts` or `docs/patches`. A clean `npm install <tarball>` works and `npx skillpath-guard` runs (valid 0, broken 1). `npm publish --dry-run` passes (and runs `prepublishOnly` = `npm run verify`). Not verifiable from a session: that you have an npm account with 2FA, and publish rights for the name.
 
-1. Decide that npm is worth maintaining (see `docs/ADOPTION_AUDIT_2026-11.md`: `npx github:...` already works without it).
-2. On the release commit: `npm run verify`, then `npm pack --dry-run` and check that it lists only `src/`, README, LICENSE, SECURITY, `docs/CHANGELOG.md` and `package.json`.
-3. Remove `"private": true` in the release PR (one line, reviewed like any other change).
-4. With 2FA on your npm account: `npm publish --access public` from a clean checkout of the tag. `prepublishOnly` runs `npm run verify` first. Note: `npm publish --dry-run` does **not** fail on `private: true`, so a dry run is not evidence the flag works.
-5. Check: `npx --yes skillpath-guard@<version> --version` in an empty directory.
-6. Optional, later: configure npm trusted publishing (provenance) from a GitHub Actions workflow; check npm's current documentation first.
+**Version caveat.** The `v0.3.0` tag contains `"private": true`, so `npm publish` from that tag is refused. The `private` flag is removed on `main` (PR for npm publishability), after the tag. Do not move the tag. Publish a new version whose tree has no `private`:
+
+1. Merge the npm-publishability PR. Then make a small release PR: bump to `0.3.1` in `package.json`, `src/cli.mjs` (two places), `src/core.mjs`, `tests/cli.test.mjs` and `.github/workflows/release-check.yml`; changelog line; README: replace "SkillPath Guard is not on npm" with the npm install line only **after** step 5.
+2. Tag `v0.3.1` (pre-release), confirm `release-check` is green (it tests the Action, not npm).
+3. From a clean checkout of the tag: `npm ci` is unnecessary (no dependencies); run `npm run verify` and `npm pack --dry-run` and check the 8-file list.
+4. `npm login` (2FA on), then `npm publish` (the package says `access: public`; `prepublishOnly` runs verify). Publishing is effectively irreversible: a version number can never be reused and `npm unpublish` is limited.
+5. Check: `npx --yes skillpath-guard@0.3.1 --version` in an empty directory prints `0.3.1`; open https://www.npmjs.com/package/skillpath-guard; then update the README and record the result in `docs/VALIDATION.md`.
+6. Optional, later: npm trusted publishing with provenance from a GitHub Actions workflow (check npm's current documentation first; not set up).
 
 ## GitHub Marketplace (prepared, not done)
 

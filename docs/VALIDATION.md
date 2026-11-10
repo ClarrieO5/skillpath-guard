@@ -47,6 +47,16 @@ Date: 9 November 2026. Local environment: Linux, Node v24.22.1.
 - Node.js 20 deprecation warning appears for `actions/checkout@v4` in the consumer runs (harmless).
 - Release-check against the published tag: pending publication.
 
+## After the v0.3.0 release (2026-11-10)
+
+- Release: [v0.3.0](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.3.0), pre-release, tag at c55c6b4 (= `main`, PR #16 squash merge), published 09:46 UTC. Its body is GitHub's auto-generated notes, not `docs/RELEASE_NOTES_v0.3.0.md`.
+- `release-check` against the published tag: [run 42793577019](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42793577019), success. `quality` on the tag: [run 42793577614](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42793577614), success; on `main`: [run 42792858062](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42792858062), success.
+- Consumer repository at `uses: ClarrieO5/skillpath-guard@v0.3.0`: [run 42794375114](https://github.com/ClarrieO5/skillpath-guard-consumer-test/actions/runs/42794375114), all 6 jobs green (valid passes; broken fails; `allow-shared`; `exclude`; `summary-on`; `summary-off`).
+- Annotation fix confirmed on the hosted run: the run page's annotations show `Referenced file does not exist: references/missing.md` with a plain colon; no `%3A` or `%2C` appears (read from the page converted to Markdown, not raw HTML).
+- Job-summary **content** is still not verified (the summary panel does not load for an outside reader). Look at the `summary-on` / `summary-off` job pages while signed in.
+- npm audit (no publish): name and four near variants unclaimed; tarball 8 files / 19 kB; clean install of the tarball in an empty project works (`--version` 0.3.0, valid exit 0, broken exit 1, `npm audit` 0 vulnerabilities); `npm publish --dry-run` OK once `private` is removed. Not verifiable: npm account, 2FA, publish rights.
+- Marketplace: name uniqueness and Developer Agreement not verifiable from the session; see `docs/MARKETPLACE.md`.
+
 The sections above and below this one describe v0.1.0 (9 November) and are kept as history.
 
 ## Reproduce

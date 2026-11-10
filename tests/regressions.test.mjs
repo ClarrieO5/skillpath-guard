@@ -260,3 +260,23 @@ test('annotation message keeps : and , readable while properties stay escaped',(
   const [line]=githubAnnotations({findings:[{severity:'error',file:'dir:x/a,b.md',line:3,rule:'T:R',message:'Referenced file does not exist: a/b, c 100%'}]});
   assert.equal(line,'::error file=dir%3Ax/a%2Cb.md,line=3,title=T%3AR::Referenced file does not exist: a/b, c 100%25');
 });
+test('package metadata is publishable and consistent with the CLI',async()=>{
+  const {execFileSync}=await import('node:child_process');
+  const root=new URL('..',import.meta.url);
+  const pkg=JSON.parse(fs.readFileSync(new URL('package.json',root),'utf8'));
+  assert.equal(pkg.name,'skillpath-guard');
+  assert.notEqual(pkg.private,true,'private:true blocks npm publish');
+  assert.equal(pkg.license,'MIT');
+  assert.equal(pkg.engines.node,'>=20');
+  assert.equal(pkg.publishConfig?.access,'public');
+  assert.match(pkg.repository.url,/ClarrieO5\/skillpath-guard\.git$/);
+  assert.equal(pkg.dependencies,undefined);
+  assert.equal(pkg.devDependencies,undefined);
+  for(const s of ['preinstall','install','postinstall','prepare'])assert.equal(pkg.scripts[s],undefined,`install-time script ${s} must not exist`);
+  assert.match(pkg.scripts.prepublishOnly,/verify/);
+  for(const f of pkg.files)assert.ok(fs.existsSync(new URL(f,root)),`files entry missing: ${f}`);
+  const cli=fs.readFileSync(new URL(pkg.bin['skillpath-guard'],root),'utf8');
+  assert.ok(cli.startsWith('#!/usr/bin/env node'));
+  const out=execFileSync(process.execPath,[new URL('src/cli.mjs',root).pathname.replace(/^\/([A-Za-z]:)/,'$1'),'--version'],{encoding:'utf8'}).trim();
+  assert.equal(out,pkg.version);
+});
