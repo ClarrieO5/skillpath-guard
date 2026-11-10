@@ -1,10 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.3.3 — experimental (prepared 2026-11-10; tag `v0.3.3` after approval, see RELEASE_NOTES_v0.3.3.md)
 
 - Frontmatter: an unterminated quoted value (`description: "oops`) is now reported as `FRONTMATTER_UNSUPPORTED`; multi-line quoted values are read instead of truncated.
 - `NAME_INVALID`, `DESCRIPTION_INVALID`, `COMPATIBILITY_INVALID` messages now name the actual value or length and which check failed. These three rules no longer include the message in baseline identity, so v0.3.2 baselines keep working.
 - Action: boolean inputs are case-insensitive; invalid values fail with a clear error (previously ignored silently).
+- Frontmatter: a quoted value's continuation lines must be indented, and a trailing `# comment` after a closing quote is no longer counted in length checks.
 - README restructured for new users; new docs: real-world validation, measured comparison, Marketplace readiness, release readiness.
 
 ## 0.3.2 — experimental (prepared 2026-11-10; tag `v0.3.2` after approval, see RELEASE_NOTES_v0.3.2.md)
