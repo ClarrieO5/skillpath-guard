@@ -8,8 +8,8 @@ As of 10 November 2026:
 
 - Confirmed independent users: **0**
 - Confirmed external adopting projects: **0**
-- Confirmed upstream defects found by this work, verified by hand and not already reported: **3**, each with a fix prepared (github/awesome-copilot, wshobson/agents, firebase/agent-skills); none reported upstream yet. (The microsoft/skills links were real but had already been reported by others in #422 and #464; corrected 2026-11-10.)
-- Accepted upstream PRs from this work: **0** (1 open, shanraisshan/claude-code-best-practice#283, a duplicate of #142; 3 more prepared but not submitted (awesome-copilot, wshobson, firebase); see `docs/CONTRIBUTION_LEDGER.md`)
+- Confirmed upstream defects found by this work, verified by hand and not already reported: **4** (github/awesome-copilot, submitted as #6339; wshobson/agents; firebase/agent-skills; tech-leads-club/agent-skills routing names, found 2026-11-10 round 4). (The microsoft/skills links were real but had already been reported by others in #422 and #464; corrected 2026-11-10.)
+- Accepted upstream PRs from this work: **0**. Open: 2, github/awesome-copilot#6339 (submitted 2026-11-10; no human review yet, bot checks pass) and shanraisshan/claude-code-best-practice#283 (a duplicate of #142). Prepared, not submitted: wshobson (PR), firebase (PR, needs CLA), tech-leads-club (issue). See `docs/CONTRIBUTION_LEDGER.md`.
 - External contributors demonstrated by this work: **0**
 - Registry downloads: **not measured; package not published to a registry**
 - Public-source evaluation: 23 repositories (round 1), 38 more (round 2) and a 20-repository re-scan (round 3, 2026-11-10); this is research, **not adoption**.

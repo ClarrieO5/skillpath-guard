@@ -1,34 +1,36 @@
 # Project status and handoff
 
-Snapshot: **2026-11-10**. Read this first when continuing in a new session. Keep it current: update it at the end of every session.
+Snapshot: **2026-11-10** (fourth session). Read this first when continuing in a new session. Keep it current: update it at the end of every session.
 
 ## Where things stand
 
 | Item | State |
 |---|---|
-| Latest release | [v0.2.1](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.2.1), pre-release, tag at `main` f1802cd. First tag that contains the GitHub Action. |
-| Unreleased on a branch | Three scanner fixes from the round-3 re-scan (footnotes, `:line` suffixes, web routes), in PR #13. Not released. |
-| Tests | 80 pass locally; `npm run verify` passes. |
-| CI | All nine `quality` jobs green on `main`, on the tag, and on release PR #11. `release-check` passed against the published tag. Links in `docs/VALIDATION.md`. |
-| Real usage | 0 repositories use the Action (code search, 2026-11-10). No external issues, PRs or users. |
-| Upstream PRs merged | 0. Open: 1 (#283, fully overlapped by #142). |
-| Internal PRs | **#12** (docs refresh) squash-merged as `main` 3d9c3ef. **#13** (round-3 scanner fixes and ledger corrections) targets `main` and is a draft. **#9** (older draft) is still open; its scanner fixes are already in `main`, so it can be closed as superseded. |
+| Latest release | [v0.2.1](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.2.1), pre-release, tag at f1802cd. |
+| `main` | 23c2db3 = PR #13 squash-merged (2026-11-10). All nine `quality` jobs green on it: [run 42739020197](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42739020197). Contains the three round-3 scanner fixes, unreleased. |
+| v0.2.2 | Release prep (version bump, `docs/RELEASE_NOTES_v0.2.2.md`, changelog, release-check tag) is on branch `claude/serene-davinci-6r38op`. Not merged, not tagged. |
+| Tests | 80 pass; `npm run verify` passes (Node 22 locally; CI covers 20/22/24). |
+| Real usage | 0 repositories use the Action (last searched 2026-11-10). No external users. |
+| Upstream PRs | Merged 0. Open 2: [github/awesome-copilot#6339](https://github.com/github/awesome-copilot/pull/6339) (awaiting a maintainer; bot checks and two Copilot reviews positive, no change requests) and shanraisshan/claude-code-best-practice#283 (duplicate of #142). |
+| Internal PRs | #9 (old draft, superseded) still open. |
+
+## What remains before v0.2.2
+
+1. Review and merge the release-prep PR from `claude/serene-davinci-6r38op` once all nine `quality` jobs pass on it.
+2. Tag `v0.2.2` on the merge commit **straight away** (the README already says v0.2.2), and publish it as a **pre-release** with `docs/RELEASE_NOTES_v0.2.2.md`.
+3. Check that `release-check` passes, then record both run links in the release notes and `docs/VALIDATION.md`.
+
+"Stable" (not a pre-release) is a separate decision. The release gate still lists independent human review and real-runtime validation as outstanding. Also open: the Action has never run from another repo, and `AMBIGUOUS_CWD` has never been precision-checked. None of these block a v0.2.2 pre-release.
 
 ## Waiting on you (nothing below has been done)
 
-1. **Review and merge PR #13** (mark ready for review, then squash-merge). #12's branch `claude/adoring-feynman-q1ygqd` can be deleted.
-2. **Decide on PR #283** (shanraisshan/claude-code-best-practice). It overlaps #142 completely (re-verified 2026-11-10). Options:
-   - (a) close it without a comment;
-   - (b) close it with the drafted comment in `docs/CONTRIBUTION_LEDGER.md`;
-   - (c) leave it open.
-
-   Either close is a public action; nothing has been done.
-3. **awesome-copilot GDPR fix: pushed to your fork, PR not opened.** Branch [`fix-gdpr-compliant-reference-paths`](https://github.com/ClarrieO5/awesome-copilot/tree/fix-gdpr-compliant-reference-paths) (commit a854019) is the patch applied on upstream `main` 6afbe78 (re-checked 2026-11-10: still broken, no duplicate). SkillPath Guard: 4 errors before, 0 after.
-   - To submit: open https://github.com/github/awesome-copilot/compare/main...ClarrieO5:awesome-copilot:fix-gdpr-compliant-reference-paths?expand=1 and paste the title and body from `docs/drafts/awesome-copilot-gdpr-compliant-PR.md`.
-4. **firebase/agent-skills name fix: ready, needs the Google CLA.** Patch `docs/patches/firebase-agent-skills-data-connect-name.patch`, description `docs/drafts/firebase-agent-skills-data-connect-name-PR.md`. Fork the repo, `git am` the patch, and make sure the commit email is your CLA email (`git commit --amend --reset-author --no-edit`). Then open a PR to `main`.
-5. **wshobson/agents:** the #447 question is resolved (it was fixed, not declined), so the patch is a reasonable PR. Before submitting, someone must run their `make validate STRICT=1`, `make garden` and `make test` (third-party code; not run here).
-6. **Close internal PR #9** as superseded (optional).
-7. **Verify the Action from a separate repo:** create a throwaway public repo with one skill and the workflow in `docs/LAUNCH.md`, push a valid version and then a broken one, and record both run links in `docs/VALIDATION.md`.
+1. **v0.2.2:** see above.
+2. **firebase/agent-skills** (PR; re-verified 2026-11-10: upstream unchanged at 99954a3, no duplicate, `skills-ref` fails before and passes after). Sign the Google CLA first: https://cla.developers.google.com/ . Then fork, `git am docs/patches/firebase-agent-skills-data-connect-name.patch`, `git commit --amend --reset-author --no-edit` (with your CLA email), push, and open a PR to `main` using `docs/drafts/firebase-agent-skills-data-connect-name-PR.md`.
+3. **wshobson/agents** (PR; upstream unchanged at 9c61ab2, no duplicate). The description, in their template, is in `docs/drafts/wshobson-agents-ml-pipeline-workflow-PR.md`. Their `make validate STRICT=1 / garden / test` were **not** run: the permission system blocked them. Either run them locally, or submit with those boxes unticked and let their CI run them.
+4. **tech-leads-club/agent-skills** (issue, not PR: the repo is issue-first): `docs/drafts/tech-leads-club-routing-names-ISSUE.md`.
+5. **PR #283:** close it (with or without the drafted comment) or leave it open. Unchanged.
+6. Optional: close internal PR #9; verify the Action from a throwaway repo (`docs/LAUNCH.md`).
+7. **awesome-copilot #6339:** nothing to do unless a maintainer asks for changes.
 
 Withdrawn on 2026-11-10 (do not submit): microsoft/skills (already reported in #422/#464, fix PR #448 open), anthropics/skills `claude-api` (3 issues and 6 PRs already open), nature-skills (deliberate, allowlisted alias).
 
@@ -37,6 +39,7 @@ Withdrawn on 2026-11-10 (do not submit): microsoft/skills (already reported in #
 - After any external PR is opened: subscribe to it, respond to review, and record the outcome in the ledger and `docs/IMPACT_LOG.md`.
 - Before submitting anything, re-run the duplicate searches in the ledger. Round 2 missed existing reports for two candidates; search by file name and by skill name, for both issues and PRs.
 - Scanner: the remaining false-positive classes are listed in `docs/CORPUS_VALIDATION.md` (round 3). They need semantic cues, not syntax. Do not add a heuristic without a corpus before/after diff that is reviewed line by line.
+- Round 4 (14 repos, see the ledger) found no new scanner bug. In modern repos most errors are `PATH_ESCAPE` links to sibling skills that exist (googleworkspace 75, databricks 456). Flagging an escaping link whose target is missing was considered and rejected: 2 of 7 such links were real breakage, and both were already fixed in an open PR.
 - `AMBIGUOUS_CWD` (1,518 findings in round 3) has never been precision-checked. A seeded sample of about 30 would say whether it is useful as a default warning.
 - Do not repeat rounds 2-3 unless upstream changed. Recheck with a fresh `git clone --depth 1` and `git log -1`.
 - Re-run the usage searches monthly (see `docs/LAUNCH.md`) and log real numbers only.
@@ -45,7 +48,8 @@ Withdrawn on 2026-11-10 (do not submit): microsoft/skills (already reported in #
 
 - **GitHub scope:** sessions are scoped to `ClarrieO5/skillpath-guard`. Other repos must be added with `add_repo` (push access for your fork). Public repos can still be cloned read-only.
 - **Search:** use `gh api -X GET search/issues|code|commits`. The secondary rate limit trips after about 10 quick queries, so wait about 4 seconds between calls.
-- **Third-party code:** running another repo's scripts (`npm start`, `make ...`) is blocked by the permission system unless you explicitly ask for it in that session. Install with `npm ci --ignore-scripts`.
+- **Third-party code:** running another repo's scripts (`npm start`, `make ...`, `uv run tools/...`) is blocked by the permission system, even when the task asks for "validation where permitted" (confirmed again in session 4). Standalone tools (mdformat, markdownlint-cli2, skills-ref) run fine from a scratch venv or node_modules. Install with `npm ci --ignore-scripts`.
+- **Other repos' PR comments:** `gh api` only works for attached repos; the web-fetch agent can read a public PR page.
 - **Branches:** after a squash merge, do not force-push the old branch (blocked). Restart it from `main`, or merge the old tip with `-s ours` after checking that its tree equals `main`.
 - **Clones and scans** live in the session scratchpad and do **not** persist. Patches and drafts that must survive are in `docs/patches/` and `docs/drafts/`.
 - **Tags:** use lowercase `v` from now on. `V0.2.0` (capital V) exists, predates `action.yml`, and must not be moved.
