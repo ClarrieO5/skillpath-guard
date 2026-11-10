@@ -328,3 +328,20 @@ test('v0.3.2 baselines stay valid after message rewording of metadata rules',t=>
   const old=JSON.parse(JSON.stringify(cur));for(const f of old.findings)if(f.rule==='NAME_INVALID')f.message="name must match folder 'demo' and contain 1-64 lowercase letters, digits or single hyphens (no leading or trailing hyphen).";
   assert.equal(compareBaseline(cur,old).comparison.new.length,0);
 });
+test('action.yml shell: boolean inputs are case-insensitive and invalid values fail loudly',{skip:process.platform==='win32'&&'bash script, covered by the Linux/macOS matrix and the hosted action smoke test'},async()=>{
+  const {spawnSync}=await import('node:child_process');
+  const yml=fs.readFileSync(new URL('../action.yml',import.meta.url),'utf8');
+  const script=yml.slice(yml.indexOf('run: |\n')+7).replace(/^ {8}/gm,'').replaceAll('${{ github.action_path }}',new URL('..',import.meta.url).pathname.replace(/\/$/,''));
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),'guard-action-'));const dir=path.join(root,'demo');fs.mkdirSync(dir);
+  fs.writeFileSync(path.join(dir,'SKILL.md'),'---\nname: demo\ndescription: d\n---\n[x](references/missing.md)\n');
+  const sh=fs.mkdtempSync(path.join(os.tmpdir(),'guard-action-sh-'));fs.writeFileSync(path.join(sh,'run.sh'),script);
+  const run=env=>spawnSync('bash',[path.join(sh,'run.sh')],{env:{PATH:process.env.PATH,SPG_PATH:root,SPG_BASELINE:'',SPG_STRICT:'',SPG_EXCLUDE:'',SPG_ALLOW_SHARED:'',SPG_CWD_HINTS:'',SPG_SUMMARY:'false',...env},encoding:'utf8'});
+  try{
+    assert.equal(run({}).status,1,'a missing reference fails by default');
+    assert.equal(run({SPG_ALLOW_SHARED:'True'}).status,1);
+    const bad=run({SPG_STRICT:'yes'});assert.equal(bad.status,2);assert.match(bad.stderr,/Input 'strict' must be 'true' or 'false', got 'yes'/);
+    // "True" must really enable the flag: with a shared (escaping, existing) link, allow-shared turns the error into a warning.
+    fs.writeFileSync(path.join(root,'shared.md'),'ok');fs.writeFileSync(path.join(dir,'SKILL.md'),'---\nname: demo\ndescription: d\n---\n[x](../shared.md)\n');
+    assert.equal(run({}).status,1);assert.equal(run({SPG_ALLOW_SHARED:'True'}).status,0);assert.equal(run({SPG_ALLOW_SHARED:'TRUE',SPG_STRICT:'true'}).status,1);
+  }finally{fs.rmSync(root,{recursive:true,force:true});fs.rmSync(sh,{recursive:true,force:true});}
+});
