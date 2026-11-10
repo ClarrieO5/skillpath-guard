@@ -1,0 +1,19 @@
+c01-clean	clean	-	-	-
+c02-valid-link	clean	-	-	-
+c03-link-in-code	clean	-	-	-
+c04-external-url	clean	-	-	-
+d01-name-dir-mismatch	defect	NAME_INVALID	ERR:Directory name 'd01-name-dir-mismatch' m	-
+d02-name-uppercase	defect	NAME_INVALID	ERR:Skill name 'D02-Name-Uppercase' must be |Directory name 'd02-name-uppercase' must	SKILL_NAME_INVALID,SKILL_NAME_NOT_KEBAB_CASE
+d03-name-missing	defect	NAME_MISSING	ERR:Missing required field in frontmatter	-
+d04-description-missing	defect	DESCRIPTION_INVALID	ERR:Missing required field in frontmatter	-
+d05-description-too-long	defect	DESCRIPTION_INVALID	ERR:Description exceeds 1024 character limit	SKILL_DESCRIPTION_OVER_CLAUDE_CODE_LIMIT,SKILL_DESCRIPTION_TOO_LONG
+d06-compat-too-long	defect	COMPATIBILITY_INVALID	ERR:Compatibility exceeds 500 character limi	-
+d07-invalid-yaml-unclosed-quote	defect	-	ERR:Invalid YAML in frontmatter	SKILL_MISSING_FRONTMATTER
+d08-no-frontmatter	defect	DESCRIPTION_INVALID,FRONTMATTER_MISSING,NAME_MISSING	ERR:SKILL.md must start with YAML frontmatte	SKILL_MISSING_FRONTMATTER
+d09-name-double-hyphen	defect	NAME_INVALID	ERR:Skill name cannot contain consecutive hy|Directory name 'd09-name-double-hyphen' 	SKILL_NAME_INVALID,SKILL_NAME_NOT_KEBAB_CASE
+r01-missing-link	defect	MISSING_REFERENCE	-	LINK_INTEGRITY_BROKEN
+r02-case-mismatch	defect	CASE_MISMATCH	-	LINK_INTEGRITY_BROKEN,SKILL_REFERENCES_BUT_NO_LINKS
+r03-escapes-skill-dir	defect	PATH_ESCAPE	-	LINK_INTEGRITY_BROKEN
+r04-absolute-path	defect	ABSOLUTE_REFERENCE	-	-
+r05-missing-bare-script	defect	MISSING_REFERENCE	-	-
+s01-unknown-field	strict	-	ERR:Invalid YAML in frontmatter	-
