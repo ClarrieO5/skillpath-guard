@@ -30,8 +30,8 @@ This is the first release with the GitHub Action:
 
 ## Verification
 - 77 tests pass locally. `npm run verify` passes: `examples/valid` exits 0, `examples/broken` exits 1, JSON output is valid, and the unchanged-baseline gate works.
-- The release commit must pass all nine quality jobs (Linux, macOS, Windows × Node 20, 22, 24) before tagging. Add the run link here when publishing.
-- After publishing, the `release-check` workflow must pass. Add its run link here.
+- All nine quality jobs (Linux, macOS, Windows × Node 20, 22, 24) passed on the release commit f1802cd: [run 42715961477](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42715961477), and on the tag: [run 42716651940](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42716651940).
+- `release-check` against the published tag passed: [run 42716652601](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42716652601).
 
 ## Known limits
 - Not on npm; use the Action or a checkout. Frontmatter parsing is a YAML subset.

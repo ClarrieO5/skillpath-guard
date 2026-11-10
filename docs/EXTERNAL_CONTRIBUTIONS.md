@@ -30,7 +30,7 @@ Re-checked 2026-11-09 against fresh shallow clones, re-scanning with SkillPath G
 - **K-Dense `bulk-rnaseq`, `generate-image`, `[text](url)` placeholders:** our false positives (already fixed).
 - **ECC `postgres-patterns` "Supabase" target:** the flagged line is the YAML `---`; likely an artifact of line mapping in a translated file. Not investigated further.
 
-## Beginner-friendly submission steps (do these only when you decide to)
+## Beginner-friendly submission steps (historical: candidate 1 was submitted as #283)
 Candidate 1 (pull request):
 1. Open https://github.com/shanraisshan/claude-code-best-practice and click **Fork** (top right), then **Create fork**.
 2. In your fork open `.claude/skills/agent-browser/SKILL.md`, click the pencil icon (Edit).

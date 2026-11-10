@@ -1,8 +1,8 @@
 # Architecture
 
 - `src/cli.mjs`: validate flags, scan, compare baseline, render reports, choose exit status. Annotations go to stderr.
-- `src/core.mjs`: discover skills without traversing directory symlinks; read common metadata; resolve references relative to each skill; inspect existence, case, and realpath containment; sort diagnostics; compare baselines.
-- `src/references.mjs`: extract a documented Markdown subset and bare resource paths; skip URLs and dynamic expressions without fetching or evaluating them.
+- `src/core.mjs`: discover skills without traversing directory symlinks (but report dangling symlinks directly inside a `skills/` folder); read common metadata; resolve references relative to each skill; inspect existence, case, and realpath containment; sort diagnostics; compare baselines.
+- `src/references.mjs`: extract a documented Markdown subset and bare resource paths; skip URLs, dynamic expressions, `<placeholder>` paths and extensionless prose outside code, without fetching or evaluating anything. `core.mjs` then accepts an extensionless name matching exactly one file, and a file found in another skill named on the same or previous line.
 - `tests/`: original unit tests, regression fixtures, and spawned-process CLI tests. Temporary fixtures are removed after each test.
 - `scripts/verify.mjs`: portable release gate checking the suite plus expected success, intentional failure, and baseline behaviour.
 - `scripts/audit-corpus.mjs`: repeat the ten-skill static research scan on a separate downloaded repository; does not execute skills.

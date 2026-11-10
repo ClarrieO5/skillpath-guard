@@ -2,21 +2,21 @@
 
 Repository: https://github.com/ClarrieO5/skillpath-guard
 
-Release: https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.1.0
+Latest release: https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.2.1 (pre-release, 2026-11-10). Earlier: `V0.2.0`, `v0.1.0`.
 
 As of 10 November 2026:
 
 - Confirmed independent users: **0**
 - Confirmed external adopting projects: **0**
-- Confirmed newly reproduced upstream defects: **0**
-- Accepted upstream PRs from this work: **0** (1 open, shanraisshan/claude-code-best-practice#283, a duplicate of #142; see `docs/CONTRIBUTION_LEDGER.md`)
+- Confirmed upstream defects found by this work and verified by hand: **3** with fixes prepared (github/awesome-copilot, wshobson/agents, microsoft/skills), none reported upstream yet
+- Accepted upstream PRs from this work: **0** (1 open, shanraisshan/claude-code-best-practice#283, a duplicate of #142; 3 more prepared but not submitted; see `docs/CONTRIBUTION_LEDGER.md`)
 - External contributors demonstrated by this work: **0**
 - Registry downloads: **not measured; package not published to a registry**
 - Public-source evaluation: 23 repositories (round 1) and 38 more (round 2, 2026-11-10); this is research, **not adoption**.
 - Workflow adoption found by GitHub code search: **0** repositories (2026-11-10).
 - Local automated tests: 77 passing; this is implementation evidence, **not independent review**.
 
-Substantial Codex assistance was used for implementation, tests, research and documentation. No human review, third-party endorsement, or external contribution is implied by automated commits or test runs.
+Substantial AI assistance (Codex, then Claude Code) was used for implementation, tests, research and documentation. No human review, third-party endorsement, or external contribution is implied by automated commits or test runs.
 
 ## Claude for Open Source
 

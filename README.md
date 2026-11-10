@@ -2,7 +2,7 @@
 
 **Catch broken local resource links before shipping an Agent Skills package.**
 
-An experimental, dependency-free, offline Node.js CLI. It checks `SKILL.md` references against the skill's own folder, detects filename-case and path-escape problems, and lets CI block new findings while you work through existing ones.
+An experimental, dependency-free, offline Node.js CLI and GitHub Action (latest release: [v0.2.1](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.2.1), pre-release). It checks `SKILL.md` references against the skill's own folder, detects filename-case and path-escape problems, and lets CI block new findings while you work through existing ones.
 
 A file can exist yet an agent may look for it in the wrong working directory. `AMBIGUOUS_CWD` highlights instructions worth reviewing; it does **not** prove a runtime failure. This is an independent MIT-licensed project, not an official Anthropic or Agent Skills validator.
 
@@ -110,8 +110,10 @@ Run from the repository root so annotation paths point to the right files. For b
 
 ## Evidence, alternatives, and contribution
 
-[Research and ten-skill audit](docs/RESEARCH_LOG.md) · [Validation](docs/VALIDATION.md) · [Changelog](docs/CHANGELOG.md) · [Release checklist](docs/RELEASE.md) · [Architecture](docs/ARCHITECTURE.md) · [Impact log](docs/IMPACT_LOG.md)
+[Project status and next steps](docs/STATUS.md) · [Validation](docs/VALIDATION.md) · [Changelog](docs/CHANGELOG.md) · [Release procedure](docs/RELEASE.md) · [Architecture](docs/ARCHITECTURE.md) · [Impact log](docs/IMPACT_LOG.md)
+
+Research: [first ten-skill audit](docs/RESEARCH_LOG.md) · [23-repository corpus check](docs/CORPUS_VALIDATION.md) · [38-repository contribution research](docs/CONTRIBUTION_RESEARCH_2026-11.md) · [contribution ledger](docs/CONTRIBUTION_LEDGER.md) · [launch kit](docs/LAUNCH.md)
 
 Existing tools overlap substantially: `skills-ref` validates metadata; `agent-ecosystem/skill-validator` provides broader structure/content checks; the .NET validator also offers runtime evaluation. This project does not claim unique coverage or superior accuracy.
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md). Code and documentation were developed with substantial Codex assistance; automated validation is recorded separately from human review and independent adoption. No affiliation, external adoption, or programme eligibility is claimed.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md). Code and documentation were developed with substantial AI assistance (Codex, then Claude Code); automated validation is recorded separately from human review and independent adoption. No affiliation, external adoption, or programme eligibility is claimed.

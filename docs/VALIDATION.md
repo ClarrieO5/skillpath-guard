@@ -12,6 +12,19 @@ Date: 9 November 2026. Local environment: Linux, Node v24.22.1.
 - First hosted 49-test matrix: [Actions run 42578477378](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42578477378). Final **50-test matrix passed all nine jobs**: [run 42578691493](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42578691493), commit `861a7fcb826e6f1483253df59da1dbdba97aea25`.
 - A fresh public clone independently ran the 49-test candidate suite and final 50-test verification successfully in this same environment. This is a clean-checkout check, not an independent user trial.
 
+## v0.2.1 (2026-11-10)
+
+- Local suite: **77 passed, 0 failed**; `npm run verify` and `npm pack --dry-run` (version 0.2.1, 31 files) pass.
+- Hosted matrix (Linux/macOS/Windows x Node 20/22/24), all nine jobs green, including the new check that the Action **fails** on `examples/broken`:
+  - release PR #11: [run 42715428388](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42715428388)
+  - `main` at f1802cd: [run 42715961477](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42715961477)
+  - tag `v0.2.1`: [run 42716651940](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42716651940)
+- Release check against the published tag (`uses: ClarrieO5/skillpath-guard@v0.2.1`; valid passes, broken fails, CLI prints 0.2.1): [run 42716652601](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42716652601).
+- Public corpus: 33 repositories (3,375 skills); see `docs/CONTRIBUTION_RESEARCH_2026-11.md`.
+- Still not done: a run from a separate consumer repository, independent users, human code review.
+
+The sections above and below this one describe v0.1.0 (9 November) and are kept as history.
+
 ## Reproduce
 
 ```sh

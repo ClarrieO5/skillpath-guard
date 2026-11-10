@@ -1,10 +1,10 @@
 # Contribution ledger
 
-Every external issue or pull request made from this work, with its real status. Updated 2026-11-10. Nothing is counted until a maintainer merges it.
+Every external issue or pull request made from this work, with its real status. Updated 2026-11-10 (after the v0.2.1 release). Nothing is counted until a maintainer merges it.
 
 | Date | Repository | Item | Status | Outcome |
 |---|---|---|---|---|
-| 2026-11-09 | shanraisshan/claude-code-best-practice | PR #283 "Remove dead links to references/ and templates/ in agent-browser skill" | Open, 0 comments | Duplicate of #142; recommend closing (see below) |
+| 2026-11-09 | shanraisshan/claude-code-best-practice | PR #283 "Remove dead links to references/ and templates/ in agent-browser skill" | Open, 0 comments (re-checked 2026-11-10) | Duplicate of #142; closing comment drafted below, **not posted** (awaiting your approval) |
 
 Merged external PRs: **0**. Open: **1** (duplicate). Issues filed: **0**.
 
@@ -12,8 +12,8 @@ Prepared but **not submitted** (awaiting your approval): see `docs/CONTRIBUTION_
 
 | Rank | Repository | Type | Patch |
 |---|---|---|---|
-| 1 | github/awesome-copilot | PR | `docs/patches/awesome-copilot-gdpr-compliant.patch` |
-| 2 | wshobson/agents | PR | `docs/patches/wshobson-agents-ml-pipeline-workflow.patch` |
+| 1 | github/awesome-copilot | PR | `docs/patches/awesome-copilot-gdpr-compliant.patch`; description: `docs/drafts/awesome-copilot-gdpr-compliant-PR.md`. **Ready.** Re-checked 2026-11-10 at upstream e45ee93: still broken, no duplicate. Their `npm run skill:validate` (460 skills) and `npm start` both pass with the patch, and `npm start` changes nothing else. Their validator also passes the *unpatched* skill, so it does not catch this bug. Your fork `ClarrieO5/awesome-copilot` exists (at e45ee93); the branch has not been pushed yet. |
+| 2 | wshobson/agents | PR | `docs/patches/wshobson-agents-ml-pipeline-workflow.patch`. **Check issue #447 first:** an earlier draft (ClarrieO5/skillpath-guard PR #9) cites it as "same symptom, closed". Find out why it was closed before submitting. |
 | 3 | microsoft/skills | PR | `docs/patches/microsoft-skills-dead-reference-links.patch` |
 | 4 | firebase/agent-skills | Issue | none (maintainer decision) |
 | 5 | anthropics/skills, Yuan1z0825/nature-skills | Issue | none (from round 1, still valid 2026-11-10) |

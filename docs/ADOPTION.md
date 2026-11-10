@@ -27,7 +27,7 @@ Applicants must meet **one** of the Maintainer Track criteria (2.1) or be accept
 > Hi, I maintain SkillPath Guard, an MIT, offline checker for relative-path and portability problems in SKILL.md packages (it complements `skills-ref`, which validates frontmatter). Running it on your repository found: <verified finding with file:line>. Happy to open a PR if useful. It is experimental (v0.x); false-positive reports welcome.
 
 ## Launch and feedback plan (v0.2.x)
-1. Before any outreach: merge the action, confirm `uses: ClarrieO5/skillpath-guard@<tag>` works from a clean repo (not yet verified outside this repo's CI).
+1. Before any outreach: ~~merge the action and tag it~~ (done: v0.2.1, release check passed); confirm `uses: ClarrieO5/skillpath-guard@v0.2.1` works from a separate clean repository (still not verified outside this repo). See `docs/LAUNCH.md`.
 2. File the verified, high-confidence items in `CONTRIBUTION_CANDIDATES.md` as helpful issues or PRs (needs your approval per item); cite the exact line and how to reproduce.
 3. Share once in the Agent Skills spec repo discussions and one skills community after at least a few external users have tried it; ask for false-positive reports.
 4. Adoption evidence to record (verifiable only): unique repos using the action (GitHub code search for `ClarrieO5/skillpath-guard@`), external issues/PRs, stars from non-affiliated accounts, release asset or clone traffic from the repo's Insights page. Do not count your own repos, test runs or this project's CI.

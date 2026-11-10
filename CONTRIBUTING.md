@@ -14,7 +14,7 @@ Please do not mass-submit low-quality PRs or inflate metrics.
 
 ## Current project status
 
-This initial release was substantially developed with Codex. Automated checks are not a substitute for human review. Do not claim the maintainer has reviewed generated code until that review actually happens. Changes should have a concrete use case and minimal reproduction; update the known-limitations section when parser scope changes. Run `npm run verify` for the release gate. Do not include external corpus copies or private scan reports in patches.
+This project was substantially developed with AI assistance (Codex, then Claude Code). Automated checks are not a substitute for human review. Do not claim the maintainer has reviewed generated code until that review actually happens. Changes should have a concrete use case and minimal reproduction; update the known-limitations section when parser scope changes. Run `npm run verify` for the release gate. Do not include external corpus copies or private scan reports in patches.
 
 ## Development quick start
 - Requires Node.js 20+. No dependencies to install.
