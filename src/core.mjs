@@ -103,6 +103,15 @@ function belongsToNamedSkill(reference, context, skillDirsByName, ownName) {
   }
   return false;
 }
+// `[analytics](/features/analytics)` in a skill about websites is a site route, not a file on this machine.
+// Anything that looks like a filesystem path stays ABSOLUTE_REFERENCE: a known OS root, a resource folder, or a file extension.
+const OS_ROOTS = new Set(['Users','home','root','tmp','var','etc','opt','usr','bin','sbin','lib','mnt','media','srv','private','Volumes','Applications','Library','System','dev','proc','nix','workspace','workspaces','c','d']);
+function isWebRoute(reference) {
+  if (!/^\/(?!\/)/.test(reference)) return false;
+  const parts = reference.split('/').filter(Boolean);
+  if (!parts.length) return true;
+  return !OS_ROOTS.has(parts[0]) && !parts.some(p => /^(?:references|scripts|assets)$/.test(p)) && !path.posix.extname(parts.at(-1));
+}
 function insideDirectory(parent, candidate) {
   const p = path.relative(parent, candidate);
   return p === '' || (p !== '..' && !p.startsWith(`..${path.sep}`) && !path.isAbsolute(p));
@@ -198,7 +207,7 @@ export function scan(rootInput, {exclude=[]}={}) {
       const tokens = findReferenceTokens(line,{links:!fence});
       for (const token of tokens) {
         const reference = sanitizeReference(token.value,token.source);
-        if (!reference) continue;
+        if (!reference || (token.source==='markdown' && isWebRoute(reference))) continue;
         const tokenKey=`${lineNo}:${reference}`;
         if (seenRefs.has(tokenKey)) continue;
         seenRefs.add(tokenKey);

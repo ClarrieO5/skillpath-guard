@@ -187,3 +187,18 @@ test('a dangling symlink inside a skills/ folder is a broken skill link',t=>{
   assert.deepEqual(f.map(x=>x.file),['plugin/skills/gone']);
   assert.match(f[0].message,/real\/gone/);
 });
+// Found re-scanning 20 public repositories (2026-11-10); see docs/CORPUS_VALIDATION.md, "Round 3".
+test('GFM footnote definitions are not link reference definitions; paths inside them are still checked',t=>{
+  const {root}=fixture(t,'A claim.[^1] Another.[^note]\n\n[^1]: GitHub Blog. (2022). "Mermaid." https://github.blog/x\n[^note]: Mermaid. See references/gone.md for details.\n[g]: references/absent.md');
+  assert.deepEqual(scan(root).findings.filter(f=>f.rule==='MISSING_REFERENCE').map(f=>f.target).sort(),['references/absent.md','references/gone.md']);
+});
+test('a :line or :/container suffix is not part of the file name',t=>{
+  const {root}=fixture(t,'Report: `scripts/helper.py:42`, scripts/helper.py:10:5 and `scripts/helper.py:3-9`.\n```yaml\nvolumes:\n  - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql\n```\nAlso `scripts/gone.py:12`.',{'scripts/helper.py':'x'});
+  assert.deepEqual(scan(root).findings.filter(f=>f.rule==='MISSING_REFERENCE').map(f=>f.target).sort(),['scripts/gone.py','scripts/init.sql']);
+});
+test('root-relative web routes in links are not machine paths; filesystem-looking ones still are',t=>{
+  const {root}=fixture(t,'Learn more about [analytics](/features/analytics), [home](/), [plans](/pricing#plans).\n[a](/Users/alice/notes) [b](/home/bob/x) [c](/references/guide.md) [d](/srv/skills/scripts/run) [e](/workspaces/repo/tool)');
+  const f=scan(root).findings;
+  assert.deepEqual(f.filter(x=>x.rule==='ABSOLUTE_REFERENCE').map(x=>x.target),['/Users/alice/notes','/home/bob/x','/references/guide.md','/srv/skills/scripts/run','/workspaces/repo/tool']);
+  assert.equal(f.filter(x=>x.line===5).length,0);
+});
