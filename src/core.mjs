@@ -279,7 +279,7 @@ export function scan(rootInput, {exclude=[], cwdHints=false, allowShared=false}=
   findings.length = 0; findings.push(...kept);
   findings.sort((a,b)=>a.file.localeCompare(b.file)||a.line-b.line||a.rule.localeCompare(b.rule));
   const counts={error:findings.filter(f=>f.severity==='error').length, warning:findings.filter(f=>f.severity==='warning').length};
-  return {tool:'skillpath-guard', version:'0.2.2', root, exclusions, options:{cwdHints, allowShared}, summary:{skills:skills.length, findings:findings.length, ...counts, suppressed}, skills, findings, limitations:['Heuristic resource detection may produce false positives or miss references in unusual Markdown.','Static analysis cannot prove how an individual AI agent will resolve a file at runtime.','Frontmatter reading covers common scalar fields; this is not a complete YAML implementation.']};
+  return {tool:'skillpath-guard', version:'0.3.0', root, exclusions, options:{cwdHints, allowShared}, summary:{skills:skills.length, findings:findings.length, ...counts, suppressed}, skills, findings, limitations:['Heuristic resource detection may produce false positives or miss references in unusual Markdown.','Static analysis cannot prove how an individual AI agent will resolve a file at runtime.','Frontmatter reading covers common scalar fields; this is not a complete YAML implementation.']};
 }
 
 export function fingerprint(f) { return JSON.stringify([f.rule,f.severity,f.file,f.target||'',f.message]); }
@@ -305,7 +305,9 @@ export function githubAnnotations(report) {
   return report.findings.map(f=>{
     const level=f.severity==='error'?'error':'warning';
     const annotationFile=report.root?rel(process.cwd(),path.resolve(report.root,f.file)):f.file;
-    const escape=s=>String(s).replaceAll('%','%25').replaceAll('\r','%0D').replaceAll('\n','%0A').replaceAll(':','%3A').replaceAll(',','%2C');
-    return `::${level} file=${escape(annotationFile)},line=${f.line},title=${escape(f.rule)}::${escape(f.message)}`;
+    // Workflow-command escaping: message data escapes only % \r \n; properties also escape : and ,
+    const escapeData=s=>String(s).replaceAll('%','%25').replaceAll('\r','%0D').replaceAll('\n','%0A');
+    const escapeProperty=s=>escapeData(s).replaceAll(':','%3A').replaceAll(',','%2C');
+    return `::${level} file=${escapeProperty(annotationFile)},line=${f.line},title=${escapeProperty(f.rule)}::${escapeData(f.message)}`;
   });
 }

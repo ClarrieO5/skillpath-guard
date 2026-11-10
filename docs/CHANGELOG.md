@@ -1,15 +1,16 @@
 # Changelog
 
-## Unreleased (adoption audit, 2026-11-10; see ADOPTION_AUDIT_2026-11.md)
+## 0.3.0 — experimental (prepared 2026-11-10; tag `v0.3.0` after approval, see RELEASE_NOTES_v0.3.0.md and ADOPTION_AUDIT_2026-11.md)
 
 - **Behaviour change:** `AMBIGUOUS_CWD` is off by default; `--cwd-hints` (Action: `cwd-hints: 'true'`) turns it on. The Agent Skills specification recommends exactly the skill-relative links it warned about, and a seeded sample of 30 of its 594 warnings in 12 public repositories found none that showed a defect. `--strict` no longer fails spec-conforming skills. Exit codes without `--strict` are unchanged. Baselines made with v0.2.2 will show those warnings as resolved.
+- Fix: GitHub annotation message text no longer escapes `:` and `,` (a literal `%3A` showed in the annotation); property values still do.
 - New: `--allow-shared` (Action: `allow-shared`). A link that leaves the skill folder but whose target exists inside the scanned repository is a `SHARED_REFERENCE` warning instead of a `PATH_ESCAPE` error, for repositories installed as one bundle. Missing targets and targets outside the repository stay errors. Off by default.
 - New: `<!-- skillpath-guard-ignore -->` on a line, or `<!-- skillpath-guard-ignore-next-line -->` on the line above, silences line-level findings there; `summary.suppressed` counts them.
 - New: `--markdown-summary <file>` appends the Markdown report (capped at 500 rows); the Action writes it to the job summary by default (`summary` input). New Action inputs `exclude` (one path per line), `allow-shared`, `cwd-hints`, `summary`, and Marketplace `branding`.
 - `PATH_ESCAPE` messages say when the target exists in the repository and point to `--allow-shared` (this changes the finding's identity: regenerate baselines).
 - JSON reports include `options` (`cwdHints`, `allowShared`).
 - Package: the npm tarball ships only `src/`, README, LICENSE, SECURITY and the changelog (8 files, 48 kB, was 38 files, 182 kB, including drafts and patches for other projects). Added keywords, homepage, bugs and a `prepublishOnly` verify. Still `private: true`.
-- README: `npx --yes github:ClarrieO5/skillpath-guard#v0.2.2` works from a clean machine without npm publication.
+- README: `npx --yes github:ClarrieO5/skillpath-guard#v0.3.0` works from a clean machine without npm publication.
 
 ## 0.2.2 — experimental (2026-11-10; tag `v0.2.2`, see RELEASE_NOTES_v0.2.2.md)
 

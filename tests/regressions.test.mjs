@@ -256,3 +256,7 @@ test('npm package ships the tool, not internal drafts or third-party patches',()
   assert.ok(!pkg.files.some(f=>f==='docs/'||f.startsWith('docs/drafts')||f.startsWith('docs/patches')),JSON.stringify(pkg.files));
   assert.equal(pkg.bin['skillpath-guard'],'src/cli.mjs');
 });
+test('annotation message keeps : and , readable while properties stay escaped',()=>{
+  const [line]=githubAnnotations({findings:[{severity:'error',file:'dir:x/a,b.md',line:3,rule:'T:R',message:'Referenced file does not exist: a/b, c 100%'}]});
+  assert.equal(line,'::error file=dir%3Ax/a%2Cb.md,line=3,title=T%3AR::Referenced file does not exist: a/b, c 100%25');
+});

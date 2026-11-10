@@ -28,6 +28,25 @@ Date: 9 November 2026. Local environment: Linux, Node v24.22.1.
 - Local suite: 80 passed. Hosted matrix green on `main` at cc739d3 ([run 42781586690](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42781586690)) and on tag `v0.2.2` ([run 42781732941](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42781732941)). Release check against the published tag passed ([run 42781733481](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42781733481)).
 - Clean install checks (session 5, empty `HOME` and npm cache, Node 22, npm 10.9): `npm install <packed tarball>` then `npx skillpath-guard --version` and a scan of `examples/broken` (exit 1, as expected); `npx --yes github:ClarrieO5/skillpath-guard#v0.2.2 scan skills` on the valid fixture (exit 0). `skillpath-guard` is not on the npm registry (404).
 
+## v0.3.0 (prepared 2026-11-10, not released)
+
+- Local suite: 88 passed (87 + the annotation regression test), `npm run verify` passes (Node 22.23). Hosted matrix on `main` at a44b885 (PR #15 merged): [run 42789258700](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42789258700), green.
+- **Hosted consumer-repository test** (public repo `ClarrieO5/skillpath-guard-consumer-test`, workflow uses `ClarrieO5/skillpath-guard@main` = a44b885, i.e. the Action with the new inputs, before the version bump). Five runs, three of them red because of defects in the test workflow itself, not the Action:
+  - [run 1](https://github.com/ClarrieO5/skillpath-guard-consumer-test/actions/runs/42790624458): **failed to start**, no jobs. My workflow YAML was invalid (an unquoted `: ` in a job name).
+  - [run 2](https://github.com/ClarrieO5/skillpath-guard-consumer-test/actions/runs/42790742726): 4 of 5 jobs green; `summary-on-off` red. My assertion read `$GITHUB_STEP_SUMMARY` in a later step, but GitHub gives each step its own summary file.
+  - [run 3](https://github.com/ClarrieO5/skillpath-guard-consumer-test/actions/runs/42790904612) and [run 4](https://github.com/ClarrieO5/skillpath-guard-consumer-test/actions/runs/42791058642): same job red again. Even with `GITHUB_STEP_SUMMARY` redirected to a shared path (the variable did reach the Action step), the file was gone by the next step, and a 5 ms polling watcher captured nothing. The runner appears to consume the file after each step. **Inconclusive: this does not show the Action failed to write the summary.**
+  - [run 5](https://github.com/ClarrieO5/skillpath-guard-consumer-test/actions/runs/42791209903) at 2f29bcd: **all 6 jobs green** (summary split into `summary-on` and `summary-off`).
+- Results in run 5 (assertions in the workflow, checked in the job logs/conclusions):
+  - `valid-passes`: Action step succeeded on the valid skill.
+  - `broken-fails`: Action step failed (outcome `failure`) on `references/missing.md`; the log shows `ERROR MISSING_REFERENCE broken-skill/SKILL.md:8 Referenced file does not exist: references/missing.md`.
+  - `shared-default-fails-allow-shared-passes`: without `allow-shared` the step failed; with `allow-shared: 'true'` (and a two-line `exclude`) it succeeded.
+  - `exclude-works`: `vendored/` fails alone; passes when excluded via the multi-line input, including a line with extra leading spaces.
+  - `summary-on` / `summary-off`: both Action steps failed on the broken skill as asserted. **The summary content itself was not verified by automation.** To check by eye: open the two jobs' Summary tab (on should show the Markdown report, off should show none). Local simulation (summary on wrote 234-706 bytes, off wrote 0) is the only other evidence.
+- **Defect found by the hosted run, fixed in this PR:** annotation messages contained a literal `%3A` (`Referenced file does not exist%3A references/missing.md`) because `githubAnnotations` percent-escaped `:` and `,` in the message as well as in properties. Message text now escapes only `%`, CR and LF; properties (`file`, `title`) still escape `:` and `,`. Regression test: `annotation message keeps : and , readable while properties stay escaped` (fails before the fix, passes after). The consumer runs above used the unfixed `@main`, so the hosted annotations in runs 1-5 still show the old escaping; the fix has not been exercised on a hosted consumer run yet.
+- **Job-summary content: NOT verified.** Fetching the rendered run and job pages (server-rendered HTML, public repo) returned the annotations but the summary panel only said "There was an error while loading", and logs need sign-in. No rendered summary text could be read, so neither that the report appears with `summary: 'true'` nor that it is absent with `'false'` is confirmed on GitHub. Evidence that exists: local simulation only (234-706 bytes vs 0). A human look at the Summary tab of the `summary-on` / `summary-off` jobs in run 5 remains the check.
+- Node.js 20 deprecation warning appears for `actions/checkout@v4` in the consumer runs (harmless).
+- Release-check against the published tag: pending publication.
+
 The sections above and below this one describe v0.1.0 (9 November) and are kept as history.
 
 ## Reproduce

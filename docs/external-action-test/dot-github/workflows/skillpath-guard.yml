@@ -1,0 +1,74 @@
+# Independent consumer test of SkillPath Guard (main). Expected outcome of each job is in its name.
+name: skillpath-guard-consumer-test
+on: [push, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  valid-passes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ClarrieO5/skillpath-guard@main
+        with: { path: skills/good-skill }
+  broken-fails:
+    name: broken-fails (green means the Action step failed as expected)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: scan
+        continue-on-error: true
+        uses: ClarrieO5/skillpath-guard@main
+        with: { path: broken }
+      - run: test "${{ steps.scan.outcome }}" = "failure"
+  shared-default-fails-allow-shared-passes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: off
+        continue-on-error: true
+        uses: ClarrieO5/skillpath-guard@main
+        with: { path: . , exclude: "broken\nvendored" }
+      - run: test "${{ steps.off.outcome }}" = "failure"
+      - uses: ClarrieO5/skillpath-guard@main
+        with:
+          path: .
+          allow-shared: 'true'
+          exclude: |
+            broken
+            vendored
+  exclude-works:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: noexclude
+        continue-on-error: true
+        uses: ClarrieO5/skillpath-guard@main
+        with: { path: vendored }
+      - run: test "${{ steps.noexclude.outcome }}" = "failure"
+      - uses: ClarrieO5/skillpath-guard@main
+        with:
+          path: .
+          allow-shared: 'true'
+          exclude: |
+            broken
+              vendored
+  # The runner consumes each step's summary file, so content cannot be asserted from a later step.
+  # Compare the two jobs' "Summary" pages by eye: summary-on shows the Markdown report, summary-off shows none.
+  summary-on:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: scan
+        continue-on-error: true
+        uses: ClarrieO5/skillpath-guard@main
+        with: { path: broken }
+      - run: test "${{ steps.scan.outcome }}" = "failure"
+  summary-off:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: scan
+        continue-on-error: true
+        uses: ClarrieO5/skillpath-guard@main
+        with: { path: broken, summary: 'false' }
+      - run: test "${{ steps.scan.outcome }}" = "failure"
