@@ -12,10 +12,10 @@ Snapshot: **2026-11-10** (eighth session: real-world validation, comparison, Mar
 | v0.3.3 | Released 2026-11-10: tag `v0.3.3` = `main` = 67e456c (pre-release); `release-check` ([run 42898781863](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42898781863)) and tag-push `quality` ([run 42898780384](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42898780384)) green. Published to npm by the maintainer; `npx --yes --prefer-online skillpath-guard@0.3.3 --version` prints 0.3.3. |
 | Consumer-repo Action test | `ClarrieO5/skillpath-guard-consumer-test`: 6 jobs green at `@v0.3.0` ([run 42794375114](https://github.com/ClarrieO5/skillpath-guard-consumer-test/actions/runs/42794375114)). Earlier runs 1-4 were red from test-workflow mistakes (`docs/VALIDATION.md`). Not yet at `@v0.3.1`. Job-summary content not verified by eye. **Not yet re-run at `@v0.3.3`:** the session could not attach that repository (denied), so the maintainer must run it. |
 | npm | `skillpath-guard` versions on the registry: `0.0.0-stage` (origin not recorded), `0.3.2`, `0.3.3`; `latest` = 0.3.3. Published by the maintainer manually (no npm auth in sessions). Right after publishing, installs of 0.3.3 failed with ETARGET for a few minutes (registry delay); `--prefer-online` fixed the local cache. Steps: `docs/RELEASE.md`. |
-| Tests | 90 pass; `npm run verify` passes (Node 22 locally; CI covers 20/22/24). |
+| Tests | 97 pass on `main` b60c3ba (re-run 2026-11-11, Node 22.23.4); `npm run verify` passes. CI covers 20/22/24. |
 | Real usage | 0 repositories use the Action (last searched 2026-11-10). No external users. |
 | Upstream PRs | Merged 0. Open 2: [github/awesome-copilot#6339](https://github.com/github/awesome-copilot/pull/6339) (awaiting a maintainer; bot checks and two Copilot reviews positive, no change requests) and shanraisshan/claude-code-best-practice#283 (duplicate of #142). |
-| Internal PRs | #9 (old draft, superseded) still open. |
+| Internal PRs | #9: conflicts resolved 2026-11-11 by merging `main` into its branch (merge d624206, tree identical to `main` b60c3ba, so the PR now has 0 changed files). Both of its scanner fixes were already on `main` from #20; its own extensionless rule would break test 75. **Recommend closing it, not merging.** |
 
 ## v0.2.2: done
 
@@ -28,7 +28,7 @@ Released 2026-11-10; run links recorded in session 5. "Stable" (not a pre-releas
 3. **wshobson/agents** (PR; upstream unchanged at 9c61ab2, no duplicate). The description, in their template, is in `docs/drafts/wshobson-agents-ml-pipeline-workflow-PR.md`. Their `make validate STRICT=1 / garden / test` were **not** run: the permission system blocked them. Either run them locally, or submit with those boxes unticked and let their CI run them.
 4. **tech-leads-club/agent-skills** (issue, not PR: the repo is issue-first): `docs/drafts/tech-leads-club-routing-names-ISSUE.md`.
 5. **PR #283:** close it (with or without the drafted comment) or leave it open. Unchanged.
-6. Optional: close internal PR #9; verify the Action from a throwaway repo (`docs/LAUNCH.md`).
+6. Close internal PR #9 (no remaining changes; see Internal PRs above). Optional: verify the Action from a throwaway repo (`docs/LAUNCH.md`).
 7. **awesome-copilot #6339:** nothing to do unless a maintainer asks for changes.
 
 Withdrawn on 2026-11-10 (do not submit): microsoft/skills (already reported in #422/#464, fix PR #448 open), anthropics/skills `claude-api` (3 issues and 6 PRs already open), nature-skills (deliberate, allowlisted alias).
