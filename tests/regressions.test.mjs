@@ -351,3 +351,21 @@ test('a quote is not closed by a later field; trailing comments after a quoted v
   const c=scan(writeSkill(t,`name: demo\ndescription: "${'x'.repeat(1020)}" # note`));
   assert.equal(c.summary.error,0,JSON.stringify(c.findings));
 });
+// Found in LambdaTest/agent-skills kanecli-skill (375e466): PyYAML and skills-ref reject `... target): locally ...`, v0.3.3 accepted it.
+test('an unquoted value containing ": " or ending with ":" is invalid YAML',t=>{
+  for(const fm of ['name: demo\ndescription: Runs tests (desktop stays the default): locally or remotely.','name: demo\ndescription: Use when:','name: demo\ndescription: Use it\ncompatibility: Requires Node: 20+','name: demo\ndescription: a :: b']) {
+    const r=scan(writeSkill(t,fm));
+    assert.ok(r.findings.some(f=>f.rule==='FRONTMATTER_UNSUPPORTED'&&/cannot contain ": "/.test(f.message)),fm);
+  }
+  // Values PyYAML accepts must stay clean.
+  for(const v of ['See http://example.com/a for details.','Ratio 1:2 or a:b, a :b, a ::b.','"Quoted: fine"',"'Single: fine'",'Use it # note: comments are dropped','>-\n  Folded: fine','Bash(git:*) only']) {
+    const r=scan(writeSkill(t,`name: demo\ndescription: ${v}`));
+    assert.equal(r.summary.error,0,`${v}: ${JSON.stringify(r.findings)}`);
+  }
+});
+// Found in deanpeters/Product-Manager-Skills (cfcb697): `[CAPABILITY]: suspected move into ...` in prose was read as a link definition.
+test('a bracketed label followed by prose is not a link reference definition',t=>{
+  const {root}=fixture(t,'Example:\n[CAPABILITY]: suspected move into robotics\n[g]: references/absent.md\n[h]: references/absent2.md "Title"\n[i]: <references/absent3.md>');
+  const targets=scan(root).findings.filter(f=>f.rule==='MISSING_REFERENCE').map(f=>f.target).sort();
+  assert.deepEqual(targets,['references/absent.md','references/absent2.md','references/absent3.md']);
+});

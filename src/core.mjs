@@ -62,6 +62,8 @@ function parseFrontmatter(content) {
     let value = match[2].trim();
     if(Object.hasOwn(fields,match[1]))problems.push({rule:'FRONTMATTER_DUPLICATE',line:i+1,message:`Duplicate frontmatter field: ${match[1]}`});
     if(!value.startsWith('\"') && !value.startsWith("'"))value=value.replace(/\s+#.*$/,'');
+    // A plain (unquoted, single-line) scalar cannot contain ": " or end with ":"; YAML reads it as a nested mapping and strict parsers reject the frontmatter.
+    if(value && !/^(?:["'>|&*{\[!#]|-\s)/.test(value) && /:(?:\s|$)/.test(value))problems.push({rule:'FRONTMATTER_UNSUPPORTED',line:i+1,message:`Invalid YAML for ${match[1]}: an unquoted value cannot contain ": " (a colon followed by a space) or end with ":", so YAML parsers reject the whole frontmatter. Quote the value or use a block scalar (>-).`});
     if(['name','description'].includes(match[1]) && /^(?:[&*{\[]|!!)/.test(value))problems.push({rule:'FRONTMATTER_UNSUPPORTED',line:i+1,message:`Unsupported YAML for ${match[1]}; use a plain, quoted, or block string.`});
     // Indented plain strings are a common YAML spelling in public skills.
     if(value==='' && ['name','description'].includes(match[1])) {
