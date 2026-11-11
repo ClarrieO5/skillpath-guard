@@ -4,7 +4,12 @@ Patch: docs/patches/deanpeters-pm-skills-stakeholder-mapping-links.patch (3 line
 No PR template in the repo. AGENTS.md: imperative commit subject; PR has a short summary, linked issues, and the skill type.
 dist/*.zip contain the same links; AGENTS.md says not to edit dist/ by hand, so the PR leaves them for the maintainer's release build.
 Their validators (scripts/validate-skills.sh, check-dist-freshness.py, test-library.sh) were NOT run: the session permission system blocks running another repo's scripts. CI (build-release.yml) runs them on the PR.
-Duplicate search 2026-11-11 (issues and PRs, open and closed): "stakeholder-map", "broken link", "eol" -> no hits about this. Copy everything below TITLE/BODY. -->
+Duplicate search 2026-11-11 (issues and PRs, open and closed): "stakeholder-map", "broken link", "eol" -> no hits about this. Copy everything below TITLE/BODY.
+Re-verified 2026-11-11 (session 10): upstream HEAD still cfcb697; 13 PRs, none new; no issue or PR mentions stakeholder-map; `git apply --check` clean.
+After the patch: 29/29 `../<skill>/SKILL.md` links in the three files resolve; `skills/stakeholder-map` has no history (`git log --all` empty).
+Their CI (build-release.yml, runs on pull_request): validate-skills.sh -> check-library-drift.py checks only README/CLAUDE links and marketplace.json;
+check-dist-freshness.py (read in full) compares skill membership only, not zip contents, so leaving dist/ untouched should not fail it. Scripts not run (blocked).
+Acceptance risk: 5 of 13 PRs merged, last merge 2026-07-16; small fix PRs #17 and #21 were closed unmerged. -->
 
 TITLE:
 Fix links to stakeholder-mapping in the EOL skills

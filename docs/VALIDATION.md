@@ -101,3 +101,14 @@ Use an original disposable skill containing `references/guide.md`. Record runtim
 - Clean-directory check from a separate machine (the session container): `npx --yes --prefer-online skillpath-guard@0.3.3 --version` printed `0.3.3`, and scanning a skill with `description: "oops` exits 1 with `FRONTMATTER_UNSUPPORTED ... Unterminated quoted string`.
 - **Not done:** consumer repository run at `@v0.3.3` (session could not attach `ClarrieO5/skillpath-guard-consumer-test`). Marketplace listing not done.
 
+
+## Unreleased scanner fixes: re-verification (2026-11-11, session 10)
+
+Two fixes from round 5 (`: ` in a plain frontmatter value is invalid YAML; `[LABEL]: prose` is not a link definition), compared on fresh clones, `main` (b60c3ba, 0.3.3) vs the fix branch:
+
+- `npm test`: 99 pass, 0 fail (Node 22.23.4). `npm run verify` passes.
+- LambdaTest/agent-skills 375e466: 44 → 45 errors; the only change is `+ FRONTMATTER_UNSUPPORTED kanecli-skill/SKILL.md:3`. PyYAML, js-yaml 4.1.0, yaml 2.6.1 and skills-ref 0.1.1 all reject that frontmatter.
+- deanpeters/Product-Manager-Skills cfcb697: 382 → 381 errors; the only change is `- MISSING_REFERENCE skills/intelligence-collection-disciplines/SKILL.md:57 suspected` (prose, not a link).
+- The 25 repositories of `docs/REAL_WORLD_VALIDATION.md` (fresh `--depth 1` clones, 1,798 skills): identical findings before and after. PyYAML rejects 0 of those 1,798 frontmatters and the scanner reports 0 `FRONTMATTER_UNSUPPORTED`, so the two agree.
+- Every positive and negative case in the two new regression tests was also checked against PyYAML: it agrees on all 11.
+- Not re-run this session: the other 8 round-5 repositories (session 9 reported no change there; its clones did not persist).

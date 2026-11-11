@@ -1,6 +1,6 @@
 # Project status and handoff
 
-Snapshot: **2026-11-11** (ninth session: v0.3.3 confirmed released; round-5 contribution research on 10 repositories; two scanner fixes, unreleased). Read this first when continuing in a new session. Keep it current: update it at the end of every session.
+Snapshot: **2026-11-11** (tenth session: #22 merged, #9 closed; the two round-5 scanner fixes re-verified and put in a PR; LambdaTest and deanpeters PRs re-verified, not submitted; v0.3.4 plan written). Read this first when continuing in a new session. Keep it current: update it at the end of every session.
 
 ## Where things stand
 
@@ -12,11 +12,11 @@ Snapshot: **2026-11-11** (ninth session: v0.3.3 confirmed released; round-5 cont
 | v0.3.3 | Released 2026-11-10: tag `v0.3.3` = `main` = 67e456c (pre-release); `release-check` ([run 42898781863](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42898781863)) and tag-push `quality` ([run 42898780384](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42898780384)) green. Published to npm by the maintainer; `npx --yes --prefer-online skillpath-guard@0.3.3 --version` prints 0.3.3. |
 | Consumer-repo Action test | `ClarrieO5/skillpath-guard-consumer-test`: 6 jobs green at `@v0.3.0` ([run 42794375114](https://github.com/ClarrieO5/skillpath-guard-consumer-test/actions/runs/42794375114)). Earlier runs 1-4 were red from test-workflow mistakes (`docs/VALIDATION.md`). Not yet at `@v0.3.1`. Job-summary content not verified by eye. **Not yet re-run at `@v0.3.3`:** the session could not attach that repository (denied), so the maintainer must run it. |
 | npm | `skillpath-guard` versions on the registry: `0.0.0-stage` (origin not recorded), `0.3.2`, `0.3.3`; `latest` = 0.3.3. Published by the maintainer manually (no npm auth in sessions). Right after publishing, installs of 0.3.3 failed with ETARGET for a few minutes (registry delay); `--prefer-online` fixed the local cache. Steps: `docs/RELEASE.md`. |
-| Tests | 99 pass on the session branch (97 at v0.3.3); `npm run verify` passes (Node 22 locally; CI covers 20/22/24). |
+| Tests | 99 pass on `claude/blissful-lovelace-5z8gfa` (97 at v0.3.3); `npm run verify` passes (Node 22 locally; CI covers 20/22/24). |
 | Real usage | 0 repositories use the Action (last searched 2026-11-10; not re-searched 2026-11-11). No external users. |
 | Upstream PRs | **Merged 1:** [github/awesome-copilot#6339](https://github.com/github/awesome-copilot/pull/6339) (2026-11-11). Open 1: shanraisshan/claude-code-best-practice#283 (duplicate of #142). Prepared, not submitted: see below. |
-| Internal PRs | #9 (old draft, superseded) still open. #22 (docs: v0.3.3 release record) open, `quality` green; the session-9 branch `claude/nifty-thompson-2khhic` contains #22's commits plus the work below. |
-| Unreleased scanner changes | On `claude/nifty-thompson-2khhic`: invalid-YAML check for unquoted `: ` (false negative found in LambdaTest) and `[LABEL]: prose` no longer a link definition (false positive found in deanpeters). 2 regression tests; corpus diff on 35 repos / 2,193 files changes exactly those 2 findings. Candidate for v0.3.4 (the new error can turn a green repo red). |
+| Internal PRs | #22 merged 2026-11-11 (b60c3ba = `main`). #9 closed (changes already on `main`). Session 10: scanner-fix PR from `claude/blissful-lovelace-5z8gfa` (open, not merged). `claude/nifty-thompson-2khhic` (session 9) is fully contained in it and can be deleted after merge. |
+| Unreleased scanner changes | In the session-10 PR (not on `main`): invalid-YAML check for unquoted `: ` (false negative found in LambdaTest) and `[LABEL]: prose` no longer a link definition (false positive found in deanpeters). 2 regression tests. Re-verified on fresh clones: exactly 1 finding changes in each source repo, 0 changes across the 25 repos of `docs/REAL_WORLD_VALIDATION.md` (`docs/VALIDATION.md`). Release plan: `docs/RELEASE_PLAN_v0.3.4.md` (no version bump yet). |
 
 ## v0.2.2: done
 
@@ -24,12 +24,14 @@ Released 2026-11-10; run links recorded in session 5. "Stable" (not a pre-releas
 
 ## Waiting on you (nothing below has been done)
 
-0. **Session 9 (2026-11-11), round 5:** approve or reject each, in order (details and evidence in `docs/CONTRIBUTION_LEDGER.md`, "Round 5"):
+0. **Session 10 (2026-11-11):** (1) review and merge the scanner-fix PR; (2) say whether to prepare the v0.3.4 release PR (`docs/RELEASE_PLAN_v0.3.4.md`); (3) approve or reject a and b below, which were re-verified this session (upstream unchanged, no duplicates, patches apply). c and d were not rechecked this session.
+
+   **Session 9 (2026-11-11), round 5:** approve or reject each, in order (details and evidence in `docs/CONTRIBUTION_LEDGER.md`, "Round 5"):
    a. PR to LambdaTest/agent-skills: `docs/patches/lambdatest-kanecli-frontmatter-yaml.patch` + `docs/drafts/lambdatest-kanecli-frontmatter-yaml-PR.md`.
    b. PR to deanpeters/Product-Manager-Skills: `docs/patches/deanpeters-pm-skills-stakeholder-mapping-links.patch` + `docs/drafts/deanpeters-pm-skills-stakeholder-mapping-links-PR.md`.
    c. Issue (or a comment on #80) at Orchestra-Research/AI-Research-SKILLs: `docs/drafts/orchestra-ai-research-skills-dead-references-ISSUE.md`.
    d. Issue at LambdaTest/agent-skills (after a): `docs/drafts/lambdatest-api-skill-missing-references-ISSUE.md`.
-   e. Merge #22, then review the session-9 branch PR (scanner fixes); decide whether to cut v0.3.4.
+   e. ~~Merge #22~~ (done); scanner fixes: see session 10 above.
    To submit a or b: fork, `git am <patch>`, `git commit --amend --reset-author --no-edit`, push, open the PR with the draft text. Their own validators were not run (permission system), so let their CI run.
 
 1. ~~v0.3.2 / v0.3.3 releases~~: done (both on npm and GitHub). Optional: edit the `v0.3.1` release body to say it is superseded (text in `RELEASE_NOTES_v0.3.1.md`); re-run the consumer repo at `@v0.3.3`. Separate decisions: Marketplace (`docs/MARKETPLACE.md`), outreach (`docs/FIRST_USERS_PLAN.md`).
@@ -37,7 +39,7 @@ Released 2026-11-10; run links recorded in session 5. "Stable" (not a pre-releas
 3. **wshobson/agents** (PR; upstream unchanged at 9c61ab2, no duplicate). The description, in their template, is in `docs/drafts/wshobson-agents-ml-pipeline-workflow-PR.md`. Their `make validate STRICT=1 / garden / test` were **not** run: the permission system blocked them. Either run them locally, or submit with those boxes unticked and let their CI run them.
 4. **tech-leads-club/agent-skills** (issue, not PR: the repo is issue-first): `docs/drafts/tech-leads-club-routing-names-ISSUE.md`.
 5. **PR #283:** close it (with or without the drafted comment) or leave it open. Unchanged.
-6. Optional: close internal PR #9; verify the Action from a throwaway repo (`docs/LAUNCH.md`).
+6. ~~Close internal PR #9~~ (done). Optional: verify the Action from a throwaway repo (`docs/LAUNCH.md`).
 7. ~~awesome-copilot #6339~~: merged 2026-11-11.
 
 Withdrawn on 2026-11-10 (do not submit): microsoft/skills (already reported in #422/#464, fix PR #448 open), anthropics/skills `claude-api` (3 issues and 6 PRs already open), nature-skills (deliberate, allowlisted alias).

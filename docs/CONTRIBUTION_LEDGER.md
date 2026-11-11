@@ -59,7 +59,9 @@ Fresh `git clone --depth 1` (unshallowed where history mattered), SkillPath Guar
 
 Not defects or not worth a contribution: hashicorp/agent-skills (2 MISSING_REFERENCE: script shown inline as an example), openclaw/agent-skills (4: repo-root scripts that exist), LambdaTest 12 `NAME_INVALID` in `api-skill/` (names predate the folder-normalisation PR #4 and are registered in `skills_index.json`; intent unclear, renaming changes install ids), Orchestra 48 `NAME_INVALID` (documented gerund-name convention), deanpeters 11 repo-root-relative links (targets exist; cosmetic), deanpeters/Orchestra/LambdaTest PATH_ESCAPE to existing siblings. Clean: Jeffallan/claude-skills (078a25c), TheQtCompanyRnD/agent-skills (062f7c9), janestreet/agent_skills (7c6715c), oxylabs/agent-skills (026d180). `skills-ref` "Unexpected fields" (all of LambdaTest, deanpeters, aws, Qt) is policy noise; its Orchestra "Invalid YAML" (98) is strictyaml rejecting flow sequences `tags: [a, b]`, which standard YAML accepts, so it's a skills-ref false positive.
 
-SkillPath Guard bugs found this round (fixed on the session branch, see CHANGELOG "Unreleased"): missed invalid YAML (unquoted `: `), and a false positive on `[LABEL]: prose` read as a link definition.
+SkillPath Guard bugs found this round (see CHANGELOG "Unreleased"; fixes in the session-10 scanner-fix PR): missed invalid YAML (unquoted `: `), and a false positive on `[LABEL]: prose` read as a link definition.
+
+**Re-verified 2026-11-11 (session 10), ranks 1 and 2 only:** upstream HEADs unchanged (LambdaTest 375e466, deanpeters cfcb697); no new PRs or issues in either repo (LambdaTest 18 PRs / 3 issues, deanpeters 13 PRs, all read by title; none about kanecli, YAML or stakeholder-map); both patches pass `git apply --check` and `git am`; before/after results reproduced (details in the two drafts). No CLA, PR template or DCO in either repo. Their scripts were again not run (permission system); `validate_skills.py`, `check-dist-freshness.py` and `check-library-drift.py` were read instead. Still NOT submitted.
 
 ## Round 4 (2026-11-10): 14 more active repositories
 
