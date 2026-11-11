@@ -7,7 +7,7 @@ import {spawnSync} from 'node:child_process';
 const cli=path.resolve('src/cli.mjs');
 const run=(...args)=>spawnSync(process.execPath,[cli,...args],{encoding:'utf8'});
 for(const args of [ ['bad'],['scan'],['scan','examples/valid','--format','xml'],['scan','examples/valid','--out','--strict'],['scan','examples/valid','--fail-on-new'],['scan','examples/valid','--wat'],['scan','missing-directory'] ])test(`invalid command ${args.join(' ')}`,()=>assert.equal(run(...args).status,2));
-test('version',()=>{const r=run('--version');assert.equal(r.status,0);assert.match(r.stdout,/0\.2\.0/);});
+test('version',()=>{const r=run('--version');assert.equal(r.status,0);assert.match(r.stdout,/0\.3\.3/);});
 test('help',()=>assert.equal(run('--help').status,0));
 test('valid fixture',()=>assert.equal(run('scan','examples/valid').status,0));
 test('broken fixture',()=>assert.equal(run('scan','examples/broken').status,1));
@@ -23,9 +23,19 @@ test('strict only changes warning exit policy',t=>{
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'guard-strict-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
  const skill=path.join(dir,'demo');fs.mkdirSync(path.join(skill,'references'),{recursive:true});
  fs.writeFileSync(path.join(skill,'SKILL.md'),'---\nname: demo\ndescription: Test\n---\nRead `references/guide.md`.');fs.writeFileSync(path.join(skill,'references','guide.md'),'ok');
- assert.equal(run('scan',dir).status,0);assert.equal(run('scan',dir,'--strict').status,1);
+ assert.equal(run('scan',dir,'--cwd-hints').status,0);assert.equal(run('scan',dir,'--cwd-hints','--strict').status,1);
+ // AMBIGUOUS_CWD is opt-in: the spec-recommended relative link passes --strict by default.
+ assert.equal(run('scan',dir,'--strict').status,0);
 });
 test('CLI exclusions repeat and validate',()=>{
  const r=run('scan','examples','--exclude','broken','--exclude','unused','--format','json');assert.equal(r.status,0);assert.equal(JSON.parse(r.stdout).summary.skills,1);assert.deepEqual(JSON.parse(r.stdout).exclusions,['broken','unused']);
  assert.equal(run('scan','examples','--exclude','../outside').status,2);assert.equal(run('scan','examples','--exclude').status,2);
+});
+test('--markdown-summary appends a report; --allow-shared and --cwd-hints are accepted',t=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'guard-summary-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
+ const summary=path.join(dir,'summary.md');fs.writeFileSync(summary,'previous step\n');
+ const r=run('scan','examples/broken','--cwd-hints','--allow-shared','--markdown-summary',summary);
+ assert.equal(r.status,1);const md=fs.readFileSync(summary,'utf8');
+ assert.match(md,/^previous step\n# SkillPath Guard report/);assert.match(md,/MISSING_REFERENCE/);assert.match(md,/AMBIGUOUS_CWD/);
+ assert.equal(run('scan','examples/broken','--markdown-summary').status,2);
 });

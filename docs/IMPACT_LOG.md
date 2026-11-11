@@ -2,21 +2,21 @@
 
 Repository: https://github.com/ClarrieO5/skillpath-guard
 
-Release: https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.1.0
+Latest release: https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.3.0 (prepared, not yet published). Previous: `v0.2.2` (pre-release, 2026-11-10), `v0.2.1`, `V0.2.0`, `v0.1.0`.
 
-As of 9 November 2026:
+As of 10 November 2026:
 
 - Confirmed independent users: **0**
 - Confirmed external adopting projects: **0**
-- Confirmed newly reproduced upstream defects: **0**
-- Upstream PRs submitted from this work: **1** (shanraisshan/claude-code-best-practice#283, open, unreviewed as of 2026-11-09)
-- Accepted/merged upstream PRs from this work: **0**
+- Confirmed upstream defects found by this work, verified by hand and not already reported: **4** (github/awesome-copilot, submitted as #6339; wshobson/agents; firebase/agent-skills; tech-leads-club/agent-skills routing names, found 2026-11-10 round 4). (The microsoft/skills links were real but had already been reported by others in #422 and #464; corrected 2026-11-10.)
+- Accepted upstream PRs from this work: **0**. Open: 2, github/awesome-copilot#6339 (submitted 2026-11-10; no human review yet, bot checks pass) and shanraisshan/claude-code-best-practice#283 (a duplicate of #142). Prepared, not submitted: wshobson (PR), firebase (PR, needs CLA), tech-leads-club (issue). See `docs/CONTRIBUTION_LEDGER.md`.
 - External contributors demonstrated by this work: **0**
 - Registry downloads: **not measured; package not published to a registry**
-- Public-source evaluation: ten skills inspected; this is research, **not adoption**.
-- Local automated tests: 74 passing (2026-11-09); this is implementation evidence, **not independent review**.
+- Public-source evaluation: 23 repositories (round 1), 38 more (round 2) and a 20-repository re-scan (round 3, 2026-11-10); this is research, **not adoption**.
+- Workflow adoption found by GitHub code search: **0** repositories (2026-11-10).
+- Local automated tests: 80 passing; this is implementation evidence, **not independent review**.
 
-Substantial Codex assistance was used for implementation, tests, research and documentation. No human review, third-party endorsement, or external contribution is implied by automated commits or test runs.
+Substantial AI assistance (Codex, then Claude Code) was used for implementation, tests, research and documentation. No human review, third-party endorsement, or external contribution is implied by automated commits or test runs.
 
 ## Claude for Open Source
 

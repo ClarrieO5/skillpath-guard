@@ -1,0 +1,36 @@
+# Runs the exact line a consumer writes, against the published tag.
+# Update the tag below as part of each release (see docs/RELEASE.md).
+name: release-check
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  action-at-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Release tag matches package.json and the tag pinned below
+        if: github.event_name == 'release'
+        run: |
+          v="v$(node -p "require('./package.json').version")"
+          test "$v" = "${{ github.event.release.tag_name }}" || { echo "::error::package.json says $v but the release tag is ${{ github.event.release.tag_name }}"; exit 1; }
+          grep -q "skillpath-guard@$v" .github/workflows/release-check.yml
+      - name: Released action passes a valid skill
+        uses: ClarrieO5/skillpath-guard@v0.3.3
+        with:
+          path: examples/valid
+      - name: Released action fails a broken skill
+        id: broken
+        continue-on-error: true
+        uses: ClarrieO5/skillpath-guard@v0.3.3
+        with:
+          path: examples/broken
+      - name: Require the broken-skill run to fail
+        run: test "${{ steps.broken.outcome }}" = "failure"
+      - name: Released CLI reports the release version
+        run: |
+          git clone --depth 1 --branch v0.3.3 https://github.com/ClarrieO5/skillpath-guard.git "$RUNNER_TEMP/spg"
+          test "$(node "$RUNNER_TEMP/spg/src/cli.mjs" --version)" = "0.3.3"

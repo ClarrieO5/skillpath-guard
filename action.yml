@@ -1,5 +1,8 @@
 name: SkillPath Guard
 description: Offline static checks for Agent Skills resource paths and portability.
+branding:
+  icon: link
+  color: blue
 inputs:
   path:
     description: Directory containing SKILL.md files.
@@ -10,6 +13,18 @@ inputs:
   strict:
     description: Treat warnings as failures ("true" or "false").
     default: 'false'
+  exclude:
+    description: Paths to skip, relative to `path`, one per line (for example mirrored or vendored skill trees).
+    default: ''
+  allow-shared:
+    description: Report links that leave a skill folder but exist in the repository as SHARED_REFERENCE warnings instead of PATH_ESCAPE errors ("true" or "false"). Use when the repository is installed as one bundle.
+    default: 'false'
+  cwd-hints:
+    description: Also report AMBIGUOUS_CWD hints ("true" or "false").
+    default: 'false'
+  summary:
+    description: Write a Markdown report to the job summary ("true" or "false").
+    default: 'true'
 runs:
   using: composite
   steps:
@@ -18,8 +33,28 @@ runs:
         SPG_PATH: ${{ inputs.path }}
         SPG_BASELINE: ${{ inputs.baseline }}
         SPG_STRICT: ${{ inputs.strict }}
+        SPG_EXCLUDE: ${{ inputs.exclude }}
+        SPG_ALLOW_SHARED: ${{ inputs.allow-shared }}
+        SPG_CWD_HINTS: ${{ inputs.cwd-hints }}
+        SPG_SUMMARY: ${{ inputs.summary }}
       run: |
+        # Boolean inputs are case-insensitive ("true", "True"); any other non-empty value other than "false" is an error rather than silently ignored.
+        flag() {
+          local v; v="$(printf '%s' "$2" | tr '[:upper:]' '[:lower:]')"
+          case "$v" in
+            true) return 0 ;;
+            false|'') return 1 ;;
+            *) echo "::error title=SkillPath Guard::Input '$1' must be 'true' or 'false', got '$2'." >&2; exit 2 ;;
+          esac
+        }
         args=(scan "$SPG_PATH" --github-annotations)
         if [ -n "$SPG_BASELINE" ]; then args+=(--baseline "$SPG_BASELINE" --fail-on-new); fi
-        if [ "$SPG_STRICT" = "true" ]; then args+=(--strict); fi
+        if flag strict "$SPG_STRICT"; then args+=(--strict); fi
+        if flag allow-shared "$SPG_ALLOW_SHARED"; then args+=(--allow-shared); fi
+        if flag cwd-hints "$SPG_CWD_HINTS"; then args+=(--cwd-hints); fi
+        if flag summary "$SPG_SUMMARY" && [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then args+=(--markdown-summary "$GITHUB_STEP_SUMMARY"); fi
+        while IFS= read -r p; do
+          p="${p#"${p%%[![:space:]]*}"}"; p="${p%"${p##*[![:space:]]}"}"
+          if [ -n "$p" ]; then args+=(--exclude "$p"); fi
+        done <<< "$SPG_EXCLUDE"
         node "${{ github.action_path }}/src/cli.mjs" "${args[@]}"

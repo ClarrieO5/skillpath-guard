@@ -15,6 +15,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
+      - name: Tag matches package version (tag pushes only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: test "v$(node -p "require('./package.json').version")" = "${{ github.ref_name }}"
       - run: npm run verify
       - run: npm pack --dry-run
       - run: node src/cli.mjs scan examples/valid --github-annotations
@@ -22,3 +26,19 @@ jobs:
         uses: ./
         with:
           path: examples/valid
+      - name: Composite action fails on a broken skill
+        id: broken
+        continue-on-error: true
+        uses: ./
+        with:
+          path: examples/broken
+      - name: Composite action honours exclude and allow-shared inputs
+        uses: ./
+        with:
+          path: examples
+          allow-shared: 'true'
+          exclude: |
+            broken
+      - name: Require the broken-skill run to fail
+        shell: bash
+        run: test "${{ steps.broken.outcome }}" = "failure"

@@ -1,17 +1,29 @@
 {
   "name": "skillpath-guard",
-  "version": "0.2.0",
-  "private": true,
+  "version": "0.3.3",
   "type": "module",
-  "description": "Offline portability and resource-reference checks for Agent Skills",
+  "description": "Offline checks for broken, case-mismatched and non-portable file references in Agent Skills (SKILL.md)",
+  "keywords": [
+    "agent-skills",
+    "skill-md",
+    "claude-skills",
+    "lint",
+    "link-checker",
+    "github-action"
+  ],
+  "homepage": "https://github.com/ClarrieO5/skillpath-guard#readme",
+  "bugs": {
+    "url": "https://github.com/ClarrieO5/skillpath-guard/issues"
+  },
   "bin": {
-    "skillpath-guard": "./src/cli.mjs"
+    "skillpath-guard": "src/cli.mjs"
   },
   "scripts": {
     "test": "node --test",
     "scan:valid": "node src/cli.mjs scan examples/valid",
     "scan:broken": "node src/cli.mjs scan examples/broken",
-    "verify": "node scripts/verify.mjs"
+    "verify": "node scripts/verify.mjs",
+    "prepublishOnly": "npm run verify"
   },
   "engines": {
     "node": ">=20"
@@ -22,10 +34,13 @@
     "README.md",
     "LICENSE",
     "SECURITY.md",
-    "docs/"
+    "docs/CHANGELOG.md"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ClarrieO5/skillpath-guard.git"
+    "url": "git+https://github.com/ClarrieO5/skillpath-guard.git"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

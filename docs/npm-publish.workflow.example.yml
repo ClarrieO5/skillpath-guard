@@ -1,0 +1,31 @@
+# UNTESTED TEMPLATE, not active. To use: copy to .github/workflows/npm-publish.yml in a reviewed PR,
+# create the repository secret NPM_TOKEN (npm granular token, publish rights for skillpath-guard only)
+# and a GitHub environment "npm" with you as required reviewer. Publishing is irreversible; run it
+# only from a release tag whose package.json version matches.
+name: npm-publish
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to publish (for example v0.3.1)
+        required: true
+permissions:
+  contents: read
+  id-token: write   # provenance
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm   # required reviewer = a human approval before the job runs
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - run: test "v$(node -p "require('./package.json').version")" = "${{ inputs.tag }}"
+      - run: npm run verify
+      - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

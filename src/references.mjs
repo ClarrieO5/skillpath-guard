@@ -30,9 +30,12 @@ export function findReferenceTokens(line,{links=true}={}) {
     start.lastIndex=end<0?line.length:end+1;
   }
   // Reference definitions are checked at their definition line, including unused ones.
-  const definition=!links?null:line.match(/^\s{0,3}\[[^\]]+\]:\s*(?:<([^>]+)>|(\S+))/);
+  // `[^1]: text` is a GFM footnote, not a link: its text is prose (paths in it are still found below).
+  const definition=!links?null:line.match(/^\s{0,3}\[(?!\^)[^\]]+\]:\s*(?:<([^>]+)>|(\S+))/);
   if(definition){results.push({value:definition[1]||definition[2],source:'markdown'});occupied.push([0,line.length]);}
   // Exclude complete URLs, dynamic tokens and substrings of longer paths.
+  const codeSpans=[];for(const c of line.matchAll(/(`+)[^`]*?\1/g))codeSpans.push([c.index,c.index+c[0].length]);
+  const inCode=i=>!links||codeSpans.some(([a,b])=>i>=a&&i<b);
   const tokens=/(?:https?:\/\/[^\s`<>]+)|(?:[^\s`<>"'()]*\b(?:references|scripts|assets)\/[^\s`<>"'()]*)/g;
   while((m=tokens.exec(line))) {
     if(occupied.some(([a,b])=>m.index>=a&&m.index<b))continue;
@@ -41,19 +44,18 @@ export function findReferenceTokens(line,{links=true}={}) {
     if(/^(?:\.\/)?(?:references|scripts|assets)\/$/.test(m[0].replace(/[,.;:!?]+$/,'')))continue;
     // Output destinations (`-o assets/x.svg`, `--output x`, `> x`) are created, not read.
     if(/(?:^|\s)(?:-o|-O|--out|--output|--output-file|>>?)\s*=?\s*$/.test(line.slice(0,m.index)))continue;
-    const next=line[m.index+m[0].length], prev=line[m.index-1];
-    // A templated path (`scripts/train_<type>.py`): the token regex stops at `<`, so the remainder is a placeholder.
-    if(next==='<')continue;
-    // Bare prose such as "links to assets/code" names a topic: no extension, no trailing slash, not in a code span.
-    const bare=m[0].replace(/[,.;:!?]+$/,'');
-    if(!/\.[^/.]+$/.test(bare)&&!bare.endsWith('/')&&!(prev==='`'&&next==='`'))continue;
+    // A placeholder cuts the token short (`scripts/train_<variant>.py`, `assets/x_{name}`): the prefix is not a file.
+    if(/^[<{]/.test(line.slice(m.index+m[0].length)))continue;
+    // Outside code, an extensionless pair such as "scripts/CI commands" or "assets/variants" is prose.
+    if(links && !inCode(m.index) && /^[\w-]+$/.test(m[0].replace(/[,.;:!?]+$/,'').split('/').pop()))continue;
     results.push({value:m[0],source:'prose'});
   }
   return results;
 }
 export function sanitizeReference(raw,source='markdown') {
   let value=raw.trim();
-  if(source==='prose')value=value.replace(/[,.;:]+$/,'');
+  // A location suffix names a place in the file, not the file: `x.py:42`, `x.py:3-9`, Docker `./x.sql:/container/path`.
+  if(source==='prose')value=value.replace(/[,.;:]+$/,'').replace(/:(?:\d+(?:[:-]\d+)?|\/.*)$/,'');
   if(!value||value.startsWith('#')||value.startsWith('//'))return null;
   // Windows drive paths are local, all other URI schemes are external.
   if(/^[a-z][a-z0-9+.-]*:/i.test(value)&&! /^[a-z]:[\\/]/i.test(value))return null;

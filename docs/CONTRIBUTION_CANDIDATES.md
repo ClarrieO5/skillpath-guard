@@ -1,4 +1,6 @@
-# Contribution candidates (nothing has been filed or sent)
+# Contribution candidates (round 1, 2026-11-09; historical)
+
+> Superseded by `docs/CONTRIBUTION_LEDGER.md` (current status) and `docs/CONTRIBUTION_RESEARCH_2026-11.md`. One item from this round was submitted (shanraisshan/claude-code-best-practice#283, a duplicate of #142).
 
 Each entry was checked against a shallow clone made 2026-11-09 (commit shown). Reproduce with `node src/cli.mjs scan <clone> --format json` using SkillPath Guard `main` at or after v0.2.0. "Confidence" is my judgement of whether the finding is a real problem for the maintainer, not a measured rate. Please review before anything is filed; maintainers may have intended designs (e.g. repo-wide shared folders).
 

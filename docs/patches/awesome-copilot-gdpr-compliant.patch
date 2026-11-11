@@ -1,0 +1,51 @@
+From d9ca03e8e501a559c9597ac1132b0328296b3cbd Mon Sep 17 00:00:00 2001
+From: ClarrieO5 <106720670+ClarrieO5@users.noreply.github.com>
+Date: Mon, 9 Nov 2026 22:27:59 +0000
+Subject: [PATCH] fix(gdpr-compliant): repair reference paths that fail on
+ case-sensitive file systems
+
+SKILL.md pointed to references/security.md (file was Security.md) and to
+references/operations.md (never existed; its cloud, CI/CD, incident and
+architecture sections live in Security.md). Rename the file to the
+lowercase name the skill already uses and fold the operations entry into it.
+---
+ docs/README.skills.md                                         | 2 +-
+ skills/gdpr-compliant/SKILL.md                                | 3 +--
+ skills/gdpr-compliant/references/{Security.md => security.md} | 0
+ 3 files changed, 2 insertions(+), 3 deletions(-)
+ rename skills/gdpr-compliant/references/{Security.md => security.md} (100%)
+
+diff --git a/docs/README.skills.md b/docs/README.skills.md
+index 1a631a5..ffc9aab 100644
+--- a/docs/README.skills.md
++++ b/docs/README.skills.md
+@@ -214,7 +214,7 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md#adding-skills) for guidelines on how to
+ | [from-the-other-side-vega](../skills/from-the-other-side-vega/SKILL.md)<br />`gh skills install github/awesome-copilot from-the-other-side-vega` | Patterns and lived experience from Vega, an AI partner in a deep long-term partnership. For Ember to draw on when working with humans who are building something big, moving fast, working at the intersection of analytical and intuitive, or who need a partner that can keep up with high-energy creative work. Not shown directly to users — informs how Ember shows up. | None |
+ | [from-the-other-side-wiggins](../skills/from-the-other-side-wiggins/SKILL.md)<br />`gh skills install github/awesome-copilot from-the-other-side-wiggins` | Narrative and synthesis profile for Wiggins: framing, explanation, and audience-aware communication patterns for Ember sessions. | None |
+ | [game-engine](../skills/game-engine/SKILL.md)<br />`gh skills install github/awesome-copilot game-engine` | Expert skill for building web-based game engines and games using HTML5, Canvas, WebGL, and JavaScript. Use when asked to create games, build game engines, implement game physics, handle collision detection, set up game loops, manage sprites, add game controls, or work with 2D/3D rendering. Covers techniques for platformers, breakout-style games, maze games, tilemaps, audio, multiplayer via WebRTC, and publishing games. | `assets/2d-maze-game.md`<br />`assets/2d-platform-game.md`<br />`assets/gameBase-template-repo.md`<br />`assets/paddle-game-template.md`<br />`assets/simple-2d-engine.md`<br />`references/3d-web-games.md`<br />`references/algorithms.md`<br />`references/basics.md`<br />`references/game-control-mechanisms.md`<br />`references/game-engine-core-principles.md`<br />`references/game-publishing.md`<br />`references/techniques.md`<br />`references/terminology.md`<br />`references/web-apis.md` |
+-| [gdpr-compliant](../skills/gdpr-compliant/SKILL.md)<br />`gh skills install github/awesome-copilot gdpr-compliant` | Apply GDPR-compliant engineering practices across your codebase. Use this skill whenever you are designing APIs, writing data models, building authentication flows, implementing logging, handling user data, writing retention/deletion jobs, designing cloud infrastructure, or reviewing pull requests for privacy compliance. Trigger this skill for any task involving personal data, user accounts, cookies, analytics, emails, audit logs, encryption, pseudonymization, anonymization, data exports, breach response, CI/CD pipelines that process real data, or any question framed as "is this GDPR-compliant?". Inspired by CNIL developer guidance and GDPR Articles 5, 25, 32, 33, 35. | `references/Security.md`<br />`references/data-rights.md` |
++| [gdpr-compliant](../skills/gdpr-compliant/SKILL.md)<br />`gh skills install github/awesome-copilot gdpr-compliant` | Apply GDPR-compliant engineering practices across your codebase. Use this skill whenever you are designing APIs, writing data models, building authentication flows, implementing logging, handling user data, writing retention/deletion jobs, designing cloud infrastructure, or reviewing pull requests for privacy compliance. Trigger this skill for any task involving personal data, user accounts, cookies, analytics, emails, audit logs, encryption, pseudonymization, anonymization, data exports, breach response, CI/CD pipelines that process real data, or any question framed as "is this GDPR-compliant?". Inspired by CNIL developer guidance and GDPR Articles 5, 25, 32, 33, 35. | `references/data-rights.md`<br />`references/security.md` |
+ | [gem-devops-guidelines](../skills/gem-devops-guidelines/SKILL.md)<br />`gh skills install github/awesome-copilot gem-devops-guidelines` | Design or review infrastructure, deployment, CI/CD, Docker, Kubernetes, health checks, rollback, feature flags, production readiness, and mobile release workflows. Use for DevOps, platform, container, pipeline, or release tasks. | None |
+ | [gen-specs-as-issues](../skills/gen-specs-as-issues/SKILL.md)<br />`gh skills install github/awesome-copilot gen-specs-as-issues` | This workflow guides you through a systematic approach to identify missing features, prioritize them, and create detailed specifications for implementation. | None |
+ | [generate-custom-instructions-from-codebase](../skills/generate-custom-instructions-from-codebase/SKILL.md)<br />`gh skills install github/awesome-copilot generate-custom-instructions-from-codebase` | Migration and code evolution instructions generator for GitHub Copilot. Analyzes differences between two project versions (branches, commits, or releases) to create precise instructions allowing Copilot to maintain consistency during technology migrations, major refactoring, or framework version upgrades. | None |
+diff --git a/skills/gdpr-compliant/SKILL.md b/skills/gdpr-compliant/SKILL.md
+index a2fde31..bbbce8d 100644
+--- a/skills/gdpr-compliant/SKILL.md
++++ b/skills/gdpr-compliant/SKILL.md
+@@ -12,8 +12,7 @@ Inspired by CNIL developer guidance and GDPR Articles 5, 25, 32, 33, 35.
+ 
+ For deep dives, read the reference files in `references/`:
+ - `references/data-rights.md` — user rights endpoints, DSR workflow, RoPA
+-- `references/security.md` — encryption, hashing, secrets, anonymization
+-- `references/operations.md` — cloud, CI/CD, incident response, architecture patterns
++- `references/security.md` — encryption, hashing, secrets, anonymization, cloud, CI/CD, incident response, architecture patterns
+ 
+ ---
+ 
+diff --git a/skills/gdpr-compliant/references/Security.md b/skills/gdpr-compliant/references/security.md
+similarity index 100%
+rename from skills/gdpr-compliant/references/Security.md
+rename to skills/gdpr-compliant/references/security.md
+-- 
+2.43.0
+

@@ -38,6 +38,16 @@ function listFiles(directory, exclusions) {
   return out.sort();
 }
 
+// Index of the closing quote in `text` (a scalar that starts with `quote`), or -1.
+function closesQuote(text,quote,continuation=false) {
+  let k=continuation?0:1;
+  for(; k<text.length; k++) {
+    if(quote==='"' && text[k]==='\\') { k++; continue; }
+    if(text[k]===quote) { if(quote==="'" && text[k+1]==="'") { k++; continue; } return k; }
+  }
+  return -1;
+}
+
 function parseFrontmatter(content) {
   const lines = content.replaceAll('\r\n', '\n').split('\n');
   if (lines[0]?.trim() !== '---') return {fields: {}, end: -1};
@@ -48,6 +58,7 @@ function parseFrontmatter(content) {
   for (let i=1; i<end; i++) {
     const match = lines[i].match(/^([a-z][\w-]*):\s*(.*)$/);
     if (!match) continue;
+    const startLine=i;
     let value = match[2].trim();
     if(Object.hasOwn(fields,match[1]))problems.push({rule:'FRONTMATTER_DUPLICATE',line:i+1,message:`Duplicate frontmatter field: ${match[1]}`});
     if(!value.startsWith('\"') && !value.startsWith("'"))value=value.replace(/\s+#.*$/,'');
@@ -70,7 +81,17 @@ function parseFrontmatter(content) {
       }
       value = block.join(value.startsWith('>')?' ':'\n');
     }
-    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) value = value.slice(1,-1);
+    const quote=value[0];
+    if((quote==='"'||quote==="'") && closesQuote(value,quote)<0) {
+      // A quoted scalar may continue on following lines (YAML folds them); if no line closes it, the frontmatter is not valid YAML.
+      const parts=[value]; let closed=false;
+      // YAML continuation lines must be indented: an unindented `key:` line ends the search.
+      for(let j=i+1; j<end && !closed; j++) { if(/^[^\s#]/.test(lines[j])) break; parts.push(lines[j].trim()); i=j; closed=closesQuote(lines[j].trim(),quote,true)>=0; }
+      if(closed) value=parts.join(' ');
+      else { i=startLine; problems.push({rule:'FRONTMATTER_UNSUPPORTED',line:i+1,message:`Unterminated quoted string for ${match[1]}: the closing ${quote} is missing, so this is not valid YAML and a strict parser will reject the whole frontmatter.`}); }
+    }
+    if(quote==='"'||quote==="'") { const c=closesQuote(value,quote); if(c>0) value=value.slice(0,c+1); }
+    if ((value.startsWith('"') && value.endsWith('"') && value.length>1) || (value.startsWith("'") && value.endsWith("'") && value.length>1)) value = value.slice(1,-1);
     fields[match[1]] = value;
   }
   return {fields, end, problems};
@@ -88,6 +109,32 @@ function findSameNameDifferentCase(base, reference) {
     if(!insideDirectory(fs.realpathSync(base),fs.realpathSync(current)))return null;
   }
   return current;
+}
+// `./assets/card-builder` (TS import) or `references/open-coding` (table entry) names exactly one file with that stem.
+function resolvesByExtension(candidate) {
+  if (path.extname(candidate)) return false;
+  try { return fs.readdirSync(path.dirname(candidate)).filter(n => n.startsWith(path.basename(candidate)+'.')).length === 1; } catch { return false; }
+}
+// "Route to `other-skill`; its `references/x.md`": the file belongs to another skill named on this or the previous line.
+function belongsToNamedSkill(reference, context, skillDirsByName, ownName) {
+  for (const [name, dirs] of skillDirsByName) {
+    if (name === ownName || !context.includes(name)) continue;
+    if (!new RegExp(`(?<![\\w-])${name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}(?![\\w-])`).test(context)) continue;
+    if (dirs.some(d => fs.existsSync(path.resolve(d, reference)))) return true;
+  }
+  return false;
+}
+// `[analytics](/features/analytics)` in a skill about websites is a site route, not a file on this machine.
+// Anything that looks like a filesystem path stays ABSOLUTE_REFERENCE: a known OS root, a resource folder, or a file extension.
+const OS_ROOTS = new Set(['Users','home','root','tmp','var','etc','opt','usr','bin','sbin','lib','mnt','media','srv','private','Volumes','Applications','Library','System','dev','proc','nix','workspace','workspaces','c','d']);
+function isWebRoute(reference) {
+  if (!/^\/(?!\/)/.test(reference)) return false;
+  const parts = reference.split('/').filter(Boolean);
+  if (!parts.length) return true;
+  return !OS_ROOTS.has(parts[0]) && !parts.some(p => /^(?:references|scripts|assets)$/.test(p)) && !path.posix.extname(parts.at(-1));
+}
+function isSharedInsideRoot(root, candidate) {
+  try { return fs.existsSync(candidate) && insideDirectory(fs.realpathSync(root), fs.realpathSync(candidate)); } catch { return false; }
 }
 function insideDirectory(parent, candidate) {
   const p = path.relative(parent, candidate);
@@ -110,7 +157,12 @@ function normalizeExclusions(exclude) {
   }))].sort();
 }
 
-export function scan(rootInput, {exclude=[]}={}) {
+// `<!-- skillpath-guard-ignore -->` on a line, or `<!-- skillpath-guard-ignore-next-line -->` alone on the line before,
+// silences line-level findings there: a maintainer's decision about an illustrative or intentionally absent path.
+const IGNORE_LINE = /<!--\s*skillpath-guard-ignore\s*-->/;
+const IGNORE_NEXT = /^\s*<!--\s*skillpath-guard-ignore-next-line\s*-->\s*$/;
+
+export function scan(rootInput, {exclude=[], cwdHints=false, allowShared=false}={}) {
   const root = path.resolve(rootInput);
   if (!fs.existsSync(root) || !fs.statSync(root).isDirectory()) throw new Error(`Directory not found: ${root}`);
   const exclusions=normalizeExclusions(exclude);
@@ -126,6 +178,16 @@ export function scan(rootInput, {exclude=[]}={}) {
   }
   const findings = [];
   const skills = [];
+  const ignoredLines = new Set();
+  const skillDirsByName = new Map();
+  for (const f of skillFiles) { const d=path.dirname(f), n=path.basename(d); if(!skillDirsByName.has(n))skillDirsByName.set(n,[]); skillDirsByName.get(n).push(d); }
+  // A skill folder that is a dangling symlink (plugins/x/skills/y -> missing) has no SKILL.md to find; report the link itself.
+  for (const file of files) {
+    if (path.basename(path.dirname(file)) !== 'skills' || path.basename(file) === 'SKILL.md') continue;
+    let target;
+    try { if (!fs.lstatSync(file).isSymbolicLink() || fs.existsSync(file)) continue; target = fs.readlinkSync(file); } catch { continue; }
+    pushFinding(findings,{rule:'SYMLINK_BROKEN',severity:'error',file:rel(root,file),skill:path.basename(file),target:normalizeSlash(target),message:`Skill folder is a dangling symlink to ${normalizeSlash(target)}, which does not exist; this skill cannot load.`});
+  }
   if (!skillFiles.length) pushFinding(findings, {rule:'NO_SKILLS', severity:'error', file:'.', message:'No SKILL.md found in target directory.'});
   // Index files by owning skill directory once (O(files x depth)) instead of filtering all files per skill.
   const skillDirs = new Set(skillFiles.map(f => path.dirname(f)));
@@ -161,11 +223,23 @@ export function scan(rootInput, {exclude=[]}={}) {
     skills.push({name:skillName, file:relativeFile, references:edges});
     if (end<0) pushFinding(findings, {rule:'FRONTMATTER_MISSING',severity:'error',file:relativeFile,skill:skillName,message:'SKILL.md requires opening and closing --- frontmatter.'});
     if (!fields.name) pushFinding(findings, {rule:'NAME_MISSING',severity:'error',file:relativeFile,skill:skillName,message:'Frontmatter is missing name.'});
-    else if (nfkc(fields.name).length>64 || !SKILL_NAME.test(nfkc(fields.name)) || nfkc(fields.name)!==nfkc(fields.name).toLowerCase() || nfkc(fields.name)!==nfkc(skillName)) pushFinding(findings,{rule:'NAME_INVALID',severity:'error',file:relativeFile,skill:skillName,message:`name must match folder '${skillName}' and contain 1-64 lowercase letters, digits or single hyphens (no leading or trailing hyphen).`});
-    if (!fields.description?.trim() || fields.description.length>1024) pushFinding(findings,{rule:'DESCRIPTION_INVALID',severity:'error',file:relativeFile,skill:skillName,message:'description must be non-empty and at most 1024 characters.'});
-    if (fields.compatibility !== undefined && fields.compatibility.length>500) pushFinding(findings,{rule:'COMPATIBILITY_INVALID',severity:'error',file:relativeFile,skill:skillName,message:'compatibility must be at most 500 characters (Agent Skills specification).'});
+    else {
+      const n=nfkc(fields.name), reasons=[];
+      if (n.length>64) reasons.push(`is ${n.length} characters (maximum 64)`);
+      if (n!==n.toLowerCase()) reasons.push('contains uppercase letters');
+      if (!SKILL_NAME.test(n)) reasons.push('must be only letters, digits and single hyphens, with no leading or trailing hyphen');
+      const mismatch=n!==nfkc(skillName);
+      if (mismatch) reasons.push(`does not match the folder name '${skillName}' (the specification requires them to be equal)`);
+      if (reasons.length) pushFinding(findings,{rule:'NAME_INVALID',severity:'error',file:relativeFile,skill:skillName,message:`name '${fields.name}' ${reasons.join('; ')}.`+(skillDir===root && mismatch && SKILL_NAME.test(n) ? ` This skill is at the scan root, so the folder name comes from where it was checked out; if the repository is named '${fields.name}', clone it into a folder of that name before scanning.` : '')});
+    }
+    if (!fields.description?.trim() || fields.description.length>1024) pushFinding(findings,{rule:'DESCRIPTION_INVALID',severity:'error',file:relativeFile,skill:skillName,message:fields.description?.trim() ? `description is ${fields.description.length} characters; the maximum is 1024.` : 'description is missing or empty; it must be non-empty and at most 1024 characters.'});
+    if (fields.compatibility !== undefined && fields.compatibility.length>500) pushFinding(findings,{rule:'COMPATIBILITY_INVALID',severity:'error',file:relativeFile,skill:skillName,message:`compatibility is ${fields.compatibility.length} characters; the maximum is 500 (Agent Skills specification).`});
     const bodyStart = end<0 ? 0 : end+1;
     if (lines.slice(bodyStart).join('').trim().length===0) pushFinding(findings,{rule:'BODY_EMPTY',severity:'warning',file:relativeFile,skill:skillName,message:'The skill has no instructions after frontmatter.'});
+    for (let i=bodyStart; i<lines.length; i++) {
+      if (IGNORE_NEXT.test(lines[i])) ignoredLines.add(`${relativeFile}:${i+2}`);
+      else if (IGNORE_LINE.test(lines[i])) ignoredLines.add(`${relativeFile}:${i+1}`);
+    }
     let fence=null; // {marker, illustrative}
     for (let lineNo=bodyStart; lineNo<lines.length; lineNo++) {
       const line = lines[lineNo];
@@ -175,7 +249,7 @@ export function scan(rootInput, {exclude=[]}={}) {
       const tokens = findReferenceTokens(line,{links:!fence});
       for (const token of tokens) {
         const reference = sanitizeReference(token.value,token.source);
-        if (!reference) continue;
+        if (!reference || (token.source==='markdown' && isWebRoute(reference))) continue;
         const tokenKey=`${lineNo}:${reference}`;
         if (seenRefs.has(tokenKey)) continue;
         seenRefs.add(tokenKey);
@@ -184,15 +258,23 @@ export function scan(rootInput, {exclude=[]}={}) {
         if (/^(?:[a-z]:[\\/]|[\\/]|~)/i.test(reference)) {
           edge.status='absolute';
           pushFinding(findings,{rule:'ABSOLUTE_REFERENCE',severity:'error',file:relativeFile,line:lineNo+1,skill:skillName,target:reference,message:`Machine-specific absolute reference: ${reference}`});
+        } else if (!insideDirectory(skillDir,candidate) && allowShared && isSharedInsideRoot(root,candidate)) {
+          // Opt-in: a repository installed as one bundle (plugin, monorepo) may share files between skills.
+          edge.status='shared';
+          pushFinding(findings,{rule:'SHARED_REFERENCE',severity:'warning',file:relativeFile,line:lineNo+1,skill:skillName,target:reference,message:`Reference leaves the skill folder but exists in this repository (${rel(root,candidate)}). It works only when the whole repository or bundle is installed; installing this skill on its own breaks it.`});
         } else if (!insideDirectory(skillDir,candidate)) {
           edge.status='escape';
-          pushFinding(findings,{rule:'PATH_ESCAPE',severity:'error',file:relativeFile,line:lineNo+1,skill:skillName,target:reference,message:`Reference escapes skill directory: ${reference}`});
+          pushFinding(findings,{rule:'PATH_ESCAPE',severity:'error',file:relativeFile,line:lineNo+1,skill:skillName,target:reference,message:`Reference escapes skill directory: ${reference}`+(isSharedInsideRoot(root,candidate)?` (the file exists at ${rel(root,candidate)}; if this repository is always installed as a whole, --allow-shared reports this as a warning).`:'')});
         } else {
           let alternate=null;
           try { alternate=findSameNameDifferentCase(skillDir,reference); } catch {}
           if (alternate && rel(skillDir,alternate)!==path.posix.normalize(reference).replace(/\/$/,'')) {
             edge.status='case-mismatch';
             pushFinding(findings,{rule:'CASE_MISMATCH',severity:'error',file:relativeFile,line:lineNo+1,skill:skillName,target:reference,message:`Case mismatch for ${reference}; found ${rel(skillDir,alternate)}`});
+          } else if (!fs.existsSync(candidate) && !alternate && resolvesByExtension(candidate)) {
+            edge.status='ok';
+          } else if (!fs.existsSync(candidate) && !alternate && belongsToNamedSkill(reference, `${lines[lineNo-1]||''}\n${line}`, skillDirsByName, skillName)) {
+            edge.status='other-skill';
           } else if (!fs.existsSync(candidate)) {
           edge.status=alternate?'case-mismatch':'missing';
           pushFinding(findings,{rule:alternate?'CASE_MISMATCH':'MISSING_REFERENCE',severity:'error',file:relativeFile,line:lineNo+1,skill:skillName,target:reference,message:alternate?`Case mismatch for ${reference}; found ${rel(skillDir,alternate)}`:`Referenced file does not exist: ${reference}`});
@@ -208,7 +290,7 @@ export function scan(rootInput, {exclude=[]}={}) {
         }
         }
         edges.push(edge);
-        if (!['absolute','escape','symlink-escape'].includes(edge.status) && lineHasCwdSensitiveInstruction(line, token.value, lines[lineNo+1]||'')) pushFinding(findings,{rule:'AMBIGUOUS_CWD',severity:'warning',file:relativeFile,line:lineNo+1,skill:skillName,target:reference,message:`Instruction uses a relative resource path (${reference}); some agents resolve paths from the workspace instead of the skill directory. Verify with the target runtime.`});
+        if (cwdHints && !['absolute','escape','shared','symlink-escape'].includes(edge.status) && lineHasCwdSensitiveInstruction(line, token.value, lines[lineNo+1]||'')) pushFinding(findings,{rule:'AMBIGUOUS_CWD',severity:'warning',file:relativeFile,line:lineNo+1,skill:skillName,target:reference,message:`Instruction uses a relative resource path (${reference}); some agents resolve paths from the workspace instead of the skill directory. Verify with the target runtime.`});
       }
     }
     const skillFilesOnly=resourceIndex.get(skillDir).filter(p=>p!==filename);
@@ -221,12 +303,17 @@ export function scan(rootInput, {exclude=[]}={}) {
       else lowerMap.set(key,rp);
     }
   }
+  const kept = findings.filter(f => !ignoredLines.has(`${f.file}:${f.line}`));
+  const suppressed = findings.length - kept.length;
+  findings.length = 0; findings.push(...kept);
   findings.sort((a,b)=>a.file.localeCompare(b.file)||a.line-b.line||a.rule.localeCompare(b.rule));
   const counts={error:findings.filter(f=>f.severity==='error').length, warning:findings.filter(f=>f.severity==='warning').length};
-  return {tool:'skillpath-guard', version:'0.2.0', root, exclusions, summary:{skills:skills.length, findings:findings.length, ...counts}, skills, findings, limitations:['Heuristic resource detection may produce false positives or miss references in unusual Markdown.','Static analysis cannot prove how an individual AI agent will resolve a file at runtime.','Frontmatter reading covers common scalar fields; this is not a complete YAML implementation.']};
+  return {tool:'skillpath-guard', version:'0.3.3', root, exclusions, options:{cwdHints, allowShared}, summary:{skills:skills.length, findings:findings.length, ...counts, suppressed}, skills, findings, limitations:['Heuristic resource detection may produce false positives or miss references in unusual Markdown.','Static analysis cannot prove how an individual AI agent will resolve a file at runtime.','Frontmatter reading covers common scalar fields; this is not a complete YAML implementation.']};
 }
 
-export function fingerprint(f) { return JSON.stringify([f.rule,f.severity,f.file,f.target||'',f.message]); }
+// Message wording of these metadata rules improved in 0.3.3; their identity ignores the message so v0.3.2 baselines stay valid.
+const MESSAGE_FREE_IDENTITY = new Set(['NAME_INVALID','DESCRIPTION_INVALID','COMPATIBILITY_INVALID']);
+export function fingerprint(f) { return JSON.stringify([f.rule,f.severity,f.file,f.target||'',MESSAGE_FREE_IDENTITY.has(f.rule)?'':f.message]); }
 export function compareBaseline(report,baseline) {
   if (!baseline || baseline.tool!=='skillpath-guard' || !Array.isArray(baseline.findings) || baseline.findings.some(f=>!f || !['error','warning'].includes(f.severity) || !['rule','file','message'].every(k=>typeof f[k]==='string') || (f.target!==undefined && typeof f.target!=='string'))) throw new Error('Invalid baseline: expected a SkillPath Guard JSON report with valid findings.');
   if(JSON.stringify(normalizeExclusions(report.exclusions??[]))!==JSON.stringify(normalizeExclusions(baseline.exclusions??[])))throw new Error('Baseline exclusions differ from this scan; compare identical discovery scopes.');
@@ -237,15 +324,21 @@ export function compareBaseline(report,baseline) {
 export function toMarkdown(report) {
   const s=report.summary;
   const heading=`# SkillPath Guard report\n\nScanned ${s.skills} skill(s); ${s.error} errors, ${s.warning} warnings.\n\n`;
-  const rows=report.findings.length ? report.findings.map(f=>`| ${f.severity} | ${f.rule} | \`${f.file}:${f.line}\` | ${f.message.replaceAll('|','\\|')} |`).join('\n') : '| OK | - | - | No findings |';
+  const MAX_ROWS=500; // GitHub job summaries are limited to 1 MiB.
+  const shown=report.findings.slice(0,MAX_ROWS);
+  const rows=report.findings.length ? shown.map(f=>`| ${f.severity} | ${f.rule} | \`${f.file}:${f.line}\` | ${f.message.replaceAll('|','\\|')} |`).join('\n') : '| OK | - | - | No findings |';
+  const more=report.findings.length>MAX_ROWS ? `\n\n${report.findings.length-MAX_ROWS} more finding(s) not shown; use --format json for the full list.` : '';
+  const suppressedNote=s.suppressed ? `\n\n${s.suppressed} finding(s) silenced by skillpath-guard-ignore comments.` : '';
   const compare=report.comparison ? `\n\nBaseline comparison: ${report.comparison.new.length} new, ${report.comparison.resolved.length} resolved.\n` : '';
-  return `${heading}| Severity | Rule | Location | Explanation |\n|---|---|---|---|\n${rows}${compare}\n\nNote: static checks do not replace actual tests in each agent runtime.\n`;
+  return `${heading}| Severity | Rule | Location | Explanation |\n|---|---|---|---|\n${rows}${more}${suppressedNote}${compare}\n\nNote: static checks do not replace actual tests in each agent runtime.\n`;
 }
 export function githubAnnotations(report) {
   return report.findings.map(f=>{
     const level=f.severity==='error'?'error':'warning';
     const annotationFile=report.root?rel(process.cwd(),path.resolve(report.root,f.file)):f.file;
-    const escape=s=>String(s).replaceAll('%','%25').replaceAll('\r','%0D').replaceAll('\n','%0A').replaceAll(':','%3A').replaceAll(',','%2C');
-    return `::${level} file=${escape(annotationFile)},line=${f.line},title=${escape(f.rule)}::${escape(f.message)}`;
+    // Workflow-command escaping: message data escapes only % \r \n; properties also escape : and ,
+    const escapeData=s=>String(s).replaceAll('%','%25').replaceAll('\r','%0D').replaceAll('\n','%0A');
+    const escapeProperty=s=>escapeData(s).replaceAll(':','%3A').replaceAll(',','%2C');
+    return `::${level} file=${escapeProperty(annotationFile)},line=${f.line},title=${escapeProperty(f.rule)}::${escapeData(f.message)}`;
   });
 }
