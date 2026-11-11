@@ -31,7 +31,8 @@ export function findReferenceTokens(line,{links=true}={}) {
   }
   // Reference definitions are checked at their definition line, including unused ones.
   // `[^1]: text` is a GFM footnote, not a link: its text is prose (paths in it are still found below).
-  const definition=!links?null:line.match(/^\s{0,3}\[(?!\^)[^\]]+\]:\s*(?:<([^>]+)>|(\S+))/);
+  // CommonMark: after the destination only an optional title ("…", '…' or (…)) may follow, so `[TARGET]: some prose` is not a definition.
+  const definition=!links?null:line.match(/^\s{0,3}\[(?!\^)[^\]]+\]:\s*(?:<([^>]+)>|(\S+))(?:\s*$|\s+["'(])/);
   if(definition){results.push({value:definition[1]||definition[2],source:'markdown'});occupied.push([0,line.length]);}
   // Exclude complete URLs, dynamic tokens and substrings of longer paths.
   const codeSpans=[];for(const c of line.matchAll(/(`+)[^`]*?\1/g))codeSpans.push([c.index,c.index+c[0].length]);

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Frontmatter: an unquoted single-line value that contains `: ` (colon + space) or ends with `:` is reported as `FRONTMATTER_UNSUPPORTED` (invalid YAML; PyYAML, js-yaml and yaml reject the whole frontmatter). Found in LambdaTest/agent-skills `kanecli-skill`. A repository with such a value will newly fail. Corpus check (session 9): 2,193 SKILL.md files in 35 repositories; the rule fires on exactly the 1 file PyYAML rejects, 0 elsewhere. Rechecked in session 10 on fresh clones of the 25 repositories in `docs/REAL_WORLD_VALIDATION.md` (1,798 skills): 0 findings change, and PyYAML rejects 0 of those frontmatters.
+- References: `[LABEL]: some prose` is no longer read as a link reference definition (CommonMark allows only an optional title after the destination). Removes 1 false `MISSING_REFERENCE` in deanpeters/Product-Manager-Skills; no other corpus change.
+
 ## 0.3.3 — experimental (prepared 2026-11-10; tag `v0.3.3` after approval, see RELEASE_NOTES_v0.3.3.md)
 
 - Frontmatter: an unterminated quoted value (`description: "oops`) is now reported as `FRONTMATTER_UNSUPPORTED`; multi-line quoted values are read instead of truncated.

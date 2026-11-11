@@ -1,0 +1,30 @@
+From 04fcc04014fd832e01cedc614ad8393bc1c11c82 Mon Sep 17 00:00:00 2001
+From: ClarrieO5 <ClarrieO5@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 09:04:52 +0000
+Subject: [PATCH] kanecli-skill: make the frontmatter valid YAML
+
+The plain-scalar description contains "target): locally". A colon followed by
+a space starts a mapping, so YAML parsers reject the whole frontmatter
+(PyYAML: "mapping values are not allowed here"; js-yaml and yaml also fail).
+Move the same text into a folded block scalar; the parsed description is
+unchanged.
+---
+ kanecli-skill/SKILL.md | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/kanecli-skill/SKILL.md b/kanecli-skill/SKILL.md
+index 02f351a..f3792a9 100644
+--- a/kanecli-skill/SKILL.md
++++ b/kanecli-skill/SKILL.md
+@@ -1,6 +1,7 @@
+ ---
+ name: kanecli-skill
+-description: Browser automation + AI test authoring via kane-cli - run browser objectives, generate & refine test scenarios/cases from a description, design requirement-linked test suites from a PRD/spec (assurance), parse NDJSON output, inspect logs, save runnable _test.md. Use for any task requiring a real browser (navigate, click, fill forms, test web UI, take screenshots), or to author test cases, quick cases from a description via kane-cli generate; a designed, coverage-accounted suite from requirement documents via the assurance commands. Never write test cases by hand. Also runs mobile app tests - native Android app on a virtual emulator or iOS app on a simulator via --target emulator|simulator (desktop browser stays the default target): locally on macOS Apple Silicon, or on the LambdaTest cloud grid from any machine via kane-cli testrun run --remote. Also shares the assurance store (.context/) with a team through a location (a GitHub repository, an S3-compatible bucket, or a folder) via kane-cli context sync, and resolves the decisions a sync rebase asks.
++description: >-
++  Browser automation + AI test authoring via kane-cli - run browser objectives, generate & refine test scenarios/cases from a description, design requirement-linked test suites from a PRD/spec (assurance), parse NDJSON output, inspect logs, save runnable _test.md. Use for any task requiring a real browser (navigate, click, fill forms, test web UI, take screenshots), or to author test cases, quick cases from a description via kane-cli generate; a designed, coverage-accounted suite from requirement documents via the assurance commands. Never write test cases by hand. Also runs mobile app tests - native Android app on a virtual emulator or iOS app on a simulator via --target emulator|simulator (desktop browser stays the default target): locally on macOS Apple Silicon, or on the LambdaTest cloud grid from any machine via kane-cli testrun run --remote. Also shares the assurance store (.context/) with a team through a location (a GitHub repository, an S3-compatible bucket, or a folder) via kane-cli context sync, and resolves the decisions a sync rebase asks.
+ ---
+ 
+ # Kane CLI — Browser Automation Skill
+-- 
+2.43.0
+
