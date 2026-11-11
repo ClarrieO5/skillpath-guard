@@ -2,16 +2,16 @@
 
 Every external issue or pull request made from this work, with its real status. Nothing is counted until a maintainer merges it.
 
-Last verified: **2026-11-10**, fourth session. Method: GitHub search API (`author:ClarrieO5 -user:ClarrieO5`, PRs and issues separately), `git ls-remote` of the PR refs and of your forks, and fresh shallow clones of each upstream.
+Last verified: **2026-11-11**, ninth session (search `author:ClarrieO5 -user:ClarrieO5`, `is:pull-request` and `is:issue`). Method: GitHub search API (`author:ClarrieO5 -user:ClarrieO5`, PRs and issues separately), `git ls-remote` of the PR refs and of your forks, and fresh shallow clones of each upstream.
 
 ## Submitted
 
 | Date | Repository | Item | Status (2026-11-10) | Outcome |
 |---|---|---|---|---|
-| 2026-11-10 | github/awesome-copilot | [PR #6339](https://github.com/github/awesome-copilot/pull/6339) "fix(gdpr-compliant): repair reference paths that fail on case-sensitive file systems" (branch `fix-gdpr-compliant-reference-paths`; commits a854019 + merge of `main` 468d152) | Open, label `ready-for-review`, 0/1 required approvals. Only bot activity: risk scan clean, vally lint 0 errors, all submission-gate checks passed, two Copilot reviews "Approval recommended". No human review, no change request. | Waiting for a maintainer. Do not touch unless changes are requested. |
+| 2026-11-10 | github/awesome-copilot | [PR #6339](https://github.com/github/awesome-copilot/pull/6339) "fix(gdpr-compliant): repair reference paths that fail on case-sensitive file systems" (branch `fix-gdpr-compliant-reference-paths`; commits a854019 + merge of `main` 468d152) | **Merged 2026-11-11 03:58 UTC** (search API `merged_at`). | First merged external contribution. |
 | 2026-11-09 | shanraisshan/claude-code-best-practice | PR #283 "Remove dead links to references/ and templates/ in agent-browser skill" (head `dc84579`, branch `fix-agent-browser-broken-links` in your fork) | Open, not merged, 0 comments | Fully overlapped by older open #142 (see below). Left open; nothing posted. |
 
-Totals: merged external PRs **0**; open **2** (#6339, #283); issues filed **0**. Search finds no other PR or issue by ClarrieO5 outside this repository.
+Totals (2026-11-11): merged external PRs **1** (github/awesome-copilot#6339); open **1** (#283); issues filed **0**. Search finds no other PR or issue by ClarrieO5 outside this repository.
 
 ## PR #283 vs PR #142 (re-verified 2026-11-10)
 
@@ -44,6 +44,22 @@ Re-checked 2026-11-10 against fresh clones; full evidence is in `docs/CONTRIBUTI
 | ~~4~~ | microsoft/skills | — | **Withdrawn: duplicate.** Both rows in `docs/patches/microsoft-skills-dead-reference-links.patch` are already reported: `references/policies.md` in issue #422, with open fix PR #448 (which supersedes the closed #430), and `scripts/setup_cosmos_container.py` in open issue #464. Round 2 said "no duplicates"; that was wrong. Do not submit. The patch file is kept only as a record. |
 | ~~5~~ | anthropics/skills | — | **Withdrawn: duplicate.** The `claude-api` description length is already reported in open issues #1613, #881 and #1622 and in open PRs #1616, #1635, #1684, #1956, #2050 and #2060. |
 | ~~6~~ | Yuan1z0825/nature-skills | — | **Withdrawn: not a defect.** `name: researchwrite` in folder `nature-proposal-writer` is a deliberate alias: the repository's own `scripts/validate-skill-metadata.py` allowlists it (`COMPATIBILITY_SKILL_NAMES`). |
+
+## Round 5 (2026-11-11): 10 more repositories, prepared, NOT submitted
+
+Fresh `git clone --depth 1` (unshallowed where history mattered), SkillPath Guard 0.3.3, `skills-ref` 0.1.1, and PyYAML 6 / js-yaml 4.1.0 / yaml 2.6.1 as YAML oracles. Every error read by hand; two large repos triaged by subagents and their genuine findings re-checked by hand.
+
+| Rank | Repository (commit) | Finding | Severity / confidence | Route | Status |
+|---|---|---|---|---|---|
+| 1 | LambdaTest/agent-skills (375e466) | `kanecli-skill/SKILL.md` frontmatter is invalid YAML (unquoted `): ` in description); PyYAML, js-yaml, yaml and skills-ref all reject it | High / high | PR | **Ready.** Patch `docs/patches/lambdatest-kanecli-frontmatter-yaml.patch`, draft `docs/drafts/lambdatest-kanecli-frontmatter-yaml-PR.md`. Parsed text unchanged. `validate_skills.py` not run (blocked). |
+| 2 | deanpeters/Product-Manager-Skills (cfcb697) | 3 EOL skills link to `../stakeholder-map/SKILL.md`, which never existed; intended `stakeholder-mapping` | Medium / high | PR | **Ready.** Patch `docs/patches/deanpeters-pm-skills-stakeholder-mapping-links.patch`, draft `docs/drafts/deanpeters-pm-skills-stakeholder-mapping-links-PR.md`. Their scripts not run (blocked). Acceptance: 5 of 13 PRs merged; #17 and #21 (small fixes) closed unmerged, reason unread. |
+| 3 | Orchestra-Research/AI-Research-SKILLs (773a529) | 17 "See references/..." pointers to files not in 7 skills (beyond verl, already #80/#81) | Medium / high | Issue (or comment on #80) | **Ready.** `docs/drafts/orchestra-ai-research-skills-dead-references-ISSUE.md`. Repo has merged nothing since 2026-06-16. |
+| 4 | LambdaTest/agent-skills (375e466) | `api-designer` (2) and `popular-api-fetcher` (1) say "Read references/X.md"; files never existed | Medium / high | Issue | **Ready.** `docs/drafts/lambdatest-api-skill-missing-references-ISSUE.md`. Send after #1, not together. |
+| 5 | itsmostafa/aws-agent-skills (3ee171a) | `skills/ec2/SKILL.md` description 1,381 chars (max 1,024) | Low / high | Issue at most | Not drafted: single maintainer, no outside PR merged recently, fix is rewording. |
+
+Not defects or not worth a contribution: hashicorp/agent-skills (2 MISSING_REFERENCE: script shown inline as an example), openclaw/agent-skills (4: repo-root scripts that exist), LambdaTest 12 `NAME_INVALID` in `api-skill/` (names predate the folder-normalisation PR #4 and are registered in `skills_index.json`; intent unclear, renaming changes install ids), Orchestra 48 `NAME_INVALID` (documented gerund-name convention), deanpeters 11 repo-root-relative links (targets exist; cosmetic), deanpeters/Orchestra/LambdaTest PATH_ESCAPE to existing siblings. Clean: Jeffallan/claude-skills (078a25c), TheQtCompanyRnD/agent-skills (062f7c9), janestreet/agent_skills (7c6715c), oxylabs/agent-skills (026d180). `skills-ref` "Unexpected fields" (all of LambdaTest, deanpeters, aws, Qt) is policy noise; its Orchestra "Invalid YAML" (98) is strictyaml rejecting flow sequences `tags: [a, b]`, which standard YAML accepts, so it's a skills-ref false positive.
+
+SkillPath Guard bugs found this round (fixed on the session branch, see CHANGELOG "Unreleased"): missed invalid YAML (unquoted `: `), and a false positive on `[LABEL]: prose` read as a link definition.
 
 ## Round 4 (2026-11-10): 14 more active repositories
 
