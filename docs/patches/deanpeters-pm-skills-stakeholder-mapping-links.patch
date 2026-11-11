@@ -1,0 +1,55 @@
+From 490692f4e3cabeb30a07ef403501b914f4c36380 Mon Sep 17 00:00:00 2001
+From: ClarrieO5 <ClarrieO5@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 09:04:22 +0000
+Subject: [PATCH] Fix links to renamed stakeholder-mapping skill in EOL skills
+
+The three EOL skills link to ../stakeholder-map/SKILL.md, which has never
+existed; the skill is stakeholder-mapping (Power x Interest grids).
+---
+ skills/eol-process/SKILL.md              | 2 +-
+ skills/eol-readiness-advisor/SKILL.md    | 2 +-
+ skills/eol-stakeholder-sequence/SKILL.md | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/skills/eol-process/SKILL.md b/skills/eol-process/SKILL.md
+index 2fcf4a1..206c1a0 100644
+--- a/skills/eol-process/SKILL.md
++++ b/skills/eol-process/SKILL.md
+@@ -462,7 +462,7 @@ saying "Level 2" and pasting what you have.
+ - [`eol-message`](../eol-message/SKILL.md) — Phase 5
+ - [`workshop-facilitation`](../workshop-facilitation/SKILL.md) — interaction protocol throughout
+ - [`positioning-statement`](../positioning-statement/SKILL.md) — for the Phase 5 transition solution
+-- [`stakeholder-map`](../stakeholder-map/SKILL.md) — general mapping, if Phase 2 needs breadth first
++- [`stakeholder-mapping`](../stakeholder-mapping/SKILL.md) — general mapping, if Phase 2 needs breadth first
+ 
+ ### External Frameworks
+ - Product Life Cycle (PLC) — EOL lives in the decline stage
+diff --git a/skills/eol-readiness-advisor/SKILL.md b/skills/eol-readiness-advisor/SKILL.md
+index bae433d..a6d27c6 100644
+--- a/skills/eol-readiness-advisor/SKILL.md
++++ b/skills/eol-readiness-advisor/SKILL.md
+@@ -448,7 +448,7 @@ simply saying "Level 2" when you start; there's no handoff format to preserve.
+ - [`eol-message`](../eol-message/SKILL.md) — the customer-facing announcement
+ - [`incoming-request-advisor`](../incoming-request-advisor/SKILL.md) — when the EOL request arrived
+   as a message you need to decode first
+-- [`stakeholder-map`](../stakeholder-map/SKILL.md) — general stakeholder mapping
++- [`stakeholder-mapping`](../stakeholder-mapping/SKILL.md) — general stakeholder mapping
+ - [`business-health-diagnostic`](../business-health-diagnostic/SKILL.md) — when the trigger is
+   financial and you want the numbers examined properly
+ - [`workshop-facilitation`](../workshop-facilitation/SKILL.md) — the interaction protocol
+diff --git a/skills/eol-stakeholder-sequence/SKILL.md b/skills/eol-stakeholder-sequence/SKILL.md
+index 36841de..3a785b9 100644
+--- a/skills/eol-stakeholder-sequence/SKILL.md
++++ b/skills/eol-stakeholder-sequence/SKILL.md
+@@ -276,7 +276,7 @@ to it.
+   after these conversations
+ - [`eol-readiness-advisor`](../eol-readiness-advisor/SKILL.md) — if the decision still needs a case
+ - [`eol-message`](../eol-message/SKILL.md) — the customer-facing announcement
+-- [`stakeholder-map`](../stakeholder-map/SKILL.md) — general power/interest mapping for non-EOL work
++- [`stakeholder-mapping`](../stakeholder-mapping/SKILL.md) — general power/interest mapping for non-EOL work
+ 
+ ### External Frameworks
+ - Mendelow's Matrix — power/interest prioritization, useful for choosing depth per stop
+-- 
+2.43.0
+

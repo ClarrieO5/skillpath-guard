@@ -1,21 +1,22 @@
 # Project status and handoff
 
-Snapshot: **2026-11-10** (eighth session: real-world validation, comparison, Marketplace and README work on top of the published v0.3.2; PR open, nothing merged or released). Read this first when continuing in a new session. Keep it current: update it at the end of every session.
+Snapshot: **2026-11-11** (ninth session: v0.3.3 confirmed released; round-5 contribution research on 10 repositories; two scanner fixes, unreleased). Read this first when continuing in a new session. Keep it current: update it at the end of every session.
 
 ## Where things stand
 
 | Item | State |
 |---|---|
-| Latest release | [v0.3.0](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.3.0) is the last correct release. [v0.3.1](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.3.1) is a published pre-release **created in error** (tag at 4053f81, package version 0.3.0); preserved, not to be used. Not on npm. |
+| Latest release | **v0.3.3** (pre-release, GitHub and npm `latest`). Older: [v0.3.1](https://github.com/ClarrieO5/skillpath-guard/releases/tag/v0.3.1) is a published pre-release **created in error** (tag at 4053f81, package version 0.3.0); preserved, not to be used. |
 | Adoption audit | Merged as PR #15 (a44b885); hosted `quality` green ([run 42789258700](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42789258700)). Report: `docs/ADOPTION_AUDIT_2026-11.md`. |
 | v0.3.2 | Published (tag `v0.3.2`, npm `skillpath-guard@0.3.2`, verified installable from a clean directory on 2026-11-10). |
 | v0.3.3 | Released 2026-11-10: tag `v0.3.3` = `main` = 67e456c (pre-release); `release-check` ([run 42898781863](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42898781863)) and tag-push `quality` ([run 42898780384](https://github.com/ClarrieO5/skillpath-guard/actions/runs/42898780384)) green. Published to npm by the maintainer; `npx --yes --prefer-online skillpath-guard@0.3.3 --version` prints 0.3.3. |
 | Consumer-repo Action test | `ClarrieO5/skillpath-guard-consumer-test`: 6 jobs green at `@v0.3.0` ([run 42794375114](https://github.com/ClarrieO5/skillpath-guard-consumer-test/actions/runs/42794375114)). Earlier runs 1-4 were red from test-workflow mistakes (`docs/VALIDATION.md`). Not yet at `@v0.3.1`. Job-summary content not verified by eye. **Not yet re-run at `@v0.3.3`:** the session could not attach that repository (denied), so the maintainer must run it. |
 | npm | `skillpath-guard` versions on the registry: `0.0.0-stage` (origin not recorded), `0.3.2`, `0.3.3`; `latest` = 0.3.3. Published by the maintainer manually (no npm auth in sessions). Right after publishing, installs of 0.3.3 failed with ETARGET for a few minutes (registry delay); `--prefer-online` fixed the local cache. Steps: `docs/RELEASE.md`. |
-| Tests | 90 pass; `npm run verify` passes (Node 22 locally; CI covers 20/22/24). |
-| Real usage | 0 repositories use the Action (last searched 2026-11-10). No external users. |
-| Upstream PRs | Merged 0. Open 2: [github/awesome-copilot#6339](https://github.com/github/awesome-copilot/pull/6339) (awaiting a maintainer; bot checks and two Copilot reviews positive, no change requests) and shanraisshan/claude-code-best-practice#283 (duplicate of #142). |
-| Internal PRs | #9 (old draft, superseded) still open. |
+| Tests | 99 pass on the session branch (97 at v0.3.3); `npm run verify` passes (Node 22 locally; CI covers 20/22/24). |
+| Real usage | 0 repositories use the Action (last searched 2026-11-10; not re-searched 2026-11-11). No external users. |
+| Upstream PRs | **Merged 1:** [github/awesome-copilot#6339](https://github.com/github/awesome-copilot/pull/6339) (2026-11-11). Open 1: shanraisshan/claude-code-best-practice#283 (duplicate of #142). Prepared, not submitted: see below. |
+| Internal PRs | #9 (old draft, superseded) still open. #22 (docs: v0.3.3 release record) open, `quality` green; the session-9 branch `claude/nifty-thompson-2khhic` contains #22's commits plus the work below. |
+| Unreleased scanner changes | On `claude/nifty-thompson-2khhic`: invalid-YAML check for unquoted `: ` (false negative found in LambdaTest) and `[LABEL]: prose` no longer a link definition (false positive found in deanpeters). 2 regression tests; corpus diff on 35 repos / 2,193 files changes exactly those 2 findings. Candidate for v0.3.4 (the new error can turn a green repo red). |
 
 ## v0.2.2: done
 
@@ -23,13 +24,21 @@ Released 2026-11-10; run links recorded in session 5. "Stable" (not a pre-releas
 
 ## Waiting on you (nothing below has been done)
 
-1. **v0.3.2 release PR:** review, check CI, merge when ready to publish; then release `v0.3.2` targeting `main` (pre-release), and `npm publish` from the tag (`docs/RELEASE.md`). Optionally edit the `v0.3.1` release body to say it is superseded (text in `RELEASE_NOTES_v0.3.1.md`). Separate decisions: Marketplace (`docs/MARKETPLACE.md`), outreach (`docs/FIRST_USERS_PLAN.md`).
+0. **Session 9 (2026-11-11), round 5:** approve or reject each, in order (details and evidence in `docs/CONTRIBUTION_LEDGER.md`, "Round 5"):
+   a. PR to LambdaTest/agent-skills: `docs/patches/lambdatest-kanecli-frontmatter-yaml.patch` + `docs/drafts/lambdatest-kanecli-frontmatter-yaml-PR.md`.
+   b. PR to deanpeters/Product-Manager-Skills: `docs/patches/deanpeters-pm-skills-stakeholder-mapping-links.patch` + `docs/drafts/deanpeters-pm-skills-stakeholder-mapping-links-PR.md`.
+   c. Issue (or a comment on #80) at Orchestra-Research/AI-Research-SKILLs: `docs/drafts/orchestra-ai-research-skills-dead-references-ISSUE.md`.
+   d. Issue at LambdaTest/agent-skills (after a): `docs/drafts/lambdatest-api-skill-missing-references-ISSUE.md`.
+   e. Merge #22, then review the session-9 branch PR (scanner fixes); decide whether to cut v0.3.4.
+   To submit a or b: fork, `git am <patch>`, `git commit --amend --reset-author --no-edit`, push, open the PR with the draft text. Their own validators were not run (permission system), so let their CI run.
+
+1. ~~v0.3.2 / v0.3.3 releases~~: done (both on npm and GitHub). Optional: edit the `v0.3.1` release body to say it is superseded (text in `RELEASE_NOTES_v0.3.1.md`); re-run the consumer repo at `@v0.3.3`. Separate decisions: Marketplace (`docs/MARKETPLACE.md`), outreach (`docs/FIRST_USERS_PLAN.md`).
 2. **firebase/agent-skills** (PR; re-verified 2026-11-10: upstream unchanged at 99954a3, no duplicate, `skills-ref` fails before and passes after). Sign the Google CLA first: https://cla.developers.google.com/ . Then fork, `git am docs/patches/firebase-agent-skills-data-connect-name.patch`, `git commit --amend --reset-author --no-edit` (with your CLA email), push, and open a PR to `main` using `docs/drafts/firebase-agent-skills-data-connect-name-PR.md`.
 3. **wshobson/agents** (PR; upstream unchanged at 9c61ab2, no duplicate). The description, in their template, is in `docs/drafts/wshobson-agents-ml-pipeline-workflow-PR.md`. Their `make validate STRICT=1 / garden / test` were **not** run: the permission system blocked them. Either run them locally, or submit with those boxes unticked and let their CI run them.
 4. **tech-leads-club/agent-skills** (issue, not PR: the repo is issue-first): `docs/drafts/tech-leads-club-routing-names-ISSUE.md`.
 5. **PR #283:** close it (with or without the drafted comment) or leave it open. Unchanged.
 6. Optional: close internal PR #9; verify the Action from a throwaway repo (`docs/LAUNCH.md`).
-7. **awesome-copilot #6339:** nothing to do unless a maintainer asks for changes.
+7. ~~awesome-copilot #6339~~: merged 2026-11-11.
 
 Withdrawn on 2026-11-10 (do not submit): microsoft/skills (already reported in #422/#464, fix PR #448 open), anthropics/skills `claude-api` (3 issues and 6 PRs already open), nature-skills (deliberate, allowlisted alias).
 
